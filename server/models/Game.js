@@ -1,14 +1,15 @@
 module.exports = (sequelize, DataTypes) => {
-  const Comments = sequelize.define("Comments", {
-    commentBody: {
+  const Game = sequelize.define('Game', {
+    name: {
       type: DataTypes.STRING,
       allowNull: false,
     },
-    username: {
-      type: DataTypes.STRING,
+    description: {
+      type: DataTypes.TEXT,
       allowNull: false,
     },
   });
 
-  return Comments;
+
+  return Game;
 };

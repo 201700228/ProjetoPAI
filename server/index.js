@@ -8,14 +8,27 @@ app.use(cors());
 const db = require("./models");
 
 // Routers
-const postRouter = require("./routes/Posts");
-app.use("/posts", postRouter);
-const commentsRouter = require("./routes/Comments");
-app.use("/comments", commentsRouter);
-const usersRouter = require("./routes/Users");
-app.use("/auth", usersRouter);
-const likesRouter = require("./routes/Likes");
-app.use("/likes", likesRouter);
+const scoreRouter = require("./routes/Score");
+const commentRouter = require("./routes/Comment");
+const userRouter = require("./routes/User");
+const leaderboardRouter = require("./routes/Leaderboard");
+const tournamentRouter = require("./routes/Tournament");
+const forumRouter = require("./routes/Forum");
+const topicRouter = require("./routes/Topic");
+const gameRouter = require("./routes/Game");
+const commentTopicRouter = require("./routes/CommentTopic");
+const userTournamentRouter = require("./routes/UserTournament");
+
+app.use("/scores", scoreRouter);
+app.use("/comments", commentRouter);
+app.use("/users", userRouter);
+app.use("/leaderboards", leaderboardRouter);
+app.use("/tournaments", tournamentRouter);
+app.use("/forums", forumRouter);
+app.use("/topics", topicRouter);
+app.use("/games", gameRouter);
+app.use("/comment-topics", commentTopicRouter);
+app.use("/user-tournaments", userTournamentRouter);
 
 db.sequelize.sync().then(() => {
   app.listen(3001, () => {

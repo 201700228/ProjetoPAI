@@ -20,7 +20,7 @@ const Navbar = () => {
         </li>
         <li>
           <Link to="/register" className="link">
-            Register
+            Registar
           </Link>
         </li>
       </ul>

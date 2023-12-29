@@ -4,10 +4,12 @@ const { User } = require("../models");
 const bcrypt = require("bcrypt");
 const { validateToken } = require("../middlewares/AuthMiddleware");
 const { sign } = require("jsonwebtoken");
+const { validationResult } = require("express-validator");
 
 router.post("/", async (req, res) => {
   try {
-    const { username, password, email, firstName, lastName, birthDate } = req.body;
+    const { username, password, email, firstName, lastName, birthDate } =
+      req.body;
 
     const hash = await bcrypt.hash(password, 10);
 
@@ -17,10 +19,9 @@ router.post("/", async (req, res) => {
       email,
       firstName,
       lastName,
-      birthDate
+      birthDate,
     });
 
-    
     res.json(newUser);
   } catch (error) {
     console.error("Erro ao criar o utilizador:", error);
@@ -28,23 +29,28 @@ router.post("/", async (req, res) => {
   }
 });
 
-
 router.post("/login", async (req, res) => {
-  const { username, password } = req.body;
+  try {
+    const { email, password } = req.body;
 
-  const user = await User.findOne({ where: { username: username } });
+    const user = await User.findOne({ where: { email: email } });
 
-  if (!user) res.json({ error: "User Doesn't Exist" });
+    if (!user) res.json({ error: "User Doesn't Exist" });
 
-  bcrypt.compare(password, user.password).then(async (match) => {
-    if (!match) res.json({ error: "Wrong Username And Password Combination" });
+    bcrypt.compare(password, user.password).then(async (match) => {
+      if (!match)
+        res.json({ error: "Wrong Username And Password Combination" });
 
-    const accessToken = sign(
-      { username: user.username, id: user.id },
-      "importantsecret"
-    );
-    res.json({ token: accessToken, username: username, id: user.id });
-  });
+      const accessToken = sign(
+        { username: user.username, id: user.id },
+        "importantsecret"
+      );
+      res.json({ token: accessToken, username: user.username, id: user.id });
+    });
+  } catch (error) {
+    console.error("Erro ao fazer login:", error);
+    res.status(500).json({ error: "Erro ao fazer o login" });
+  }
 });
 
 router.get("/auth", validateToken, (req, res) => {

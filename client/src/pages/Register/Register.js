@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 import { Form, Button, Row, Col } from "react-bootstrap";
 import * as Yup from "yup";
 import { Formik, Field } from "formik";
@@ -6,6 +6,8 @@ import axios from "axios";
 import "./Register.css"; 
 
 function RegistrationForm() {
+  const [isValidForm, setIsValidForm] = useState(true);
+
   const initialValues = {
     username: "",
     password: "",
@@ -32,7 +34,10 @@ function RegistrationForm() {
           axios.post("http://localhost:3001/auth", data)
             .then((response) => {
               console.log(response.data);
-              resetForm(); // Limpa os campos do formulário após o envio bem-sucedido
+              resetForm(); 
+              if (response.status === 200) {
+                setIsValidForm(false); // Altera isValidForm para false se a resposta for 200
+              }
             })
             .catch((error) => {
               console.error("Error:", error);
@@ -97,8 +102,8 @@ function RegistrationForm() {
             <Button
               variant="primary"
               type="submit"
-              className="submit-button" // Aqui deve ser a mesma classe usada no CSS
-              disabled={!isValid}
+              className="submit-button"
+              disabled={!isValid || !isValidForm}
             >
               Registar
             </Button>

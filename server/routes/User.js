@@ -1,25 +1,38 @@
 const express = require("express");
 const router = express.Router();
-const { Users } = require("../models");
+const { User } = require("../models");
 const bcrypt = require("bcrypt");
 const { validateToken } = require("../middlewares/AuthMiddleware");
 const { sign } = require("jsonwebtoken");
 
 router.post("/", async (req, res) => {
-  const { username, password } = req.body;
-  bcrypt.hash(password, 10).then((hash) => {
-    Users.create({
-      username: username,
+  try {
+    const { username, password, email, firstName, lastName, birthDate } = req.body;
+
+    const hash = await bcrypt.hash(password, 10);
+
+    const newUser = await User.create({
+      username,
       password: hash,
+      email,
+      firstName,
+      lastName,
+      birthDate
     });
-    res.json("SUCCESS");
-  });
+
+    
+    res.json(newUser);
+  } catch (error) {
+    console.error("Erro ao criar o utilizador:", error);
+    res.status(500).json({ error: "Erro ao criar o utilizador" });
+  }
 });
+
 
 router.post("/login", async (req, res) => {
   const { username, password } = req.body;
 
-  const user = await Users.findOne({ where: { username: username } });
+  const user = await User.findOne({ where: { username: username } });
 
   if (!user) res.json({ error: "User Doesn't Exist" });
 
@@ -41,7 +54,7 @@ router.get("/auth", validateToken, (req, res) => {
 router.get("/basicinfo/:id", async (req, res) => {
   const id = req.params.id;
 
-  const basicInfo = await Users.findByPk(id, {
+  const basicInfo = await User.findByPk(id, {
     attributes: { exclude: ["password"] },
   });
 
@@ -50,7 +63,7 @@ router.get("/basicinfo/:id", async (req, res) => {
 
 router.put("/changepassword", validateToken, async (req, res) => {
   const { oldPassword, newPassword } = req.body;
-  const user = await Users.findOne({ where: { username: req.user.username } });
+  const user = await User.findOne({ where: { username: req.user.username } });
 
   bcrypt.compare(oldPassword, user.password).then(async (match) => {
     if (!match) res.json({ error: "Wrong Password Entered!" });

@@ -21,7 +21,7 @@ const userTournamentRouter = require("./routes/UserTournament");
 
 app.use("/scores", scoreRouter);
 app.use("/comments", commentRouter);
-app.use("/users", userRouter);
+app.use("/auth", userRouter);
 app.use("/leaderboards", leaderboardRouter);
 app.use("/tournaments", tournamentRouter);
 app.use("/forums", forumRouter);

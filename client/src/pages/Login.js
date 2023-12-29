@@ -1,51 +1,67 @@
-import React, { useState, useContext } from "react";
-import axios from "axios";
-import { useHistory } from "react-router-dom";
-import { AuthContext } from "../helpers/AuthContext";
+import React, { useState } from 'react';
 
-function Login() {
-  const [username, setUsername] = useState("");
-  const [password, setPassword] = useState("");
-  const { setAuthState } = useContext(AuthContext);
+const LoginForm = () => {
+  const [formData, setFormData] = useState({
+    username: '',
+    password: '',
+  });
 
-  let history = useHistory();
-
-  const login = () => {
-    const data = { username: username, password: password };
-    axios.post("http://localhost:3001/auth/login", data).then((response) => {
-      if (response.data.error) {
-        alert(response.data.error);
-      } else {
-        localStorage.setItem("accessToken", response.data.token);
-        setAuthState({
-          username: response.data.username,
-          id: response.data.id,
-          status: true,
-        });
-        history.push("/");
-      }
+  const handleInputChange = (e) => {
+    const { name, value } = e.target;
+    setFormData({
+      ...formData,
+      [name]: value,
     });
   };
+
+  const handleLogin = async (e) => {
+    e.preventDefault();
+
+    try {
+      const response = await fetch('http://localhost:3001/users/login', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(formData),
+      });
+
+      if (response.ok) {
+        const data = await response.json();
+        // Aqui você pode salvar o token de autenticação no estado ou localStorage
+        console.log('Login bem-sucedido:', data);
+      } else {
+        console.error('Erro ao fazer login:', response.statusText);
+        // Trate os erros de acordo com a resposta recebida
+      }
+    } catch (error) {
+      console.error('Erro ao fazer login:', error);
+      // Trate os erros de requisição
+    }
+  };
+
   return (
-    <div className="loginContainer">
-      <label>Username:</label>
+    <form onSubmit={handleLogin}>
+      <h2>Login</h2>
       <input
         type="text"
-        onChange={(event) => {
-          setUsername(event.target.value);
-        }}
+        name="username"
+        placeholder="Username"
+        value={formData.username}
+        onChange={handleInputChange}
+        required
       />
-      <label>Password:</label>
       <input
         type="password"
-        onChange={(event) => {
-          setPassword(event.target.value);
-        }}
+        name="password"
+        placeholder="Password"
+        value={formData.password}
+        onChange={handleInputChange}
+        required
       />
-
-      <button onClick={login}> Login </button>
-    </div>
+      <button type="submit">Login</button>
+    </form>
   );
-}
+};
 
-export default Login;
+export default LoginForm;

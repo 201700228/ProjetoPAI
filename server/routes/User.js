@@ -60,11 +60,20 @@ router.get("/auth", validateToken, (req, res) => {
 router.get("/basicinfo/:id", async (req, res) => {
   const id = req.params.id;
 
-  const basicInfo = await User.findByPk(id, {
-    attributes: { exclude: ["password"] },
-  });
+  try {
+    const basicInfo = await User.findByPk(id, {
+      attributes: { exclude: ["password"] },
+    });
 
-  res.json(basicInfo);
+    if (!basicInfo) {
+      return res.status(404).json({ error: "User not found" });
+    }
+
+    return res.json(basicInfo);
+  } catch (error) {
+    console.error("Error fetching user data:", error);
+    return res.status(500).json({ error: "Error fetching user data" });
+  }
 });
 
 router.put("/changepassword", validateToken, async (req, res) => {
@@ -82,6 +91,26 @@ router.put("/changepassword", validateToken, async (req, res) => {
       res.json("SUCCESS");
     });
   });
+});
+
+router.get("/check-username/:username", async (req, res) => {
+  try {
+    const { username } = req.params;
+
+    const user = await User.findOne({ where: { username: username } });
+
+    const isUsernameAvailable = !user;
+
+    res.json({ available: isUsernameAvailable });
+  } catch (error) {
+    console.error(
+      "Erro ao verificar a disponibilidade do nome do utilizador:",
+      error
+    );
+    res
+      .status(500)
+      .json({ error: "Erro ao verificar a disponibilidade do nome de utilizador" });
+  }
 });
 
 module.exports = router;

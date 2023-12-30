@@ -1,46 +1,67 @@
-import React from "react";
-import { Form, Button, Row, Col } from "react-bootstrap";
-import * as Yup from "yup";
-import { Formik, Field } from "formik";
+import React, { useState, useEffect } from "react";
 import axios from "axios";
-import "./Register.css"; 
+import { Formik, Field } from "formik";
+import * as Yup from "yup";
+import "./Profile.css";
+import { useContext } from "react";
+import { AuthContext } from "../../helpers/AuthContext";
+import { Form, Button, Row, Col } from "react-bootstrap";
 
-function RegistrationForm() {
-  const initialValues = {
+function Profile() {
+  const { authState } = useContext(AuthContext);
+  const [userData, setUserData] = useState({
     username: "",
-    password: "",
     email: "",
     firstName: "",
     lastName: "",
     birthDate: "",
+    profileImage: "",
+  });
+
+  useEffect(() => {
+    if (authState.status) {
+      loadUserData(authState.id);
+    }
+  }, [authState]);
+
+  const loadUserData = (userId) => {
+    axios
+      .get(`http://localhost:3001/auth/basicinfo/${userId}`)
+      .then((response) => {
+        const formattedData = {
+          ...response.data,
+          birthDate: response.data.birthDate.split("T")[0], 
+        };
+        setUserData(formattedData);
+      })
+      .catch((error) => {
+        console.error("Erro ao carregar dados do usuário:", error);
+      });
   };
+
+  const validationSchema = Yup.object().shape({
+    username: Yup.string().min(3).max(100).required(),
+    email: Yup.string().email().required(),
+    firstName: Yup.string().required(),
+    lastName: Yup.string().required(),
+    birthDate: Yup.date().required(),
+  });
 
   return (
     <div className="form-container">
-      <h2>Criar Conta</h2>
+      <h2>Perfil </h2>
       <Formik
-        initialValues={initialValues}
-        validationSchema={Yup.object().shape({
-          username: Yup.string().min(3).max(100).required(),
-          password: Yup.string().min(4).max(20).required(),
-          email: Yup.string().email().required(),
-          firstName: Yup.string().required(),
-          lastName: Yup.string().required(),
-          birthDate: Yup.date().required(),
-        })}
-        onSubmit={(data, { resetForm }) => {
-          axios.post("http://localhost:3001/auth", data)
-            .then((response) => {
-              console.log(response.data);
-              resetForm(); // Limpa os campos do formulário após o envio bem-sucedido
-            })
-            .catch((error) => {
-              console.error("Error:", error);
-            });
+        initialValues={userData}
+        validationSchema={validationSchema}
+        onSubmit={(values, { setSubmitting }) => {
+          // Lógica para atualizar os dados do perfil
+          console.log(values);
+          setSubmitting(false);
         }}
+        enableReinitialize
       >
-        {({ handleSubmit, isValid }) => (
-          <Form noValidate onSubmit={handleSubmit} className="inner-form">
+        {({ isValid }) => (
+          <Form className="inner-form">
             <Form.Group as={Row} controlId="formUsername">
               <Form.Label column sm={12} className="custom-label">
                 Nome de Utilizador
@@ -50,21 +71,12 @@ function RegistrationForm() {
               </Col>
             </Form.Group>
 
-            <Form.Group as={Row} controlId="formPassword">
-              <Form.Label column sm={12} className="custom-label">
-                Palavra-Passe
-              </Form.Label>
-              <Col sm={12}>
-                <Field as={Form.Control} type="password" name="password" />
-              </Col>
-            </Form.Group>
-
             <Form.Group as={Row} controlId="formEmail">
               <Form.Label column sm={12} className="custom-label">
                 Email
               </Form.Label>
               <Col sm={12}>
-                <Field as={Form.Control} type="email" name="email" />
+                <Field as={Form.Control} name="email" />
               </Col>
             </Form.Group>
 
@@ -100,16 +112,13 @@ function RegistrationForm() {
               className="submit-button"
               disabled={!isValid}
             >
-              Registar
+              Atualizar
             </Button>
           </Form>
         )}
       </Formik>
-      <p className="login-link">
-        <span className="info">Já tem conta?</span> <a href="/login">Login</a>
-      </p>
     </div>
   );
 }
 
-export default RegistrationForm;
+export default Profile;

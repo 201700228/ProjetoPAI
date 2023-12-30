@@ -17,28 +17,6 @@ const LoginForm = () => {
   const { setAuthState } = useContext(AuthContext);
   const history = useHistory();
 
-  const login = (values) => {
-    const data = { email: values.email, password: values.password };
-    axios
-      .post("http://localhost:3001/auth/login", data)
-      .then((response) => {
-        if (response.data.error) {
-          alert(response.data.error);
-        } else {
-          localStorage.setItem("accessToken", response.data.token);
-          setAuthState({
-            email: response.data.email,
-            id: response.data.id,
-            status: true,
-          });
-          history.push("/");
-        }
-      })
-      .catch((error) => {
-        console.error("Error:", error);
-      });
-  };
-
   return (
     <div className="form-container">
       <h2>Login</h2>
@@ -95,7 +73,7 @@ const LoginForm = () => {
               className="submit-button"
               disabled={!isValid || !isValidForm}
             >
-              Registar
+              Iniciar Sessão
             </Button>
           </Form>
         )}

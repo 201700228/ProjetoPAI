@@ -4,25 +4,34 @@ const { User } = require("../models");
 const bcrypt = require("bcrypt");
 const { validateToken } = require("../middlewares/AuthMiddleware");
 const { sign } = require("jsonwebtoken");
+const multer = require('multer');
+const storage = multer.memoryStorage();
+const upload = multer({ storage: storage });
+
 const { validationResult } = require("express-validator");
 
-router.post("/", async (req, res) => {
+router.post("/", upload.single('imageFile'), async (req, res) => {
   try {
-    const { username, password, email, firstName, lastName, birthDate } =
-      req.body;
-
+    const { username, password, email, firstName, lastName, birthDate } = req.body;
     const hash = await bcrypt.hash(password, 10);
 
-    const newUser = await User.create({
+    const newUser = {
       username,
       password: hash,
       email,
       firstName,
       lastName,
       birthDate,
-    });
+    };
 
-    res.json(newUser);
+    // Check if an image file was uploaded
+    if (req.file) {
+      newUser.profilePicture = req.file.buffer; // or req.file.path if saving to filesystem
+    }
+
+    const createdUser = await User.create(newUser);
+
+    res.json(createdUser);
   } catch (error) {
     console.error("Erro ao criar o utilizador:", error);
     res.status(500).json({ error: "Erro ao criar o utilizador" });

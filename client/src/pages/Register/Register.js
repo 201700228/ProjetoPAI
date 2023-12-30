@@ -1,61 +1,37 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import { Form, Button, Row, Col } from "react-bootstrap";
 import * as Yup from "yup";
 import { Formik, Field } from "formik";
 import axios from "axios";
 import "./Register.css";
-import { FaTint } from "react-icons/fa";
+import { sepia, invert, grayscale } from "../../Filters";
 
 function RegistrationForm() {
-  const initialValues = {
+  const [image, setImage] = useState(null);
+  const [isImageSelected, setIsImageSelected] = useState(false);
+  const [isValid, setIsValid] = useState(false);
+  const [values, setValues] = useState({
     username: "",
     password: "",
     email: "",
     firstName: "",
     lastName: "",
     birthDate: "",
-  };
-
-  const [image, setImage] = useState(null);
-  const [isImageSelected, setIsImageSelected] = useState(false);
+    imageFile: null,
+  });
 
   const handleImageChange = (e) => {
     const selectedImage = e.target.files[0];
     if (selectedImage) {
       setImage(URL.createObjectURL(selectedImage));
       setIsImageSelected(true);
+      setValues((prevValues) => ({ ...prevValues, imageFile: selectedImage }));
+    } else {
+      setImage(null);
+      setIsImageSelected(false);
+      setValues({ ...values, imageFile: null });
     }
   };
-
-  useEffect(() => {
-    if (image) {
-      const canvas = document.getElementById("imageCanvas");
-      const ctx = canvas.getContext("2d");
-      const img = new Image();
-
-      img.onload = function () {
-        const MAX_SIZE = 200; // Define o tamanho máximo desejado para largura ou altura
-
-        const aspectRatio = img.width / img.height;
-        let width = img.width;
-        let height = img.height;
-
-        if (width > height && width > MAX_SIZE) {
-          width = MAX_SIZE;
-          height = width / aspectRatio;
-        } else if (height > MAX_SIZE) {
-          height = MAX_SIZE;
-          width = height * aspectRatio;
-        }
-
-        canvas.width = width;
-        canvas.height = height;
-        ctx.drawImage(img, 0, 0, width, height);
-      };
-
-      img.src = image;
-    }
-  }, [image]);
 
   const applyFilter = (filter) => {
     const canvas = document.getElementById("imageCanvas");
@@ -63,12 +39,12 @@ function RegistrationForm() {
     const img = new Image();
 
     img.onload = function () {
-      ctx.drawImage(img, 0, 0, canvas.width, canvas.height); // Desenha a imagem redimensionada no canvas
+      ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
 
       if (filter === "Sepia") {
         sepia(ctx, canvas);
-      } else if (filter === "Yellow") {
-        yellow(ctx, canvas);
+      } else if (filter === "Normal") {
+        ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
       } else if (filter === "Invert") {
         invert(ctx, canvas);
       } else if (filter === "GrayScale") {
@@ -77,68 +53,70 @@ function RegistrationForm() {
     };
 
     img.src = image;
+
+    let pic = values.imageFile;
+
+    canvas.toBlob((blob) => {
+      const modifiedImageFile = new File([blob], pic.name, {
+        type: pic.type,
+      });
+
+      setValues((prevValues) => ({ ...prevValues, imageFile: modifiedImageFile }));
+    }, pic.type);
   };
 
-  const sepia = (ctx, canvas) => {
-    const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
-    const data = imageData.data;
-
-    for (let i = 0; i < data.length; i += 4) {
-      const r = data[i];
-      const g = data[i + 1];
-      const b = data[i + 2];
-
-      const tr = Math.min(255, 0.393 * r + 0.769 * g + 0.189 * b);
-      const tg = Math.min(255, 0.349 * r + 0.686 * g + 0.168 * b);
-      const tb = Math.min(255, 0.272 * r + 0.534 * g + 0.131 * b);
-
-      data[i] = tr;
-      data[i + 1] = tg;
-      data[i + 2] = tb;
+  const handleSubmit = useCallback(async (data, values) => {
+    try {
+      console.log(data, values);
+      const formData = new FormData();
+      formData.append("username", data.username);
+      formData.append("password", data.password);
+      formData.append("email", data.email);
+      formData.append("firstName", data.firstName);
+      formData.append("lastName", data.lastName);
+      formData.append("birthDate", data.birthDate);
+      formData.append("imageFile", values.imageFile);
+  
+      await axios.post("http://localhost:3001/auth", formData, {
+        headers: {
+          "Content-Type": "multipart/form-data",
+        },
+      });
+  
+    } catch (error) {
+      console.error("Error:", error);
     }
+  }, []);
 
-    ctx.putImageData(imageData, 0, 0);
-  };
-
-  const yellow = (ctx, canvas) => {
-    const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
-    const data = imageData.data;
-
-    for (let i = 0; i < data.length; i += 4) {
-      data[i] = 255; // Definir o canal vermelho para 255 (amarelo)
-      data[i + 1] = 255; // Definir o canal verde para 255 (amarelo)
-      data[i + 2] = 0; // Definir o canal azul para 0 (amarelo)
+  useEffect(() => {
+    if (image) {
+      const canvas = document.getElementById("imageCanvas");
+      const ctx = canvas.getContext("2d");
+      const img = new Image();
+  
+      img.onload = function () {
+        const MAX_SIZE = 200;
+  
+        const aspectRatio = img.width / img.height;
+        let width = img.width;
+        let height = img.height;
+  
+        if (width > height && width > MAX_SIZE) {
+          width = MAX_SIZE;
+          height = width / aspectRatio;
+        } else if (height > MAX_SIZE) {
+          height = MAX_SIZE;
+          width = height * aspectRatio;
+        }
+  
+        canvas.width = width;
+        canvas.height = height;
+        ctx.drawImage(img, 0, 0, width, height);
+      };
+  
+      img.src = image;
     }
-
-    ctx.putImageData(imageData, 0, 0);
-  };
-
-  const invert = (ctx, canvas) => {
-    const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
-    const data = imageData.data;
-
-    for (let i = 0; i < data.length; i += 4) {
-      data[i] = 255 - data[i]; // Inverter o canal vermelho
-      data[i + 1] = 255 - data[i + 1]; // Inverter o canal verde
-      data[i + 2] = 255 - data[i + 2]; // Inverter o canal azul
-    }
-
-    ctx.putImageData(imageData, 0, 0);
-  };
-
-  const grayscale = (ctx, canvas) => {
-    const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
-    const data = imageData.data;
-
-    for (let i = 0; i < data.length; i += 4) {
-      const avg = (data[i] + data[i + 1] + data[i + 2]) / 3;
-      data[i] = avg; // Escala de cinza - definir o canal vermelho
-      data[i + 1] = avg; // Escala de cinza - definir o canal verde
-      data[i + 2] = avg; // Escala de cinza - definir o canal azul
-    }
-
-    ctx.putImageData(imageData, 0, 0);
-  };
+  }, [image]);
 
   return (
     <div className="registration-container">
@@ -147,7 +125,7 @@ function RegistrationForm() {
       </div>
       <div className="registration-form-container">
         <Formik
-          initialValues={initialValues}
+          initialValues={values}
           validationSchema={Yup.object().shape({
             username: Yup.string().min(3).max(100).required(),
             password: Yup.string().min(4).max(20).required(),
@@ -157,20 +135,35 @@ function RegistrationForm() {
             birthDate: Yup.date().required(),
           })}
           onSubmit={(data, { resetForm }) => {
-            axios
-              .post("http://localhost:3001/auth", data)
-              .then((response) => {
-                console.log(response.data);
-                resetForm(); // Limpa os campos do formulário após o envio bem-sucedido
+            console.log(values);
+            console.log(data);
+
+        
+            handleSubmit(data,values); // Envie o formData para a função handleSubmit
+            resetForm();
+          }}
+          validate={(data) => {
+            Yup.object()
+              .shape({
+                username: Yup.string().min(3).max(100).required(),
+                password: Yup.string().min(4).max(20).required(),
+                email: Yup.string().email().required(),
+                firstName: Yup.string().required(),
+                lastName: Yup.string().required(),
+                birthDate: Yup.date().required(),
               })
-              .catch((error) => {
-                console.error("Error:", error);
+              .validate(data)
+              .then(() => {
+                setIsValid(true);
+              })
+              .catch(() => {
+                setIsValid(false);
               });
           }}
         >
-          {({ handleSubmit, isValid }) => (
+          {({ handleSubmit }) => (
             <Form noValidate onSubmit={handleSubmit} className="inner-form">
-              <Form.Group as={Row} controlId="formUsername">
+               <Form.Group as={Row} controlId="formUsername">
                 <Form.Label column sm={12} className="custom-label">
                   Nome de Utilizador
                 </Form.Label>
@@ -232,6 +225,7 @@ function RegistrationForm() {
                     type="file"
                     onChange={handleImageChange}
                     accept="image/*"
+                    name="imageFile"
                   />
                 </Col>
               </Form.Group>
@@ -239,8 +233,8 @@ function RegistrationForm() {
               {isImageSelected && (
                 <div className="icon-overlay">
                   <canvas id="imageCanvas" className="image-canvas" />
-                  <div className="icon-dropdown"> 
-                    <p onClick={() => applyFilter("Yellow")}>Amarelo</p>
+                  <div className="icon-dropdown">
+                    <p onClick={() => applyFilter("Normal")}>Normal</p>
                     <p onClick={() => applyFilter("Sepia")}>Sépia</p>
                     <p onClick={() => applyFilter("Invert")}>Inverter</p>
                     <p onClick={() => applyFilter("GrayScale")}>

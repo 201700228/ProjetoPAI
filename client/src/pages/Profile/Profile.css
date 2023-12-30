@@ -1,4 +1,4 @@
-.form-container {
+/* .form-container {
   max-width: 400px;
   margin: 0 auto;
   padding: 20px;
@@ -18,7 +18,7 @@ h2{
 }
 
 .form-title {
-  text-align: center; /* Centraliza apenas o título */
+  text-align: center; 
 }
 
 .form-name-data{
@@ -66,4 +66,4 @@ h2{
 
 .custom-label {
   color: yellow;
-}
+} */

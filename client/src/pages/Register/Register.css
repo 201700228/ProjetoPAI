@@ -1,5 +1,5 @@
-.form-container {
-  max-width: 400px;
+.registration-container {
+  max-width: 500px;
   margin: 0 auto;
   padding: 20px;
   border: 1px solid rgba(12, 11, 11, 0.451);
@@ -9,20 +9,40 @@
   top: 50%;
   left: 50%;
   transform: translate(-50%, -50%);
-}
-
-h2{
   display: flex;
-  justify-content: center;
-  color: yellow !important;
+  flex-direction: column;
 }
 
-.form-title {
-  text-align: center; /* Centraliza apenas o título */
+.registration-header {
+  text-align: center;
+  margin-bottom: 20px;
+  color:yellow
 }
 
 .form-name-data{
-  margin-top: 5px;
+  padding-top: 5px;
+}
+
+.registration-form-container {
+  overflow-y: auto;
+  max-height: 400px; /* Altura máxima antes da rolagem ser ativada */
+  padding-right: 20px; /* Para compensar a largura da barra de rolagem */
+  scrollbar-width: thin; /* Largura da barra de rolagem - Firefox */
+  scrollbar-color: #00ffff black; /* Cor da barra e do fundo - Firefox */
+}
+
+.registration-form-container::-webkit-scrollbar {
+  width: 12px; /* Largura da barra de rolagem - Chrome, Safari, Edge */
+}
+
+.registration-form-container::-webkit-scrollbar-track {
+  background: black; /* Cor de fundo da barra de rolagem */
+}
+
+.registration-form-container::-webkit-scrollbar-thumb {
+  background-color: #00ffff; /* Cor da barra de rolagem */
+  border-radius: 6px; /* Raio da borda da barra */
+  border: 3px solid black; /* Borda da barra */
 }
 
 .inner-form {
@@ -33,18 +53,17 @@ h2{
 .error-message {
   color: red;
   margin-top: 5px;
-  font-size: xx-small
+  font-size: xx-small;
 }
 
 .submit-button {
   display: block !important;
-  margin: 0 auto !important; 
+  margin: 0 auto !important;
   margin-top: 10px !important;
-  background-color: #00FFFF !important;
+  background-color: #00ffff !important;
   color: black !important;
   font-weight: bold !important;
 }
-
 
 .login-link {
   text-align: center;
@@ -52,12 +71,12 @@ h2{
 }
 
 .login-link .info {
-  color: yellow
+  color: yellow;
 }
 
 .login-link a {
   text-decoration: none;
-  color: #00FFFF;
+  color: #00ffff;
 }
 
 .login-link a:hover {
@@ -66,4 +85,95 @@ h2{
 
 .custom-label {
   color: yellow;
+}
+
+.preview-image {
+  max-width: 30%;
+  height: auto;
+  border: 1px solid #ccc;
+  border-radius: 5px;
+  box-shadow: 0 0 5px rgba(0, 0, 0, 0.1);
+  margin-top: 10px;
+  display: block;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+
+
+.image-container {
+  position: relative;
+  max-width: 50%; /* Ajuste conforme necessário */
+  margin: 10px auto;
+}
+
+.file-input {
+  margin-bottom: 10px;
+}
+
+.image-container {
+  position: relative;
+  max-width: 50%; 
+  margin: 10px auto;
+  display: inline-block;
+  text-align: right;
+}
+
+.preview-image {
+  max-width: 100%;
+  height: auto;
+  border: 1px solid #ccc;
+  border-radius: 5px;
+  box-shadow: 0 0 5px rgba(0, 0, 0, 0.1);
+}
+
+.icon-overlay {
+  position: absolute;
+  left: 50%;
+  transform: translateX(-50%);
+  top: 25px;
+  cursor: pointer;
+  z-index: 1;
+  
+  border-radius: 50%;
+}
+
+.icon-dropdown {
+  position: absolute;
+  top: 0;
+  right: 0;
+  background-color: #000;
+  border: 2px solid #fff;
+  border-radius: 8px;
+  padding: 8px;
+  display: none; 
+  z-index: 2;
+}
+
+.icon-dropdown p {
+  color: #fff;
+  font-size: 14px;
+  padding: 5px 10px;
+  margin: 0;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.icon-overlay {
+  position: relative;
+  display: inline-block;
+}
+
+.icon-overlay:hover .icon-dropdown {
+  display: block;
+}
+
+.icon {
+  width: 30px;
+  height: auto;
+  cursor: pointer;
+}
+
+.buttons {
+  padding-top: 20px;
 }

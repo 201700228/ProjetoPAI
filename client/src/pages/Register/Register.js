@@ -139,11 +139,12 @@ function RegistrationForm() {
   }, [image]);
 
   return (
-    <div className="registration-container">
-      <div className="registration-header">
-        <h2>Criar Conta</h2>
-      </div>
-      <div className="registration-form-container">
+    <div className="main">
+      <div className="container">
+        <div className="header">
+          <h2>Criar Conta</h2>
+        </div>
+
         <Formik
           initialValues={values}
           validationSchema={Yup.object().shape({
@@ -178,7 +179,7 @@ function RegistrationForm() {
           }}
         >
           {({ handleSubmit }) => (
-            <Form noValidate onSubmit={handleSubmit} className="inner-form">
+            <Form noValidate onSubmit={handleSubmit} className="form">
               <Form.Group as={Row} controlId="formUsername">
                 <Form.Label column sm={12} className="custom-label">
                   Nome de Utilizador
@@ -259,25 +260,25 @@ function RegistrationForm() {
                   </div>
                 </div>
               )}
-
-              <div className="buttons">
-                <Button
-                  variant="primary"
-                  type="submit"
-                  className="submit-button"
-                  disabled={!isValid}
-                >
-                  Registar
-                </Button>
-
-                <p className="login-link">
-                  <span className="info">Já tem conta?</span>{" "}
-                  <a href="/login">Login</a>
-                </p>
-              </div>
             </Form>
           )}
         </Formik>
+
+        <div className="buttons">
+          <Button
+            variant="primary"
+            type="submit"
+            className="submit-button"
+            disabled={!isValid}
+          >
+            Registar
+          </Button>
+
+          <p className="login-link">
+            <span className="info">Já tem conta?</span>{" "}
+            <a href="/login">Login</a>
+          </p>
+        </div>
       </div>
     </div>
   );

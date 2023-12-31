@@ -1,13 +1,15 @@
-import React, { useState, useEffect, useContext } from "react";
+import React, { useState, useEffect, useContext, useRef } from "react";
 import axios from "axios";
 import { Formik, Field, Form as FormikForm } from "formik";
 import * as Yup from "yup";
 import { AuthContext } from "../../helpers/AuthContext";
 import { Form, Button, Row, Col } from "react-bootstrap";
 import { sepia, invert, grayscale, normal } from "../../Filters";
-import { imageDataToFile, getImageTypeFromBase64,  } from "../../Files";
+import { imageDataToFile, getImageTypeFromBase64 } from "../../Files";
+import "./Profile.css";
 
 function Profile() {
+  const formikRef = useRef();
   const { authState } = useContext(AuthContext);
   const [image, setImage] = useState(null);
   const [userData, setUserData] = useState({
@@ -18,6 +20,7 @@ function Profile() {
     birthDate: "",
     profilePicture: null,
   });
+  const [isImageChanged, setIsImageChanged] = useState(false);
 
   useEffect(() => {
     if (authState.status) {
@@ -43,16 +46,19 @@ function Profile() {
           profilePicture: imageUrl,
         });
 
-        const canvas = document.getElementById("imageCanvas");
-        const ctx = canvas.getContext("2d");
-        const img = new Image();
-        img.onload = function () {
-          canvas.width = img.width;
-          canvas.height = img.height;
-          ctx.drawImage(img, 0, 0);
-        };
-        setImage(imageUrl);
-        img.src = imageUrl;
+        if (response.data.profilePicture.data) {
+          const canvas = document.getElementById("imageCanvas");
+          const ctx = canvas.getContext("2d");
+          const img = new Image();
+          img.onload = function () {
+            canvas.width = img.width;
+            canvas.height = img.height;
+            ctx.drawImage(img, 0, 0);
+          };
+          setImage(imageUrl);
+
+          img.src = imageUrl;
+        }
       })
       .catch((error) => {
         console.error("Erro ao carregar dados do utilizador:", error);
@@ -61,30 +67,36 @@ function Profile() {
 
   const handleImageChange = (e) => {
     const selectedImage = e.target.files[0];
+    const canvas = document.getElementById("imageCanvas");
+    const ctx = canvas.getContext("2d");
+
     if (selectedImage) {
       const imageUrl = URL.createObjectURL(selectedImage);
-  
-      const canvas = document.getElementById("imageCanvas");
-      const ctx = canvas.getContext("2d");
       const img = new Image();
-  
+
       img.onload = function () {
         canvas.width = img.width;
         canvas.height = img.height;
         ctx.drawImage(img, 0, 0);
       };
-  
+
       img.src = imageUrl;
-  
-      setImage(imageUrl); 
-  
+
+      setImage(imageUrl);
+      setIsImageChanged(true);
+
       setUserData((prevValues) => ({
         ...prevValues,
         profilePicture: selectedImage,
       }));
     } else {
+      setIsImageChanged(false);
       setImage(null);
-      setUserData({ ...userData, profilePicture: null });
+
+      setUserData((prevValues) => ({
+        ...prevValues,
+        profilePicture: null,
+      }));
     }
   };
 
@@ -93,10 +105,10 @@ function Profile() {
     const ctx = canvas.getContext("2d");
     const img = new Image();
     let filteredImageData;
-  
+
     img.onload = function () {
       ctx.drawImage(img, 0, 0);
-  
+
       if (filter === "Sepia") {
         filteredImageData = sepia(ctx, canvas);
         ctx.putImageData(filteredImageData, 0, 0);
@@ -110,9 +122,10 @@ function Profile() {
         filteredImageData = grayscale(ctx, canvas);
         ctx.putImageData(filteredImageData, 0, 0);
       }
-  
+
       imageDataToFile(filteredImageData, "image", getImageTypeFromBase64(image))
         .then((file) => {
+          setIsImageChanged(true);
           setUserData((prevValues) => ({
             ...prevValues,
             profilePicture: file,
@@ -123,7 +136,7 @@ function Profile() {
           console.error("Error converting ImageData to File:", error);
         });
     };
-  
+
     img.src = image;
   };
 
@@ -166,7 +179,61 @@ function Profile() {
   return (
     <div className="form-container">
       <h2>Perfil</h2>
+
+      <div
+        className="image-container"
+        onClick={() => document.getElementById("inputFile").click()}
+      >
+        <div className="icon-overlay">
+          <canvas id="imageCanvas" className="preview-image" />
+          <div className="icon-dropdown">
+            <p
+              onClick={(e) => {
+                e.stopPropagation();
+                applyFilter("Normal");
+              }}
+            >
+              Normal
+            </p>
+            <p
+              onClick={(e) => {
+                e.stopPropagation();
+                applyFilter("Sepia");
+              }}
+            >
+              Sépia
+            </p>
+            <p
+              onClick={(e) => {
+                e.stopPropagation();
+                applyFilter("Invert");
+              }}
+            >
+              Inverter
+            </p>
+            <p
+              onClick={(e) => {
+                e.stopPropagation();
+                applyFilter("GrayScale");
+              }}
+            >
+              Preto e Branco
+            </p>
+          </div>
+        </div>
+      </div>
+
+      <input
+        type="file"
+        id="inputFile"
+        onChange={handleImageChange}
+        accept="image/*"
+        name="imageFile"
+        style={{ display: "none" }}
+      />
+
       <Formik
+        innerRef={formikRef}
         enableReinitialize={true}
         initialValues={userData}
         validationSchema={validationSchema}
@@ -175,7 +242,7 @@ function Profile() {
           // resetForm();
         }}
       >
-        {({ handleSubmit }) => (
+        {({ handleSubmit, isValidating }) => (
           <FormikForm noValidate onSubmit={handleSubmit} className="inner-form">
             <Form.Group as={Row} controlId="formUsername">
               <Form.Label column sm={12} className="custom-label">
@@ -221,33 +288,16 @@ function Profile() {
               </Col>
             </Form.Group>
 
-            <Form.Group as={Row} controlId="formImage">
-              <Form.Label column sm={12} className="custom-label">
-                Foto de Perfil
-              </Form.Label>
-              <Col sm={12}>
-                <Form.Control
-                  type="file"
-                  onChange={handleImageChange}
-                  accept="image/*"
-                  name="imageFile"
-                />
-              </Col>
-            </Form.Group>
-
-            <div className="image-container">
-              <div className="icon-overlay">
-                <canvas id="imageCanvas" className="preview-image" />
-                <div className="icon-dropdown">
-                  <p onClick={() => applyFilter("Normal")}>Normal</p>
-                  <p onClick={() => applyFilter("Sepia")}>Sépia</p>
-                  <p onClick={() => applyFilter("Invert")}>Inverter</p>
-                  <p onClick={() => applyFilter("GrayScale")}>Preto e Branco</p>
-                </div>
-              </div>
-            </div>
-
-            <Button variant="primary" type="submit" className="submit-button">
+            <Button
+              variant="primary"
+              type="submit"
+              disabled={
+                formikRef.current &&
+                (!formikRef.current.isValid || !formikRef.current.dirty) &&
+                !isImageChanged
+              }
+              className="submit-button"
+            >
               Atualizar
             </Button>
           </FormikForm>

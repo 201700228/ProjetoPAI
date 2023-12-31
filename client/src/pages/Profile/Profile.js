@@ -4,8 +4,8 @@ import { Formik, Field, Form as FormikForm } from "formik";
 import * as Yup from "yup";
 import { AuthContext } from "../../helpers/AuthContext";
 import { Form, Button, Row, Col } from "react-bootstrap";
-import { sepia, invert, grayscale } from "../../Filters";
-import { getImageTypeFromBase64 } from "../../Files";
+import { sepia, invert, grayscale, normal } from "../../Filters";
+import { imageDataToFile, getImageTypeFromBase64,  } from "../../Files";
 
 function Profile() {
   const { authState } = useContext(AuthContext);
@@ -55,7 +55,7 @@ function Profile() {
         img.src = imageUrl;
       })
       .catch((error) => {
-        console.error("Erro ao carregar dados do usuário:", error);
+        console.error("Erro ao carregar dados do utilizador:", error);
       });
   };
 
@@ -77,39 +77,39 @@ function Profile() {
     const canvas = document.getElementById("imageCanvas");
     const ctx = canvas.getContext("2d");
     const img = new Image();
+    let filteredImageData;
 
     img.onload = function () {
-      ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+      ctx.drawImage(img, 0, 0);
 
       if (filter === "Sepia") {
-        sepia(ctx, canvas);
+        filteredImageData = sepia(ctx, canvas);
+        ctx.putImageData(filteredImageData, 0, 0);
       } else if (filter === "Normal") {
-        ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+        filteredImageData = normal(ctx, canvas);
+        ctx.putImageData(filteredImageData, 0, 0);
       } else if (filter === "Invert") {
-        invert(ctx, canvas);
+        filteredImageData = invert(ctx, canvas);
+        ctx.putImageData(filteredImageData, 0, 0);
       } else if (filter === "GrayScale") {
-        grayscale(ctx, canvas);
+        filteredImageData = grayscale(ctx, canvas);
+        ctx.putImageData(filteredImageData, 0, 0);
       }
+
+      imageDataToFile(filteredImageData, "image", getImageTypeFromBase64(image))
+        .then((file) => {
+          console.log(file);
+          setUserData((prevValues) => ({
+            ...prevValues,
+            profilePicture: file,
+          }));
+        })
+        .catch((error) => {
+          console.error("Error converting ImageData to File:", error);
+        });
     };
 
     img.src = image;
-
-    let type = getImageTypeFromBase64(image);
-
-    canvas.toBlob((blob) => {
-      const modifiedImageFile = new File([blob], "texto", {
-        type: type,
-      });
-
-      console.log(modifiedImageFile)
-
-      setUserData((prevValues) => ({
-        ...prevValues,
-        profilePicture: modifiedImageFile,
-      }));
-
-      console.log(userData);
-    }, type);
   };
 
   const handleUpdate = async (data) => {
@@ -125,11 +125,15 @@ function Profile() {
           formData.append("profilePicture", data.profilePicture);
         }
 
-        await axios.put(`http://localhost:3001/auth/${authState.id}`, formData, {
-          headers: {
-            "Content-Type": "multipart/form-data",
-          },
-        });
+        await axios.put(
+          `http://localhost:3001/auth/${authState.id}`,
+          formData,
+          {
+            headers: {
+              "Content-Type": "multipart/form-data",
+            },
+          }
+        );
       }
     } catch (error) {
       console.error("Error:", error);

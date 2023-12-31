@@ -16,7 +16,7 @@ export const sepia = (ctx, canvas) => {
     data[i + 2] = tb;
   }
 
-  ctx.putImageData(imageData, 0, 0);
+  return imageData;
 };
 
 export const invert = (ctx, canvas) => {
@@ -29,7 +29,7 @@ export const invert = (ctx, canvas) => {
     data[i + 2] = 255 - data[i + 2];
   }
 
-  ctx.putImageData(imageData, 0, 0);
+  return imageData;
 };
 
 export const grayscale = (ctx, canvas) => {
@@ -43,5 +43,11 @@ export const grayscale = (ctx, canvas) => {
     data[i + 2] = avg;
   }
 
-  ctx.putImageData(imageData, 0, 0);
+  return imageData;
 };
+
+export const normal = (ctx, canvas) => {
+  const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);;
+
+  return imageData;
+}

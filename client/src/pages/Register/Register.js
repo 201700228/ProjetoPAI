@@ -4,7 +4,8 @@ import * as Yup from "yup";
 import { Formik, Field } from "formik";
 import axios from "axios";
 import "./Register.css";
-import { sepia, invert, grayscale } from "../../Filters";
+import { sepia, invert, grayscale, normal } from "../../Filters";
+import { imageDataToFile, getImageTypeFromBase64 } from "../../Files";
 
 function RegistrationForm() {
   const [image, setImage] = useState(null);
@@ -37,32 +38,50 @@ function RegistrationForm() {
     const canvas = document.getElementById("imageCanvas");
     const ctx = canvas.getContext("2d");
     const img = new Image();
+    let filteredImageData;
 
     img.onload = function () {
       ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
 
       if (filter === "Sepia") {
-        sepia(ctx, canvas);
+        filteredImageData = sepia(ctx, canvas);
+        ctx.putImageData(filteredImageData, 0, 0);
       } else if (filter === "Normal") {
-        ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+        filteredImageData = normal(ctx, canvas);
+        ctx.putImageData(filteredImageData, 0, 0);
       } else if (filter === "Invert") {
-        invert(ctx, canvas);
+        filteredImageData = invert(ctx, canvas);
+        ctx.putImageData(filteredImageData, 0, 0);
       } else if (filter === "GrayScale") {
-        grayscale(ctx, canvas);
+        filteredImageData = grayscale(ctx, canvas);
+        ctx.putImageData(filteredImageData, 0, 0);
       }
+
+      imageDataToFile(filteredImageData, "", getImageTypeFromBase64(image))
+        .then((file) => {
+          console.log(file);
+          setValues((prevValues) => ({
+            ...prevValues,
+            imageFile: file,
+          }));
+        })
+        .catch((error) => {
+          console.error("Error converting ImageData to File:", error);
+        });
+      imageDataToFile(
+        filteredImageData,
+        values.imageFile.name,
+        values.imageFile.type
+      )
+        .then((file) => {
+          setValues((prevValues) => ({ ...prevValues, imageFile: file }));
+        })
+        .catch((error) => {
+          console.error("Error converting ImageData to File:", error);
+        });
     };
 
     img.src = image;
-
-    let pic = values.imageFile;
-
-    canvas.toBlob((blob) => {
-      const modifiedImageFile = new File([blob], pic.name, {
-        type: pic.type,
-      });
-
-      setValues((prevValues) => ({ ...prevValues, imageFile: modifiedImageFile }));
-    }, pic.type);
   };
 
   const handleSubmit = useCallback(async (data, values) => {
@@ -76,13 +95,14 @@ function RegistrationForm() {
       formData.append("lastName", data.lastName);
       formData.append("birthDate", data.birthDate);
       formData.append("imageFile", values.imageFile);
-  
+
+      console.log(values.imageFile);
+
       await axios.post("http://localhost:3001/auth", formData, {
         headers: {
           "Content-Type": "multipart/form-data",
         },
       });
-  
     } catch (error) {
       console.error("Error:", error);
     }
@@ -93,14 +113,14 @@ function RegistrationForm() {
       const canvas = document.getElementById("imageCanvas");
       const ctx = canvas.getContext("2d");
       const img = new Image();
-  
+
       img.onload = function () {
         const MAX_SIZE = 200;
-  
+
         const aspectRatio = img.width / img.height;
         let width = img.width;
         let height = img.height;
-  
+
         if (width > height && width > MAX_SIZE) {
           width = MAX_SIZE;
           height = width / aspectRatio;
@@ -108,12 +128,12 @@ function RegistrationForm() {
           height = MAX_SIZE;
           width = height * aspectRatio;
         }
-  
+
         canvas.width = width;
         canvas.height = height;
         ctx.drawImage(img, 0, 0, width, height);
       };
-  
+
       img.src = image;
     }
   }, [image]);
@@ -135,7 +155,7 @@ function RegistrationForm() {
             birthDate: Yup.date().required(),
           })}
           onSubmit={(data, { resetForm }) => {
-            handleSubmit(data,values);
+            handleSubmit(data, values);
             resetForm();
           }}
           validate={(data) => {
@@ -159,7 +179,7 @@ function RegistrationForm() {
         >
           {({ handleSubmit }) => (
             <Form noValidate onSubmit={handleSubmit} className="inner-form">
-               <Form.Group as={Row} controlId="formUsername">
+              <Form.Group as={Row} controlId="formUsername">
                 <Form.Label column sm={12} className="custom-label">
                   Nome de Utilizador
                 </Form.Label>

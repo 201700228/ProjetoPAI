@@ -89,14 +89,6 @@ function Profile() {
         ...prevValues,
         profilePicture: selectedImage,
       }));
-    } else {
-      setIsImageChanged(false);
-      setImage(null);
-
-      setUserData((prevValues) => ({
-        ...prevValues,
-        profilePicture: null,
-      }));
     }
   };
 
@@ -237,12 +229,11 @@ function Profile() {
         enableReinitialize={true}
         initialValues={userData}
         validationSchema={validationSchema}
-        onSubmit={(data, { resetForm }) => {
+        onSubmit={(data) => {
           handleUpdate(data);
-          // resetForm();
         }}
       >
-        {({ handleSubmit, isValidating }) => (
+        {({ handleSubmit }) => (
           <FormikForm noValidate onSubmit={handleSubmit} className="inner-form">
             <Form.Group as={Row} controlId="formUsername">
               <Form.Label column sm={12} className="custom-label">

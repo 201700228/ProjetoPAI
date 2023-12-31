@@ -4,15 +4,16 @@ const { User } = require("../models");
 const bcrypt = require("bcrypt");
 const { validateToken } = require("../middlewares/AuthMiddleware");
 const { sign } = require("jsonwebtoken");
-const multer = require('multer');
+const multer = require("multer");
 const storage = multer.memoryStorage();
 const upload = multer({ storage: storage });
 
 const { validationResult } = require("express-validator");
 
-router.post("/", upload.single('imageFile'), async (req, res) => {
+router.post("/", upload.single("imageFile"), async (req, res) => {
   try {
-    const { username, password, email, firstName, lastName, birthDate } = req.body;
+    const { username, password, email, firstName, lastName, birthDate } =
+      req.body;
     const hash = await bcrypt.hash(password, 10);
 
     const newUser = {
@@ -24,9 +25,8 @@ router.post("/", upload.single('imageFile'), async (req, res) => {
       birthDate,
     };
 
-    // Check if an image file was uploaded
     if (req.file) {
-      newUser.profilePicture = req.file.buffer; // or req.file.path if saving to filesystem
+      newUser.profilePicture = req.file.buffer;
     }
 
     const createdUser = await User.create(newUser);
@@ -116,9 +116,41 @@ router.get("/check-username/:username", async (req, res) => {
       "Erro ao verificar a disponibilidade do nome do utilizador:",
       error
     );
-    res
-      .status(500)
-      .json({ error: "Erro ao verificar a disponibilidade do nome de utilizador" });
+    res.status(500).json({
+      error: "Erro ao verificar a disponibilidade do nome de utilizador",
+    });
+  }
+});
+
+router.put("/:id", upload.single("profilePicture"), async (req, res) => {
+  const userId = req.params.id;
+  const { username, email, firstName, lastName, birthDate } = req.body;
+
+  console.log(req.body);
+
+  try {
+    const user = await User.findByPk(userId);
+
+    if (!user) {
+      return res.status(404).json({ error: "User not found" });
+    }
+
+    user.username = username || user.username;
+    user.email = email || user.email;
+    user.firstName = firstName || user.firstName;
+    user.lastName = lastName || user.lastName;
+    user.birthDate = birthDate || user.birthDate;
+
+    if (req.file) {
+      user.profilePicture = req.file.buffer;
+    }
+
+    await user.save();
+
+    res.json(user);
+  } catch (error) {
+    console.error("Error updating user data:", error);
+    res.status(500).json({ error: "Error updating user data" });
   }
 });
 

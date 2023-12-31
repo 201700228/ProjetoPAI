@@ -1,21 +1,22 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useContext } from "react";
 import axios from "axios";
-import { Formik, Field } from "formik";
+import { Formik, Field, Form as FormikForm } from "formik";
 import * as Yup from "yup";
-import "./Profile.css";
-import { useContext } from "react";
 import { AuthContext } from "../../helpers/AuthContext";
 import { Form, Button, Row, Col } from "react-bootstrap";
+import { sepia, invert, grayscale } from "../../Filters";
+import { getImageTypeFromBase64 } from "../../Files";
 
 function Profile() {
   const { authState } = useContext(AuthContext);
+  const [image, setImage] = useState(null);
   const [userData, setUserData] = useState({
     username: "",
     email: "",
     firstName: "",
     lastName: "",
     birthDate: "",
-    profileImage: "",
+    profilePicture: null,
   });
 
   useEffect(() => {
@@ -28,15 +29,111 @@ function Profile() {
     axios
       .get(`http://localhost:3001/auth/basicinfo/${userId}`)
       .then((response) => {
-        const formattedData = {
-          ...response.data,
-          birthDate: response.data.birthDate.split("T")[0], 
+        const imageArray = response.data.profilePicture.data;
+        const imageData = new Uint8Array(imageArray);
+        const imageBase64 = btoa(String.fromCharCode.apply(null, imageData));
+        const imageUrl = `data:image/jpeg;base64,${imageBase64}`;
+
+        setUserData({
+          username: response.data.username,
+          email: response.data.email,
+          firstName: response.data.firstName,
+          lastName: response.data.lastName,
+          birthDate: response.data.birthDate.split("T")[0],
+          profilePicture: imageUrl,
+        });
+
+        const canvas = document.getElementById("imageCanvas");
+        const ctx = canvas.getContext("2d");
+        const img = new Image();
+        img.onload = function () {
+          canvas.width = img.width;
+          canvas.height = img.height;
+          ctx.drawImage(img, 0, 0);
         };
-        setUserData(formattedData);
+        setImage(imageUrl);
+        img.src = imageUrl;
       })
       .catch((error) => {
         console.error("Erro ao carregar dados do usuário:", error);
       });
+  };
+
+  const handleImageChange = (e) => {
+    const selectedImage = e.target.files[0];
+    if (selectedImage) {
+      setImage(URL.createObjectURL(selectedImage));
+      setUserData((prevValues) => ({
+        ...prevValues,
+        profilePicture: selectedImage,
+      }));
+    } else {
+      setImage(null);
+      setUserData({ ...userData, profilePicture: null });
+    }
+  };
+
+  const applyFilter = (filter) => {
+    const canvas = document.getElementById("imageCanvas");
+    const ctx = canvas.getContext("2d");
+    const img = new Image();
+
+    img.onload = function () {
+      ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+
+      if (filter === "Sepia") {
+        sepia(ctx, canvas);
+      } else if (filter === "Normal") {
+        ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+      } else if (filter === "Invert") {
+        invert(ctx, canvas);
+      } else if (filter === "GrayScale") {
+        grayscale(ctx, canvas);
+      }
+    };
+
+    img.src = image;
+
+    let type = getImageTypeFromBase64(image);
+
+    canvas.toBlob((blob) => {
+      const modifiedImageFile = new File([blob], "texto", {
+        type: type,
+      });
+
+      console.log(modifiedImageFile)
+
+      setUserData((prevValues) => ({
+        ...prevValues,
+        profilePicture: modifiedImageFile,
+      }));
+
+      console.log(userData);
+    }, type);
+  };
+
+  const handleUpdate = async (data) => {
+    try {
+      if (authState.status) {
+        const formData = new FormData();
+        formData.append("username", data.username);
+        formData.append("email", data.email);
+        formData.append("firstName", data.firstName);
+        formData.append("lastName", data.lastName);
+        formData.append("birthDate", data.birthDate);
+        if (data.profilePicture) {
+          formData.append("profilePicture", data.profilePicture);
+        }
+
+        await axios.put(`http://localhost:3001/auth/${authState.id}`, formData, {
+          headers: {
+            "Content-Type": "multipart/form-data",
+          },
+        });
+      }
+    } catch (error) {
+      console.error("Error:", error);
+    }
   };
 
   const validationSchema = Yup.object().shape({
@@ -49,19 +146,18 @@ function Profile() {
 
   return (
     <div className="form-container">
-      <h2>Perfil </h2>
+      <h2>Perfil</h2>
       <Formik
+        enableReinitialize={true}
         initialValues={userData}
         validationSchema={validationSchema}
-        onSubmit={(values, { setSubmitting }) => {
-          // Lógica para atualizar os dados do perfil
-          console.log(values);
-          setSubmitting(false);
+        onSubmit={(data, { resetForm }) => {
+          handleUpdate(data);
+          // resetForm();
         }}
-        enableReinitialize
       >
-        {({ isValid }) => (
-          <Form className="inner-form">
+        {({ handleSubmit }) => (
+          <FormikForm noValidate onSubmit={handleSubmit} className="inner-form">
             <Form.Group as={Row} controlId="formUsername">
               <Form.Label column sm={12} className="custom-label">
                 Nome de Utilizador
@@ -106,15 +202,36 @@ function Profile() {
               </Col>
             </Form.Group>
 
-            <Button
-              variant="primary"
-              type="submit"
-              className="submit-button"
-              disabled={!isValid}
-            >
+            <Form.Group as={Row} controlId="formImage">
+              <Form.Label column sm={12} className="custom-label">
+                Foto de Perfil
+              </Form.Label>
+              <Col sm={12}>
+                <Form.Control
+                  type="file"
+                  onChange={handleImageChange}
+                  accept="image/*"
+                  name="imageFile"
+                />
+              </Col>
+            </Form.Group>
+
+            <div className="image-container">
+              <div className="icon-overlay">
+                <canvas id="imageCanvas" className="preview-image" />
+                <div className="icon-dropdown">
+                  <p onClick={() => applyFilter("Normal")}>Normal</p>
+                  <p onClick={() => applyFilter("Sepia")}>Sépia</p>
+                  <p onClick={() => applyFilter("Invert")}>Inverter</p>
+                  <p onClick={() => applyFilter("GrayScale")}>Preto e Branco</p>
+                </div>
+              </div>
+            </div>
+
+            <Button variant="primary" type="submit" className="submit-button">
               Atualizar
             </Button>
-          </Form>
+          </FormikForm>
         )}
       </Formik>
     </div>

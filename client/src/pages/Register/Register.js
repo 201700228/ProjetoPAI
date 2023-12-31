@@ -135,11 +135,7 @@ function RegistrationForm() {
             birthDate: Yup.date().required(),
           })}
           onSubmit={(data, { resetForm }) => {
-            console.log(values);
-            console.log(data);
-
-        
-            handleSubmit(data,values); // Envie o formData para a função handleSubmit
+            handleSubmit(data,values);
             resetForm();
           }}
           validate={(data) => {

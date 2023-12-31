@@ -62,7 +62,22 @@ function Profile() {
   const handleImageChange = (e) => {
     const selectedImage = e.target.files[0];
     if (selectedImage) {
-      setImage(URL.createObjectURL(selectedImage));
+      const imageUrl = URL.createObjectURL(selectedImage);
+  
+      const canvas = document.getElementById("imageCanvas");
+      const ctx = canvas.getContext("2d");
+      const img = new Image();
+  
+      img.onload = function () {
+        canvas.width = img.width;
+        canvas.height = img.height;
+        ctx.drawImage(img, 0, 0);
+      };
+  
+      img.src = imageUrl;
+  
+      setImage(imageUrl); 
+  
       setUserData((prevValues) => ({
         ...prevValues,
         profilePicture: selectedImage,
@@ -73,15 +88,15 @@ function Profile() {
     }
   };
 
-  const applyFilter = (filter) => {
+  const applyFilter = async (filter) => {
     const canvas = document.getElementById("imageCanvas");
     const ctx = canvas.getContext("2d");
     const img = new Image();
     let filteredImageData;
-
+  
     img.onload = function () {
       ctx.drawImage(img, 0, 0);
-
+  
       if (filter === "Sepia") {
         filteredImageData = sepia(ctx, canvas);
         ctx.putImageData(filteredImageData, 0, 0);
@@ -95,20 +110,20 @@ function Profile() {
         filteredImageData = grayscale(ctx, canvas);
         ctx.putImageData(filteredImageData, 0, 0);
       }
-
+  
       imageDataToFile(filteredImageData, "image", getImageTypeFromBase64(image))
         .then((file) => {
-          console.log(file);
           setUserData((prevValues) => ({
             ...prevValues,
             profilePicture: file,
           }));
+          setImage(canvas.toDataURL());
         })
         .catch((error) => {
           console.error("Error converting ImageData to File:", error);
         });
     };
-
+  
     img.src = image;
   };
 

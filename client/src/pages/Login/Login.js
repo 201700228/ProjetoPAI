@@ -6,6 +6,9 @@ import axios from "axios";
 import { useHistory } from "react-router-dom";
 import { AuthContext } from "../../helpers/AuthContext";
 import "./Login.css";
+import "../../App.css";
+import { toast } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 
 const LoginForm = () => {
   const initialValues = {
@@ -33,6 +36,8 @@ const LoginForm = () => {
           axios
             .post("http://localhost:3001/auth/login", data)
             .then((response) => {
+              console.log("Response:", response); // Check the response details
+
               if (response.status === 200) {
                 localStorage.setItem("accessToken", response.data.token);
                 setAuthState({
@@ -41,10 +46,13 @@ const LoginForm = () => {
                   status: true,
                 });
                 history.push("/");
+
+                toast.success("Login successful", {className: 'toast-success'});
               }
             })
             .catch((error) => {
-              console.error("Error:", error);
+              console.error("Error:", error); // Log the error object
+              toast.error("Login failed", {className: 'toast-error'});
             });
         }}
       >

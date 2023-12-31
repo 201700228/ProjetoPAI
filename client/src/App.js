@@ -1,4 +1,5 @@
 import "./App.css";
+import "./css/Navbar.css"
 import { BrowserRouter as Router, Route, Switch, Link } from "react-router-dom";
 import HomePage from "./layout/Home";
 import LoginForm from "./pages/Login/Login";
@@ -11,6 +12,8 @@ import backgroundImage from "./assets/background.gif";
 import logoImage from "./assets/logo.png";
 import { FaSignOutAlt, FaHome } from "react-icons/fa";
 import { useHistory } from "react-router-dom";
+import { ToastContainer } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 
 function App() {
   const [authState, setAuthState] = useState({
@@ -98,6 +101,7 @@ function App() {
               )}
             </ul>
           </nav>
+          <ToastContainer /> 
           <Switch>
             <Route exact path="/" component={HomePage} />
             <Route path="/registration" exact component={RegisterForm} />

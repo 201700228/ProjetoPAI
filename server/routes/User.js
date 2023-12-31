@@ -44,21 +44,29 @@ router.post("/login", async (req, res) => {
 
     const user = await User.findOne({ where: { email: email } });
 
-    if (!user) res.json({ error: "User Doesn't Exist" });
+    if (!user) {
+      return res.status(401).json({ error: "User Doesn't Exist" });
+    }
 
     bcrypt.compare(password, user.password).then(async (match) => {
-      if (!match)
-        res.json({ error: "Wrong Username And Password Combination" });
+      if (!match) {
+        return res
+          .status(401)
+          .json({ error: "Wrong Username And Password Combination" });
+      }
 
       const accessToken = sign(
         { username: user.username, id: user.id },
         "importantsecret"
       );
-      res.json({ token: accessToken, username: user.username, id: user.id });
+      return res.json({
+        token: accessToken,
+        username: user.username,
+        id: user.id,
+      });
     });
   } catch (error) {
-    console.error("Erro ao fazer login:", error);
-    res.status(500).json({ error: "Erro ao fazer o login" });
+    return res.status(500).json({ error: "Error while logging in" });
   }
 });
 

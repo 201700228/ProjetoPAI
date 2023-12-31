@@ -1,56 +1,10 @@
+@import "./css/Colors.css";
+
 /* Reset de estilos */
 * {
   margin: 0;
   padding: 0;
   box-sizing: border-box;
-}
-
-/* Estilos da barra de navegação */
-.navbar {
-  background-color: #000;
-  padding: 10px;
-  display: flex;
-  align-items: center;
-}
-
-.logo {
-  width: 250px;
-  height: auto;
-  margin-left: 20px;
-}
-
-.nav-list {
-  list-style: none;
-  padding: 0;
-  margin: 0;
-  display: flex;
-  align-items: center;
-}
-
-.nav-list li {
-  margin-right: 20px;
-}
-
-.link {
-  text-decoration: none;
-  color: yellow;
-  font-weight: bold;
-  transition: color 0.3s ease; /* Efeito de transição para a cor do texto */
-}
-
-.link:hover {
-  color: #ff0; /* Altera a cor do texto ao passar o mouse */
-}
-
-.link-user {
-  text-decoration: none;
-  color: #00ffff;
-  font-weight: bold;
-  transition: color 0.3s ease; /* Efeito de transição para a cor do texto */
-}
-
-.link-user:hover {
-  color: #0ff; /* Altera a cor do texto ao passar o mouse */
 }
 
 /* Fundo da página */
@@ -60,4 +14,22 @@
   background-repeat: no-repeat;
   background-position: center center; 
   min-height: 100vh;
+}
+
+/* Toasts */
+
+.toast-success {
+  background-color: black !important;
+  color: #f2d98c;
+  font-family: 'Arcane', sans-serif;
+  font-size: 16px;
+  border: 2px solid #f2d98c;
+}
+
+.toast-error {
+  background-color: black !important;
+  color: #e94f4f;
+  font-family: 'Arcane', sans-serif;
+  font-size: 16px;
+  border: 2px solid blue; 
 }

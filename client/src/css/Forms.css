@@ -1,0 +1,53 @@
+@import "./Colors.css";
+
+.container {
+  max-width: 90%;
+  margin: 0 auto;
+  padding: 20px;
+  border-radius: 8px;
+  background-color: var(--black);
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  display: flex;
+  flex-direction: column;
+}
+
+.container .header {
+  text-align: center;
+  margin-bottom: 20px;
+  color: var(--pacman);
+}
+
+.container .form {
+  overflow-y: auto;
+  max-height: 80vh;
+  padding-right: 5%;
+  scrollbar-width: thin;
+  scrollbar-color: var(--lightblue) var(--black);
+  margin-bottom: 20px;
+}
+
+.container .form::-webkit-scrollbar {
+  width: 12px;
+}
+
+.container .form::-webkit-scrollbar-track {
+  background: var(--black);
+}
+
+.container .form::-webkit-scrollbar-thumb {
+  background-color: var(--lightblue);
+  border-radius: 6px;
+  border: 3px solid var(--black);
+}
+
+.container .button {
+  display: block !important;
+  margin: 0 auto !important;
+  margin-top: 10px !important;
+  background-color: var(--lightblue) !important;
+  color: var(--black) !important;
+  font-weight: bold !important;
+}

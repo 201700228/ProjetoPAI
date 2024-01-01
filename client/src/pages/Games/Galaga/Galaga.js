@@ -3,6 +3,8 @@ import "./Galaga.css";
 import "../../../css/Colors.css";
 import gameOverSound from "../../../assets/game-over.wav";
 import shootSound from "../../../assets/space-hit.wav";
+import enemyImgSrc from "../../../assets/enemy-ship.png";
+import heroImgSrc from "../../../assets/hero-ship.png"
 
 const Galaga = () => {
   const canvasRef = useRef(null);
@@ -41,10 +43,11 @@ const Galaga = () => {
 
       var player_width = 32;
       var player_height = 32;
-      var playerImg = new Image();
+
       var score = 0;
       var health = 100;
-      playerImg.src = "https://image.ibb.co/dfbD1U/heroShip.png";
+      var playerImg = new Image();
+      playerImg.src = heroImgSrc;
 
       var _bullets = [];
       var bullet_width = 6;
@@ -53,7 +56,7 @@ const Galaga = () => {
 
       var _enemies = [];
       var enemyImg = new Image();
-      enemyImg.src = "https://i.ibb.co/0YgHvmx/enemy-fotor-20230927153748.png";
+      enemyImg.src = enemyImgSrc;
       var enemy_width = 32;
       var enemy_height = 32;
 
@@ -273,9 +276,7 @@ const Galaga = () => {
   }, []);
 
   return (
-    <div>
-      <canvas className="canvas" ref={canvasRef} width={1200} height={600} />
-    </div>
+    <canvas className="canvas" ref={canvasRef} width={1000} height={600} />
   );
 };
 

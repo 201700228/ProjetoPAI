@@ -48,15 +48,6 @@
   border: 3px solid var(--black);
 }
 
-.main .button {
-  display: block !important;
-  margin: 0 auto !important;
-  margin-top: 10px !important;
-  background-color: var(--lightblue) !important;
-  color: var(--black) !important;
-  font-weight: bold !important;
-}
-
 .main .container .profile-picture {
   width: 200px;
   height: 200px;
@@ -125,4 +116,35 @@
   p:hover {
   color: var(--ghost-orange);
   transform: scale(1.1);
+}
+
+.form-row{
+  padding-top: 5px;
+}
+
+.form-button{
+  display: block !important;
+  margin: 0 auto !important;
+  margin-top: 10px !important;
+  background-color: var(--lightblue) !important;
+  color: var(--black) !important;
+  font-weight: bold !important;
+}
+
+.form-link {
+  text-align: center;
+  margin-top: 20px;
+}
+
+.form-link .info {
+  color: var(--pacman);
+}
+
+.form-link a {
+  text-decoration: none;
+  color: var(--lightblue) !important;
+}
+
+.form-link a:hover {
+  text-decoration: underline;
 }

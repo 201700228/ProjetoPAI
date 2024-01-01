@@ -8,7 +8,7 @@ import { sepia, invert, grayscale, normal } from "../../Filters";
 import { imageDataToFile } from "../../Files";
 import { toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
-import imagePlaceholder from "../../assets/image-placeholder.png";
+import imagePlaceholder from "../../assets/image-placeholder.jpg";
 
 function RegistrationForm() {
   const [image, setImage] = useState(null);
@@ -265,8 +265,7 @@ function RegistrationForm() {
                 </Col>
               </Form.Group>
 
-              <div className="form-name-data">
-                <Row>
+                <Row className="form-row">
                   <Col sm={6}>
                     <Form.Group controlId="formFirstName">
                       <Form.Label className="custom-label">Nome</Form.Label>
@@ -280,7 +279,6 @@ function RegistrationForm() {
                     </Form.Group>
                   </Col>
                 </Row>
-              </div>
 
               <Form.Group as={Row} controlId="formBirthDate">
                 <Form.Label column sm={12} className="custom-label">
@@ -291,17 +289,17 @@ function RegistrationForm() {
                 </Col>
               </Form.Group>
 
-              <div className="buttons">
+              <div >
                 <Button
                   variant="primary"
                   type="submit"
-                  className="submit-button"
+                  className="form-button"
                   disabled={!isValid || !isImageSelected}
                 >
                   Registar
                 </Button>
 
-                <p className="login-link">
+                <p className="form-link">
                   <span className="info">Já tem conta?</span>{" "}
                   <a href="/login">Login</a>
                 </p>

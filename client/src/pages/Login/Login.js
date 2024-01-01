@@ -51,8 +51,7 @@ const LoginForm = () => {
               }
             })
             .catch((error) => {
-              console.error("Error:", error); // Log the error object
-              toast.error("Login failed", {className: 'toast-error'});
+              toast.error(error.response.data.error, {className: 'toast-error'});
             });
         }}
       >

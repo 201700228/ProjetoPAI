@@ -5,7 +5,10 @@ import { Formik, Field } from "formik";
 import axios from "axios";
 import "./Register.css";
 import { sepia, invert, grayscale, normal } from "../../Filters";
-import { imageDataToFile, getImageTypeFromBase64 } from "../../Files";
+import { imageDataToFile } from "../../Files";
+import { toast } from "react-toastify";
+import "../../App.css";
+import "react-toastify/dist/ReactToastify.css";
 
 function RegistrationForm() {
   const [image, setImage] = useState(null);
@@ -57,17 +60,6 @@ function RegistrationForm() {
         ctx.putImageData(filteredImageData, 0, 0);
       }
 
-      imageDataToFile(filteredImageData, "", getImageTypeFromBase64(image))
-        .then((file) => {
-          console.log(file);
-          setValues((prevValues) => ({
-            ...prevValues,
-            imageFile: file,
-          }));
-        })
-        .catch((error) => {
-          console.error("Error converting ImageData to File:", error);
-        });
       imageDataToFile(
         filteredImageData,
         values.imageFile.name,
@@ -83,30 +75,6 @@ function RegistrationForm() {
 
     img.src = image;
   };
-
-  const handleSubmit = useCallback(async (data, values) => {
-    try {
-      console.log(data, values);
-      const formData = new FormData();
-      formData.append("username", data.username);
-      formData.append("password", data.password);
-      formData.append("email", data.email);
-      formData.append("firstName", data.firstName);
-      formData.append("lastName", data.lastName);
-      formData.append("birthDate", data.birthDate);
-      formData.append("imageFile", values.imageFile);
-
-      console.log(values.imageFile);
-
-      await axios.post("http://localhost:3001/auth", formData, {
-        headers: {
-          "Content-Type": "multipart/form-data",
-        },
-      });
-    } catch (error) {
-      console.error("Error:", error);
-    }
-  }, []);
 
   useEffect(() => {
     if (image) {
@@ -145,6 +113,60 @@ function RegistrationForm() {
           <h2>Criar Conta</h2>
         </div>
 
+        <div
+          className="profile-picture"
+          onClick={() => document.getElementById("inputFile").click()}
+        >
+          <div className="profile-picture-overlay">
+            <canvas id="imageCanvas" className="profile-picture-preview" />
+            {isImageSelected && (
+              <div className="filter-options">
+                <p
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    applyFilter("Normal");
+                  }}
+                >
+                  Normal
+                </p>
+                <p
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    applyFilter("Sepia");
+                  }}
+                >
+                  Sépia
+                </p>
+                <p
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    applyFilter("Invert");
+                  }}
+                >
+                  Inverter
+                </p>
+                <p
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    applyFilter("GrayScale");
+                  }}
+                >
+                  Preto e Branco
+                </p>
+              </div>
+            )}
+          </div>
+        </div>
+
+        <input
+          type="file"
+          id="inputFile"
+          onChange={handleImageChange}
+          accept="image/*"
+          name="imageFile"
+          style={{ display: "none" }}
+        />
+
         <Formik
           initialValues={values}
           validationSchema={Yup.object().shape({
@@ -156,8 +178,31 @@ function RegistrationForm() {
             birthDate: Yup.date().required(),
           })}
           onSubmit={(data, { resetForm }) => {
-            handleSubmit(data, values);
-            resetForm();
+            const formData = new FormData();
+            formData.append("username", data.username);
+            formData.append("password", data.password);
+            formData.append("email", data.email);
+            formData.append("firstName", data.firstName);
+            formData.append("lastName", data.lastName);
+            formData.append("birthDate", data.birthDate);
+            formData.append("imageFile", values.imageFile);
+
+            axios
+              .post("http://localhost:3001/auth", formData, {
+                headers: {
+                  "Content-Type": "multipart/form-data",
+                },
+              })
+              .then((response) => {
+                if (response.status === 200) {
+                  toast.success("User created successfully", {
+                    className: "toast-success",
+                  });
+                }
+              })
+              .catch((error) => {
+                toast.error(error.response.data.error, { className: "toast-error" });
+              });
           }}
           validate={(data) => {
             Yup.object()
@@ -233,52 +278,24 @@ function RegistrationForm() {
                 </Col>
               </Form.Group>
 
-              <Form.Group as={Row} controlId="formImage">
-                <Form.Label column sm={12} className="custom-label">
-                  Foto de Perfil
-                </Form.Label>
-                <Col sm={12}>
-                  <Form.Control
-                    type="file"
-                    onChange={handleImageChange}
-                    accept="image/*"
-                    name="imageFile"
-                  />
-                </Col>
-              </Form.Group>
+              <div className="buttons">
+                <Button
+                  variant="primary"
+                  type="submit"
+                  className="submit-button"
+                  disabled={!isValid || !isImageSelected}
+                >
+                  Registar
+                </Button>
 
-              {isImageSelected && (
-                <div className="icon-overlay">
-                  <canvas id="imageCanvas" className="image-canvas" />
-                  <div className="icon-dropdown">
-                    <p onClick={() => applyFilter("Normal")}>Normal</p>
-                    <p onClick={() => applyFilter("Sepia")}>Sépia</p>
-                    <p onClick={() => applyFilter("Invert")}>Inverter</p>
-                    <p onClick={() => applyFilter("GrayScale")}>
-                      Preto e Branco
-                    </p>
-                  </div>
-                </div>
-              )}
+                <p className="login-link">
+                  <span className="info">Já tem conta?</span>{" "}
+                  <a href="/login">Login</a>
+                </p>
+              </div>
             </Form>
           )}
         </Formik>
-
-        <div className="buttons">
-          <Button
-            variant="primary"
-            type="submit"
-            className="submit-button"
-            disabled={!isValid}
-          >
-            Registar
-          </Button>
-
-          <p className="login-link">
-            <span className="info">Já tem conta?</span>{" "}
-            <a href="/login">Login</a>
-          </p>
-        </div>
       </div>
     </div>
   );

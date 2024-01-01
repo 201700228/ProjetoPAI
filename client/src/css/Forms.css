@@ -2,11 +2,11 @@
 
 .main {
   display: flex;
-  flex-direction: column; /* Para empilhar os itens verticalmente */
+  flex-direction: column;
   justify-content: center;
   align-items: center;
-  height: 100vh;
   width: 100%;
+  margin-top: 1%;
   box-sizing: border-box;
 }
 
@@ -16,15 +16,19 @@
   color: var(--pacman);
 }
 
-.main .container{
-  background-color: black;
+.main .container {
+  background-color: var(--black);
   padding: 10px;
   border-radius: 5%;
-  max-width: 30%; 
-  margin: 0 auto; 
+  max-width: 30%;
+  margin: 0 auto;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
 }
 
-.main .container .form{
+.main .container .form {
   max-height: 60vh;
   overflow-y: auto;
   padding: 20px;
@@ -51,4 +55,60 @@
   background-color: var(--lightblue) !important;
   color: var(--black) !important;
   font-weight: bold !important;
+}
+
+.main .container .profile-picture {
+  width: 200px;
+  height: 200px;
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  border-radius: 5px;
+}
+
+.main .container .profile-picture .profile-picture-overlay {
+  cursor: pointer;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.main .container .profile-picture .profile-picture-overlay .filter-options {
+  display: none;
+  position: absolute;
+  top: 7px;
+  right: -5px;
+  background-color: var(--black);
+  border: 1px solid var(--pacman);
+  border-radius: 5px;
+  padding: 5px;
+  z-index: 1;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+.main
+  .container
+  .profile-picture:hover
+  .profile-picture-overlay
+  .filter-options {
+  display: block;
+}
+
+.main .container .profile-picture .profile-picture-overlay .filter-options p {
+  margin: 5px;
+  cursor: pointer;
+  color: #ffff31;
+  transition: color 0.3s ease-in-out, transform 0.3s ease-in-out;
+}
+
+.main
+  .container
+  .profile-picture
+  .profile-picture-overlay
+  .filter-options
+  p:hover {
+  color: var(--ghost-orange);
+  transform: scale(1.1);
 }

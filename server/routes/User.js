@@ -7,6 +7,7 @@ const { sign } = require("jsonwebtoken");
 const multer = require("multer");
 const storage = multer.memoryStorage();
 const upload = multer({ storage: storage });
+const { Op } = require("sequelize");
 
 const { validationResult } = require("express-validator");
 
@@ -14,6 +15,53 @@ router.post("/", upload.single("imageFile"), async (req, res) => {
   try {
     const { username, password, email, firstName, lastName, birthDate } =
       req.body;
+
+    if (
+      !username ||
+      !password ||
+      !email ||
+      !firstName ||
+      !lastName ||
+      !birthDate
+    ) {
+      return res.status(400).json({ error: "All fields are required." });
+    }
+
+    const birth = new Date(birthDate);
+    const today = new Date();
+    const year = birth.getFullYear();
+
+    let age = today.getFullYear() - year;
+    const monthDiff = today.getMonth() - birth.getMonth();
+
+    if (
+      monthDiff < 0 ||
+      (monthDiff === 0 && today.getDate() < birth.getDate())
+    ) {
+      age--;
+    }
+
+    if (year.toString().length && age < 18) {
+      return res
+        .status(400)
+        .json({ error: "User is younger than 18 years old." });
+    } else if (
+      year > today.getFullYear() ||
+      year < 1900 ||
+      year.toString().length > 4
+    ) {
+      return res.status(400).json({ error: "Invalid birth year." });
+    }
+
+    const existingUser = await User.findOne({
+      where: { [Op.or]: [{ username }, { email }] },
+    });
+    if (existingUser) {
+      return res
+        .status(400)
+        .json({ error: "Username or email is already in use." });
+    }
+
     const hash = await bcrypt.hash(password, 10);
 
     const newUser = {
@@ -30,11 +78,10 @@ router.post("/", upload.single("imageFile"), async (req, res) => {
     }
 
     const createdUser = await User.create(newUser);
-
-    res.json(createdUser);
+    res.status(201).json(createdUser); 
   } catch (error) {
-    console.error("Erro ao criar o utilizador:", error);
-    res.status(500).json({ error: "Erro ao criar o utilizador" });
+    console.error("Error creating user:", error);
+    res.status(500).json({ error: "Error creating user." });
   }
 });
 

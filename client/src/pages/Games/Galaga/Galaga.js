@@ -1,13 +1,18 @@
-import React, { useEffect, useRef } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import "./Galaga.css";
 import "../../../css/Colors.css";
 import gameOverSound from "../../../assets/game-over.wav";
 import shootSound from "../../../assets/space-hit.wav";
 import enemyImgSrc from "../../../assets/enemy-ship.png";
-import heroImgSrc from "../../../assets/hero-ship.png"
+import heroImgSrc from "../../../assets/hero-ship.png";
+import { useHistory } from "react-router-dom";
 
 const Galaga = () => {
   const canvasRef = useRef(null);
+  const [gameStarted, setGameStarted] = useState(false);
+  const [finalScore, setFinalScore] = useState(0);
+  const [gameOver, setGameOver] = useState(false);
+  const history = useHistory();
 
   const shootAudio = new Audio(shootSound);
   let audioUnlocked = false;
@@ -29,6 +34,79 @@ const Galaga = () => {
   useEffect(() => {
     const canvas = canvasRef.current;
     const ctx = canvas.getContext("2d");
+
+    const drawStartButton = () => {
+      ctx.fillStyle = "#000"; // Cor preta de fundo
+      ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+      ctx.font = "40px 'Star Jedi', sans-serif";
+      ctx.fillStyle = "#ffcc00";
+      ctx.textAlign = "center";
+      ctx.fillText("Começar", canvas.width / 2, canvas.height / 2 + 10);
+      canvas.addEventListener("click", handleStart);
+    };
+
+    const handleGameOverClick = (event) => {
+      const rect = canvas.getBoundingClientRect();
+      const mouseX = event.clientX - rect.left;
+      const mouseY = event.clientY - rect.top;
+
+      if (
+        mouseX > canvas.width / 2 - 80 &&
+        mouseX < canvas.width / 2 + 20 &&
+        mouseY > canvas.height / 2 + 30 &&
+        mouseY < canvas.height / 2 + 70
+      ) {
+        // Recomeçar o jogo
+        setGameOver(false);
+        setFinalScore(0);
+        setGameStarted(false);
+      } else if (
+        mouseX > canvas.width / 2 + 30 &&
+        mouseX < canvas.width / 2 + 110 &&
+        mouseY > canvas.height / 2 + 30 &&
+        mouseY < canvas.height / 2 + 70
+      ) {
+        // Sair do jogo
+        history.push("/");
+      }
+    };
+
+    const drawGameOverScreen = () => {
+      ctx.fillStyle = "#000";
+      ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+      ctx.font = "40px 'Star Jedi', sans-serif";
+      ctx.fillStyle = "#ffcc00";
+      ctx.textAlign = "center";
+      ctx.fillText("Game Over", canvas.width / 2, canvas.height / 2 - 50);
+
+      ctx.font = "24px 'Star Jedi', sans-serif";
+      ctx.fillText(
+        "Pontuação: " + finalScore,
+        canvas.width / 2,
+        canvas.height / 2
+      );
+
+      ctx.font = "20px 'Star Jedi', sans-serif";
+      ctx.fillText("Recomeçar", canvas.width / 2 - 80, canvas.height / 2 + 50);
+      ctx.fillText("Sair", canvas.width / 2 + 30, canvas.height / 2 + 50);
+
+      canvas.addEventListener("click", handleGameOverClick);
+    };
+
+    if (gameOver) {
+      drawGameOverScreen();
+      return;
+    }
+
+    const handleStart = () => {
+      if (!gameOver) {
+        setGameStarted(true);
+        canvas.removeEventListener("click", handleStart);
+        startGame();
+      }
+    };
 
     const startGame = () => {
       canvas.addEventListener("mousedown", () => {
@@ -208,16 +286,17 @@ const Galaga = () => {
 
       const handleMouseMove = (event) => {
         mouse.x = event.clientX;
-        console.log(mouse.x);
       };
 
       const animate = () => {
-        requestAnimationFrame(animate);
         ctx.beginPath();
         ctx.clearRect(0, 0, canvas.width, canvas.height);
-        ctx.fillStyle = "white";
-        ctx.fillText("Health: " + health, 5, 20);
-        ctx.fillText("Score: " + score, canvas.width - 100, 20);
+
+        ctx.font = "20px 'Star Jedi', sans-serif";
+        ctx.fillStyle = "#ffcc00";
+        ctx.textAlign = "left";
+        ctx.fillText("Health: " + health, 20, 30);
+        ctx.fillText("Score: " + score, canvas.width - 120, 30);
         __player.update();
 
         for (var i = 0; i < _bullets.length; i++) {
@@ -232,9 +311,11 @@ const Galaga = () => {
           if (_enemies[k].y > canvas.height) {
             _enemies.splice(k, 1);
             health -= 10;
-            if (health == 0) {
-              alert("You DIED!\nYour score was " + score);
-              startGame();
+            if (health === 0) {
+              setFinalScore(score);
+              setGameOver(true);
+              drawGameOverScreen();
+              return;
             }
           }
         }
@@ -261,6 +342,8 @@ const Galaga = () => {
             }
           }
         }
+
+        requestAnimationFrame(animate);
       };
 
       document.addEventListener("touchmove", handleTouchMove);
@@ -272,8 +355,12 @@ const Galaga = () => {
         document.removeEventListener("mousemove", handleMouseMove);
       };
     };
-    startGame();
-  }, []);
+
+    if (!gameStarted) {
+      drawStartButton();
+      return;
+    }
+  }, [gameStarted, finalScore, gameOver]);
 
   return (
     <canvas className="canvas" ref={canvasRef} width={1000} height={600} />

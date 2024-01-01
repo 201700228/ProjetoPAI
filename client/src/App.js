@@ -1,10 +1,10 @@
 import "./App.css";
-import "./css/Navbar.css"
+import "./css/Navbar.css";
 import { BrowserRouter as Router, Route, Switch, Link } from "react-router-dom";
 import HomePage from "./layout/Home";
 import LoginForm from "./pages/Login/Login";
 import RegisterForm from "./pages/Register/Register";
-import Profile from "./pages/Profile/Profile"
+import Profile from "./pages/Profile/Profile";
 import { AuthContext } from "./helpers/AuthContext";
 import { useState, useEffect } from "react";
 import axios from "axios";
@@ -12,8 +12,8 @@ import backgroundImage from "./assets/background.gif";
 import logoImage from "./assets/logo.png";
 import { FaSignOutAlt, FaHome } from "react-icons/fa";
 import { useHistory } from "react-router-dom";
-import { ToastContainer } from 'react-toastify';
-import 'react-toastify/dist/ReactToastify.css';
+import { ToastContainer } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 
 function App() {
   const [authState, setAuthState] = useState({
@@ -60,7 +60,9 @@ function App() {
       <Router>
         <div style={backgroundStyle}>
           <nav className="navbar">
-            <img src={logoImage} alt="RetroReunion Logo" className="logo" />
+            <Link to="/" className="logo-link">
+              <img src={logoImage} alt="RetroReunion Logo" className="logo" />
+            </Link>
             <ul className="nav-list">
               {!authState.status ? (
                 <>
@@ -101,7 +103,7 @@ function App() {
               )}
             </ul>
           </nav>
-          <ToastContainer /> 
+          <ToastContainer />
           <Switch>
             <Route exact path="/" component={HomePage} />
             <Route path="/registration" exact component={RegisterForm} />

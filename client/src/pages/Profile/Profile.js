@@ -7,8 +7,12 @@ import { Form, Button, Row, Col } from "react-bootstrap";
 import { sepia, invert, grayscale, normal } from "../../Filters";
 import { imageDataToFile, getImageTypeFromBase64 } from "../../Files";
 import "./Profile.css";
+import { toast } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
+import { useHistory } from "react-router-dom";
 
 function Profile() {
+  const { setAuthState } = useContext(AuthContext);
   const formikRef = useRef();
   const { authState } = useContext(AuthContext);
   const [image, setImage] = useState(null);
@@ -21,6 +25,8 @@ function Profile() {
     profilePicture: null,
   });
   const [isImageChanged, setIsImageChanged] = useState(false);
+
+  const history = useHistory();
 
   useEffect(() => {
     if (authState.status) {
@@ -133,30 +139,42 @@ function Profile() {
   };
 
   const handleUpdate = async (data) => {
-    try {
-      if (authState.status) {
-        const formData = new FormData();
-        formData.append("username", data.username);
-        formData.append("email", data.email);
-        formData.append("firstName", data.firstName);
-        formData.append("lastName", data.lastName);
-        formData.append("birthDate", data.birthDate);
-        if (data.profilePicture) {
-          formData.append("profilePicture", data.profilePicture);
-        }
-
-        await axios.put(
-          `http://localhost:3001/auth/${authState.id}`,
-          formData,
-          {
-            headers: {
-              "Content-Type": "multipart/form-data",
-            },
-          }
-        );
+    if (authState.status) {
+      const formData = new FormData();
+      formData.append("username", data.username);
+      formData.append("email", data.email);
+      formData.append("firstName", data.firstName);
+      formData.append("lastName", data.lastName);
+      formData.append("birthDate", data.birthDate);
+      if (data.profilePicture) {
+        formData.append("profilePicture", data.profilePicture);
       }
-    } catch (error) {
-      console.error("Error:", error);
+
+      await axios
+        .put(`http://localhost:3001/auth/${authState.id}`, formData, {
+          headers: {
+            "Content-Type": "multipart/form-data",
+          },
+        })
+        .then((response) => {
+          if (response.status === 200) {
+            toast.success("User data updated successfully.", {
+              className: "toast-success",
+            });
+
+            setAuthState((prevAuthState) => ({
+              ...prevAuthState,
+              username: response.data.username,
+            }));
+
+            history.push("/");
+          }
+        })
+        .catch((error) => {
+          toast.error(error.response.data.error, {
+            className: "toast-error",
+          });
+        });
     }
   };
 
@@ -169,131 +187,139 @@ function Profile() {
   });
 
   return (
-    <div className="form-container">
-      <h2>Perfil</h2>
+    <div className="main">
+      <div className="container">
+        <div className="header">
+          <h2>Perfil</h2>
+        </div>
 
-      <div
-        className="image-container"
-        onClick={() => document.getElementById("inputFile").click()}
-      >
-        <div className="icon-overlay">
-          <canvas id="imageCanvas" className="preview-image" />
-          <div className="icon-dropdown">
-            <p
-              onClick={(e) => {
-                e.stopPropagation();
-                applyFilter("Normal");
-              }}
-            >
-              Normal
-            </p>
-            <p
-              onClick={(e) => {
-                e.stopPropagation();
-                applyFilter("Sepia");
-              }}
-            >
-              Sépia
-            </p>
-            <p
-              onClick={(e) => {
-                e.stopPropagation();
-                applyFilter("Invert");
-              }}
-            >
-              Inverter
-            </p>
-            <p
-              onClick={(e) => {
-                e.stopPropagation();
-                applyFilter("GrayScale");
-              }}
-            >
-              Preto e Branco
-            </p>
+        <div className="form">
+          <div
+            className="profile-picture"
+            onClick={() => document.getElementById("inputFile").click()}
+          >
+            <div className="profile-picture-overlay">
+              <canvas id="imageCanvas" className="profile-picture-preview" />
+              <div className="filter-options">
+                <p
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    applyFilter("Normal");
+                  }}
+                >
+                  Normal
+                </p>
+                <p
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    applyFilter("Sepia");
+                  }}
+                >
+                  Sépia
+                </p>
+                <p
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    applyFilter("Invert");
+                  }}
+                >
+                  Inverter
+                </p>
+                <p
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    applyFilter("GrayScale");
+                  }}
+                >
+                  Preto e Branco
+                </p>
+              </div>
+            </div>
           </div>
+
+          <input
+            type="file"
+            id="inputFile"
+            onChange={handleImageChange}
+            accept="image/*"
+            name="imageFile"
+            style={{ display: "none" }}
+          />
+
+          <Formik
+            innerRef={formikRef}
+            enableReinitialize={true}
+            initialValues={userData}
+            validationSchema={validationSchema}
+            onSubmit={(data) => {
+              handleUpdate(data);
+            }}
+          >
+            {({ handleSubmit }) => (
+              <FormikForm
+                noValidate
+                onSubmit={handleSubmit}
+                className="inner-form"
+              >
+                <Form.Group as={Row} controlId="formUsername">
+                  <Form.Label column sm={12} className="form-label">
+                    Nome de Utilizador
+                  </Form.Label>
+                  <Col sm={12}>
+                    <Field as={Form.Control} name="username" />
+                  </Col>
+                </Form.Group>
+
+                <Form.Group as={Row} controlId="formEmail">
+                  <Form.Label column sm={12} className="form-label">
+                    Email
+                  </Form.Label>
+                  <Col sm={12}>
+                    <Field as={Form.Control} name="email" />
+                  </Col>
+                </Form.Group>
+
+                <Row className="form-row">
+                  <Col sm={6}>
+                    <Form.Group controlId="formFirstName">
+                      <Form.Label className="form-label">Nome</Form.Label>
+                      <Field as={Form.Control} name="firstName" />
+                    </Form.Group>
+                  </Col>
+                  <Col sm={6}>
+                    <Form.Group controlId="formLastName">
+                      <Form.Label className="form-label">Apelido</Form.Label>
+                      <Field as={Form.Control} name="lastName" />
+                    </Form.Group>
+                  </Col>
+                </Row>
+
+                <Form.Group as={Row} controlId="formBirthDate">
+                  <Form.Label column sm={12} className="form-label">
+                    Data de Nascimento
+                  </Form.Label>
+                  <Col sm={12}>
+                    <Field as={Form.Control} type="date" name="birthDate" />
+                  </Col>
+                </Form.Group>
+
+                <Button
+                  variant="primary"
+                  type="submit"
+                  disabled={
+                    formikRef.current &&
+                    (!formikRef.current.isValid || !formikRef.current.dirty) &&
+                    !isImageChanged
+                  }
+                  className="form-button"
+                >
+                  Atualizar
+                </Button>
+              </FormikForm>
+            )}
+          </Formik>
         </div>
       </div>
-
-      <input
-        type="file"
-        id="inputFile"
-        onChange={handleImageChange}
-        accept="image/*"
-        name="imageFile"
-        style={{ display: "none" }}
-      />
-
-      <Formik
-        innerRef={formikRef}
-        enableReinitialize={true}
-        initialValues={userData}
-        validationSchema={validationSchema}
-        onSubmit={(data) => {
-          handleUpdate(data);
-        }}
-      >
-        {({ handleSubmit }) => (
-          <FormikForm noValidate onSubmit={handleSubmit} className="inner-form">
-            <Form.Group as={Row} controlId="formUsername">
-              <Form.Label column sm={12} className="custom-label">
-                Nome de Utilizador
-              </Form.Label>
-              <Col sm={12}>
-                <Field as={Form.Control} name="username" />
-              </Col>
-            </Form.Group>
-
-            <Form.Group as={Row} controlId="formEmail">
-              <Form.Label column sm={12} className="custom-label">
-                Email
-              </Form.Label>
-              <Col sm={12}>
-                <Field as={Form.Control} name="email" />
-              </Col>
-            </Form.Group>
-
-            <div className="form-name-data">
-              <Row>
-                <Col sm={6}>
-                  <Form.Group controlId="formFirstName">
-                    <Form.Label className="custom-label">Nome</Form.Label>
-                    <Field as={Form.Control} name="firstName" />
-                  </Form.Group>
-                </Col>
-                <Col sm={6}>
-                  <Form.Group controlId="formLastName">
-                    <Form.Label className="custom-label">Apelido</Form.Label>
-                    <Field as={Form.Control} name="lastName" />
-                  </Form.Group>
-                </Col>
-              </Row>
-            </div>
-
-            <Form.Group as={Row} controlId="formBirthDate">
-              <Form.Label column sm={12} className="custom-label">
-                Data de Nascimento
-              </Form.Label>
-              <Col sm={12}>
-                <Field as={Form.Control} type="date" name="birthDate" />
-              </Col>
-            </Form.Group>
-
-            <Button
-              variant="primary"
-              type="submit"
-              disabled={
-                formikRef.current &&
-                (!formikRef.current.isValid || !formikRef.current.dirty) &&
-                !isImageChanged
-              }
-              className="submit-button"
-            >
-              Atualizar
-            </Button>
-          </FormikForm>
-        )}
-      </Formik>
     </div>
   );
 }

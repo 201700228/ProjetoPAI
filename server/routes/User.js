@@ -41,7 +41,7 @@ router.post("/", upload.single("imageFile"), async (req, res) => {
       age--;
     }
 
-    if (year.toString().length && age < 18) {
+    if (year.toString().length == 4 && age < 18) {
       return res
         .status(400)
         .json({ error: "User is younger than 18 years old." });
@@ -78,9 +78,8 @@ router.post("/", upload.single("imageFile"), async (req, res) => {
     }
 
     const createdUser = await User.create(newUser);
-    res.status(201).json(createdUser); 
+    res.status(201).json(createdUser);
   } catch (error) {
-    console.error("Error creating user:", error);
     res.status(500).json({ error: "Error creating user." });
   }
 });
@@ -157,12 +156,9 @@ router.put("/changepassword", validateToken, async (req, res) => {
   });
 });
 
-
 router.put("/:id", upload.single("profilePicture"), async (req, res) => {
   const userId = req.params.id;
   const { username, email, firstName, lastName, birthDate } = req.body;
-
-  console.log(req.body);
 
   try {
     const user = await User.findByPk(userId);
@@ -171,11 +167,57 @@ router.put("/:id", upload.single("profilePicture"), async (req, res) => {
       return res.status(404).json({ error: "User not found" });
     }
 
-    user.username = username || user.username;
-    user.email = email || user.email;
-    user.firstName = firstName || user.firstName;
-    user.lastName = lastName || user.lastName;
-    user.birthDate = birthDate || user.birthDate;
+    if (!username || !email || !firstName || !lastName || !birthDate) {
+      return res.status(400).json({ error: "All fields are required." });
+    }
+
+    const birth = new Date(birthDate);
+    const today = new Date();
+    const year = birth.getFullYear();
+
+    let age = today.getFullYear() - year;
+    const monthDiff = today.getMonth() - birth.getMonth();
+
+    if (
+      monthDiff < 0 ||
+      (monthDiff === 0 && today.getDate() < birth.getDate())
+    ) {
+      age--;
+    }
+
+    console.log(age);
+    if (year.toString().length == 4 && age < 18) {
+      return res
+        .status(400)
+        .json({ error: "User is younger than 18 years old." });
+    } else if (
+      year > today.getFullYear() ||
+      year < 1900 ||
+      year.toString().length > 4
+    ) {
+      return res.status(400).json({ error: "Invalid birth year." });
+    }
+
+    const existingUser = await User.findOne({
+      where: {
+        [Op.and]: [
+          { [Op.not]: { id: userId } },
+          { [Op.or]: [{ username }, { email }] },
+        ],
+      },
+    });
+
+    if (existingUser) {
+      return res
+        .status(400)
+        .json({ error: "Username or email is already in use." });
+    }
+
+    user.username = username;
+    user.email = email;
+    user.firstName = firstName;
+    user.lastName = lastName;
+    user.birthDate = birthDate;
 
     if (req.file) {
       user.profilePicture = req.file.buffer;
@@ -185,7 +227,6 @@ router.put("/:id", upload.single("profilePicture"), async (req, res) => {
 
     res.json(user);
   } catch (error) {
-    console.error("Error updating user data:", error);
     res.status(500).json({ error: "Error updating user data" });
   }
 });

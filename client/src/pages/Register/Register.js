@@ -113,200 +113,202 @@ function RegistrationForm() {
           <h2>Criar Conta</h2>
         </div>
 
-        <div
-          className="profile-picture"
-          onClick={() => document.getElementById("inputFile").click()}
-        >
-          <div className="profile-picture-overlay">
-            <canvas id="imageCanvas" className="profile-picture-preview" />
-            {!isImageSelected && (
-              <img
-                src={imagePlaceholder}
-                alt="Placeholder"
-                className="profile-picture-preview"
-              />
-            )}
-            {isImageSelected && (
-              <div className="filter-options">
-                <p
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    applyFilter("Normal");
-                  }}
-                >
-                  Normal
-                </p>
-                <p
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    applyFilter("Sepia");
-                  }}
-                >
-                  Sépia
-                </p>
-                <p
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    applyFilter("Invert");
-                  }}
-                >
-                  Inverter
-                </p>
-                <p
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    applyFilter("GrayScale");
-                  }}
-                >
-                  Preto e Branco
-                </p>
-              </div>
-            )}
+        <div className="form">
+          <div
+            className="profile-picture"
+            onClick={() => document.getElementById("inputFile").click()}
+          >
+            <div className="profile-picture-overlay">
+              <canvas id="imageCanvas" className="profile-picture-preview" />
+              {!isImageSelected && (
+                <img
+                  src={imagePlaceholder}
+                  alt="Placeholder"
+                  className="profile-picture-preview"
+                />
+              )}
+              {isImageSelected && (
+                <div className="filter-options">
+                  <p
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      applyFilter("Normal");
+                    }}
+                  >
+                    Normal
+                  </p>
+                  <p
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      applyFilter("Sepia");
+                    }}
+                  >
+                    Sépia
+                  </p>
+                  <p
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      applyFilter("Invert");
+                    }}
+                  >
+                    Inverter
+                  </p>
+                  <p
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      applyFilter("GrayScale");
+                    }}
+                  >
+                    Preto e Branco
+                  </p>
+                </div>
+              )}
+            </div>
           </div>
-        </div>
 
-        <input
-          type="file"
-          id="inputFile"
-          onChange={handleImageChange}
-          accept="image/*"
-          name="imageFile"
-          style={{ display: "none" }}
-        />
+          <input
+            type="file"
+            id="inputFile"
+            onChange={handleImageChange}
+            accept="image/*"
+            name="imageFile"
+            style={{ display: "none" }}
+          />
 
-        <Formik
-          initialValues={values}
-          validationSchema={Yup.object().shape({
-            username: Yup.string().min(3).max(100).required(),
-            password: Yup.string().min(4).max(20).required(),
-            email: Yup.string().email().required(),
-            firstName: Yup.string().required(),
-            lastName: Yup.string().required(),
-            birthDate: Yup.date().required(),
-          })}
-          onSubmit={(data, { resetForm }) => {
-            const formData = new FormData();
-            formData.append("username", data.username);
-            formData.append("password", data.password);
-            formData.append("email", data.email);
-            formData.append("firstName", data.firstName);
-            formData.append("lastName", data.lastName);
-            formData.append("birthDate", data.birthDate);
-            formData.append("imageFile", values.imageFile);
+          <Formik
+            initialValues={values}
+            validationSchema={Yup.object().shape({
+              username: Yup.string().min(3).max(100).required(),
+              password: Yup.string().min(4).max(20).required(),
+              email: Yup.string().email().required(),
+              firstName: Yup.string().required(),
+              lastName: Yup.string().required(),
+              birthDate: Yup.date().required(),
+            })}
+            onSubmit={(data, { resetForm }) => {
+              const formData = new FormData();
+              formData.append("username", data.username);
+              formData.append("password", data.password);
+              formData.append("email", data.email);
+              formData.append("firstName", data.firstName);
+              formData.append("lastName", data.lastName);
+              formData.append("birthDate", data.birthDate);
+              formData.append("imageFile", values.imageFile);
 
-            axios
-              .post("http://localhost:3001/auth", formData, {
-                headers: {
-                  "Content-Type": "multipart/form-data",
-                },
-              })
-              .then((response) => {
-                if (response.status === 201) {
-                  toast.success("User created successfully", {
-                    className: "toast-success",
+              axios
+                .post("http://localhost:3001/auth", formData, {
+                  headers: {
+                    "Content-Type": "multipart/form-data",
+                  },
+                })
+                .then((response) => {
+                  if (response.status === 201) {
+                    toast.success("User created successfully", {
+                      className: "toast-success",
+                    });
+                    resetForm();
+                    setImage(null);
+                    setIsImageSelected(false);
+                    setValues({ ...values, imageFile: null });
+                  }
+                })
+                .catch((error) => {
+                  toast.error(error.response.data.error, {
+                    className: "toast-error",
                   });
-                  resetForm();
-                  setImage(null);
-                  setIsImageSelected(false);
-                  setValues({ ...values, imageFile: null });
-                }
-              })
-              .catch((error) => {
-                toast.error(error.response.data.error, {
-                  className: "toast-error",
                 });
-              });
-          }}
-          validate={(data) => {
-            Yup.object()
-              .shape({
-                username: Yup.string().min(3).max(100).required(),
-                password: Yup.string().min(4).max(20).required(),
-                email: Yup.string().email().required(),
-                firstName: Yup.string().required(),
-                lastName: Yup.string().required(),
-                birthDate: Yup.date().required(),
-              })
-              .validate(data)
-              .then(() => {
-                setIsValid(true);
-              })
-              .catch(() => {
-                setIsValid(false);
-              });
-          }}
-        >
-          {({ handleSubmit }) => (
-            <Form noValidate onSubmit={handleSubmit} className="form">
-              <Form.Group as={Row} controlId="formUsername">
-                <Form.Label column sm={12} className="custom-label">
-                  Nome de Utilizador
-                </Form.Label>
-                <Col sm={12}>
-                  <Field as={Form.Control} name="username" />
-                </Col>
-              </Form.Group>
+            }}
+            validate={(data) => {
+              Yup.object()
+                .shape({
+                  username: Yup.string().min(3).max(100).required(),
+                  password: Yup.string().min(4).max(20).required(),
+                  email: Yup.string().email().required(),
+                  firstName: Yup.string().required(),
+                  lastName: Yup.string().required(),
+                  birthDate: Yup.date().required(),
+                })
+                .validate(data)
+                .then(() => {
+                  setIsValid(true);
+                })
+                .catch(() => {
+                  setIsValid(false);
+                });
+            }}
+          >
+            {({ handleSubmit }) => (
+              <Form noValidate onSubmit={handleSubmit}>
+                <Form.Group as={Row} controlId="formUsername">
+                  <Form.Label column sm={12} className="form-label">
+                    Nome de Utilizador
+                  </Form.Label>
+                  <Col sm={12}>
+                    <Field as={Form.Control} name="username" />
+                  </Col>
+                </Form.Group>
 
-              <Form.Group as={Row} controlId="formPassword">
-                <Form.Label column sm={12} className="custom-label">
-                  Palavra-Passe
-                </Form.Label>
-                <Col sm={12}>
-                  <Field as={Form.Control} type="password" name="password" />
-                </Col>
-              </Form.Group>
+                <Form.Group as={Row} controlId="formPassword">
+                  <Form.Label column sm={12} className="form-label">
+                    Palavra-Passe
+                  </Form.Label>
+                  <Col sm={12}>
+                    <Field as={Form.Control} type="password" name="password" />
+                  </Col>
+                </Form.Group>
 
-              <Form.Group as={Row} controlId="formEmail">
-                <Form.Label column sm={12} className="custom-label">
-                  Email
-                </Form.Label>
-                <Col sm={12}>
-                  <Field as={Form.Control} type="email" name="email" />
-                </Col>
-              </Form.Group>
+                <Form.Group as={Row} controlId="formEmail">
+                  <Form.Label column sm={12} className="form-label">
+                    Email
+                  </Form.Label>
+                  <Col sm={12}>
+                    <Field as={Form.Control} type="email" name="email" />
+                  </Col>
+                </Form.Group>
 
                 <Row className="form-row">
                   <Col sm={6}>
                     <Form.Group controlId="formFirstName">
-                      <Form.Label className="custom-label">Nome</Form.Label>
+                      <Form.Label className="form-label">Nome</Form.Label>
                       <Field as={Form.Control} name="firstName" />
                     </Form.Group>
                   </Col>
                   <Col sm={6}>
                     <Form.Group controlId="formLastName">
-                      <Form.Label className="custom-label">Apelido</Form.Label>
+                      <Form.Label className="form-label">Apelido</Form.Label>
                       <Field as={Form.Control} name="lastName" />
                     </Form.Group>
                   </Col>
                 </Row>
 
-              <Form.Group as={Row} controlId="formBirthDate">
-                <Form.Label column sm={12} className="custom-label">
-                  Data de Nascimento
-                </Form.Label>
-                <Col sm={12}>
-                  <Field as={Form.Control} type="date" name="birthDate" />
-                </Col>
-              </Form.Group>
+                <Form.Group as={Row} controlId="formBirthDate">
+                  <Form.Label column sm={12} className="form-label">
+                    Data de Nascimento
+                  </Form.Label>
+                  <Col sm={12}>
+                    <Field as={Form.Control} type="date" name="birthDate" />
+                  </Col>
+                </Form.Group>
 
-              <div >
-                <Button
-                  variant="primary"
-                  type="submit"
-                  className="form-button"
-                  disabled={!isValid || !isImageSelected}
-                >
-                  Registar
-                </Button>
+                <div>
+                  <Button
+                    variant="primary"
+                    type="submit"
+                    className="form-button"
+                    disabled={!isValid || !isImageSelected}
+                  >
+                    Registar
+                  </Button>
 
-                <p className="form-link">
-                  <span className="info">Já tem conta?</span>{" "}
-                  <a href="/login">Login</a>
-                </p>
-              </div>
-            </Form>
-          )}
-        </Formik>
+                  <p className="form-link">
+                    <span className="info">Já tem conta?</span>{" "}
+                    <a href="/login">Login</a>
+                  </p>
+                </div>
+              </Form>
+            )}
+          </Formik>
+        </div>
       </div>
     </div>
   );

@@ -157,25 +157,6 @@ router.put("/changepassword", validateToken, async (req, res) => {
   });
 });
 
-router.get("/check-username/:username", async (req, res) => {
-  try {
-    const { username } = req.params;
-
-    const user = await User.findOne({ where: { username: username } });
-
-    const isUsernameAvailable = !user;
-
-    res.json({ available: isUsernameAvailable });
-  } catch (error) {
-    console.error(
-      "Erro ao verificar a disponibilidade do nome do utilizador:",
-      error
-    );
-    res.status(500).json({
-      error: "Erro ao verificar a disponibilidade do nome de utilizador",
-    });
-  }
-});
 
 router.put("/:id", upload.single("profilePicture"), async (req, res) => {
   const userId = req.params.id;

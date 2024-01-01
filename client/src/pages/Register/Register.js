@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback } from "react";
+import React, { useState, useEffect } from "react";
 import { Form, Button, Row, Col } from "react-bootstrap";
 import * as Yup from "yup";
 import { Formik, Field } from "formik";
@@ -7,8 +7,8 @@ import "./Register.css";
 import { sepia, invert, grayscale, normal } from "../../Filters";
 import { imageDataToFile } from "../../Files";
 import { toast } from "react-toastify";
-import "../../App.css";
 import "react-toastify/dist/ReactToastify.css";
+import imagePlaceholder from "../../assets/image-placeholder.png";
 
 function RegistrationForm() {
   const [image, setImage] = useState(null);
@@ -119,6 +119,13 @@ function RegistrationForm() {
         >
           <div className="profile-picture-overlay">
             <canvas id="imageCanvas" className="profile-picture-preview" />
+            {!isImageSelected && (
+              <img
+                src={imagePlaceholder}
+                alt="Placeholder"
+                className="profile-picture-preview"
+              />
+            )}
             {isImageSelected && (
               <div className="filter-options">
                 <p
@@ -194,14 +201,20 @@ function RegistrationForm() {
                 },
               })
               .then((response) => {
-                if (response.status === 200) {
+                if (response.status === 201) {
                   toast.success("User created successfully", {
                     className: "toast-success",
                   });
+                  resetForm();
+                  setImage(null);
+                  setIsImageSelected(false);
+                  setValues({ ...values, imageFile: null });
                 }
               })
               .catch((error) => {
-                toast.error(error.response.data.error, { className: "toast-error" });
+                toast.error(error.response.data.error, {
+                  className: "toast-error",
+                });
               });
           }}
           validate={(data) => {

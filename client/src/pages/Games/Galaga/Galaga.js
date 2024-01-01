@@ -1,15 +1,39 @@
 import React, { useEffect, useRef } from "react";
 import "./Galaga.css";
 import "../../../css/Colors.css";
+import gameOverSound from "../../../assets/game-over.wav";
+import shootSound from "../../../assets/space-hit.wav";
 
 const Galaga = () => {
   const canvasRef = useRef(null);
+
+  const shootAudio = new Audio(shootSound);
+  let audioUnlocked = false;
+
+  const playShootSound = () => {
+    if (!audioUnlocked) {
+      shootAudio.play().catch((error) => {
+        console.error("Audio playback error:", error);
+      });
+      audioUnlocked = true;
+    } else {
+      shootAudio.currentTime = 0;
+      shootAudio.play().catch((error) => {
+        console.error("Audio playback error:", error);
+      });
+    }
+  };
 
   useEffect(() => {
     const canvas = canvasRef.current;
     const ctx = canvas.getContext("2d");
 
     const startGame = () => {
+      canvas.addEventListener("mousedown", () => {
+        playShootSound();
+        fire();
+      });
+
       const mouse = {
         x: canvas.width / 2,
         y: canvas.height - 33,
@@ -156,7 +180,6 @@ const Galaga = () => {
           _bullets.push(__bullet);
         }
       }
-      setInterval(fire, 200);
 
       function collision(a, b) {
         return (
@@ -182,6 +205,7 @@ const Galaga = () => {
 
       const handleMouseMove = (event) => {
         mouse.x = event.clientX;
+        console.log(mouse.x);
       };
 
       const animate = () => {

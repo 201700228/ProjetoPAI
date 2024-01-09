@@ -14,6 +14,7 @@ import { FaSignOutAlt, FaHome } from "react-icons/fa";
 import { useHistory } from "react-router-dom";
 import { ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
+import Chat from "./pages/Chat/chat"; // Import the new Chat component
 
 function App() {
   const [authState, setAuthState] = useState({
@@ -109,6 +110,7 @@ function App() {
             <Route path="/registration" exact component={RegisterForm} />
             <Route path="/login" exact component={LoginForm} />
             <Route path="/profile" exact component={Profile} />
+            <Route path="/chat" exact component={Chat} />
           </Switch>
         </div>
       </Router>

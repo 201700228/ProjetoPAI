@@ -1,6 +1,6 @@
 import React from 'react';
 import Pong from '../pages/Games/Pong/Pong';
-import Galaga from '../pages/Games/Galaga/Galaga';
+import Galaga from '../pages/Games/Galaga/Game';
 
 const HomePage = () => {
   return (

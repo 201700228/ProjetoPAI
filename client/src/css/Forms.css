@@ -1,6 +1,5 @@
 @import "./Colors.css";
 
-
 .main {
   display: flex;
   flex-direction: column;
@@ -31,14 +30,13 @@
   width: 100%;
   box-sizing: border-box;
   overflow-y: auto;
-  display: flex; 
-  flex-direction: column; 
+  display: flex;
+  flex-direction: column;
   align-items: center;
 }
 
 .main .header {
-  text-align: center;
-  margin-bottom: 20px;
+  margin-right: 10px;
   color: var(--pacman);
 }
 
@@ -68,6 +66,17 @@
   border-radius: 5px;
 }
 
+.main .container .form .buttonImage {
+  margin-top: 2%;
+  background-color:  var(--pacman);
+  color: black;
+  border: none;
+  padding: 10px;
+  cursor: pointer;
+  font-weight: bold;
+  border-radius: 5px;
+}
+
 .main .container .form .profile-picture .profile-picture-overlay {
   position: relative;
   width: 200px;
@@ -77,9 +86,15 @@
   display: flex;
   align-items: center;
   justify-content: center;
+  flex-direction: column;
 }
 
-.main .container .form .profile-picture .profile-picture-overlay .filter-options {
+.main
+  .container
+  .form
+  .profile-picture
+  .profile-picture-overlay
+  .filter-options {
   display: none;
   position: absolute;
   top: 7px;
@@ -92,7 +107,6 @@
   box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
 }
 
-
 .main
   .container
   .profile-picture:hover
@@ -104,7 +118,7 @@
 .main .container .profile-picture .profile-picture-overlay .filter-options p {
   margin: 5px;
   cursor: pointer;
-  color: #ffff31;
+  color: var(--pacman);
   transition: color 0.3s ease-in-out, transform 0.3s ease-in-out;
 }
 
@@ -149,6 +163,6 @@
   text-decoration: underline;
 }
 
-.form-label{
-  color: var(--pacman); 
+.form-label {
+  color: var(--pacman);
 }

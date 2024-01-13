@@ -8,7 +8,7 @@ import { sepia, invert, grayscale, normal } from "../../Filters";
 import { imageDataToFile } from "../../Files";
 import { toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
-import imagePlaceholder from "../../assets/image-placeholder.jpg";
+import "./Register.css";
 
 function RegistrationForm() {
   const [image, setImage] = useState(null);
@@ -26,6 +26,7 @@ function RegistrationForm() {
 
   const handleImageChange = (e) => {
     const selectedImage = e.target.files[0];
+
     if (selectedImage) {
       setImage(URL.createObjectURL(selectedImage));
       setIsImageSelected(true);
@@ -33,7 +34,7 @@ function RegistrationForm() {
     } else {
       setImage(null);
       setIsImageSelected(false);
-      setValues({ ...values, imageFile: null });
+      setValues((prevValues) => ({ ...prevValues, imageFile: null }));
     }
   };
 
@@ -117,16 +118,11 @@ function RegistrationForm() {
           <div
             className="profile-picture"
             onClick={() => document.getElementById("inputFile").click()}
+            style={{ display: isImageSelected ? "block" : "none" }}
           >
             <div className="profile-picture-overlay">
               <canvas id="imageCanvas" className="profile-picture-preview" />
-              {!isImageSelected && (
-                <img
-                  src={imagePlaceholder}
-                  alt="Placeholder"
-                  className="profile-picture-preview"
-                />
-              )}
+
               {isImageSelected && (
                 <div className="filter-options">
                   <p
@@ -165,7 +161,6 @@ function RegistrationForm() {
               )}
             </div>
           </div>
-
           <input
             type="file"
             id="inputFile"
@@ -174,6 +169,14 @@ function RegistrationForm() {
             name="imageFile"
             style={{ display: "none" }}
           />
+          <button
+            type="button"
+            className="buttonImage"
+            onClick={() => document.getElementById("inputFile").click()}
+            style={{ display: isImageSelected ? "none" : "block" }}
+          >
+            SELECIONAR IMAGEM
+          </button>
 
           <Formik
             initialValues={values}

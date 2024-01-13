@@ -156,7 +156,7 @@ export function drawHealthkits(canvas, ctx, enemies, healthkits) {
 export function fire(ctx, mouse, player, bullets) {
   if (bullets) {
     for (var _ = 0; _ < 1; _++) {
-      var x = mouse.x - bullets.width / 2;
+      var x = mouse.x + bullets.width * 2;
       var y = mouse.y - player.height;
       var bullet = new Bullet(
         ctx,
@@ -172,6 +172,21 @@ export function fire(ctx, mouse, player, bullets) {
 }
 
 export function collision(a, b) {
+  if (
+    !a ||
+    !b ||
+    !a.x ||
+    !a.y ||
+    !a.width ||
+    !a.height ||
+    !b.x ||
+    !b.y ||
+    !b.width ||
+    !b.height
+  ) {
+    return false;
+  }
+
   return (
     a.x < b.x + b.width &&
     a.x + a.width > b.x &&
@@ -189,11 +204,7 @@ export function updateBullets(bullets) {
   }
 }
 
-export function updateEnemies(
-  canvas,
-  enemies,
-  health
-) {
+export function updateEnemies(canvas, enemies, health) {
   let healthUpdated = health;
 
   for (let k = enemies.list.length - 1; k >= 0; k--) {
@@ -219,10 +230,10 @@ export function updateScoreHitEnemy(enemies, bullets, score) {
     }
   }
 
-  return scoreUpdated
+  return scoreUpdated;
 }
 
-export function updateHealthHitKit(healthkits, bullets, health){
+export function updateHealthHitKit(healthkits, bullets, health) {
   let healthUpdated = health;
   for (var hh = healthkits.list.length - 1; hh >= 0; hh--) {
     for (var hhh = bullets.list.length - 1; hhh >= 0; hhh--) {
@@ -230,10 +241,10 @@ export function updateHealthHitKit(healthkits, bullets, health){
         healthkits.list.splice(hh, 1);
         bullets.list.splice(hhh, 1);
         healthUpdated += 10;
-      }
+      }  
     }
   }
-  
+
   return healthUpdated;
 }
 

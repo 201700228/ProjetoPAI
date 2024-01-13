@@ -11,7 +11,7 @@ import {
   drawEndScreen,
   drawScoreHealth,
 } from "./Canvas";
-import { fireSound, backgroundSound, gameOverSound } from "./Sound";
+import { fireSound, backgroundSound } from "./Sound";
 import {
   createVars,
   Player,
@@ -61,7 +61,6 @@ const Galaga = () => {
 
       const handleEnd = () => {
         setCanvasVisible(false);
-        // Limpar animações pendentes
         cancelAnimationFrame(animationFrameId);
       };
 

@@ -74,14 +74,12 @@ function App() {
               {!authState.status ? (
                 <>
                   <li>
-                    <NavLink className="link" href="/login">
-                      {" "}
+                    <NavLink className="link" to="/login">
                       Login
                     </NavLink>
                   </li>
                   <li>
-                    <NavLink className="link" href="/registration">
-                      {" "}
+                    <NavLink className="link" to="/registration">
                       Registar
                     </NavLink>
                   </li>
@@ -89,19 +87,19 @@ function App() {
               ) : (
                 <>
                   <li>
-                    <NavLink href="/" className="link">
+                    <NavLink to="/" className="link">
                       <FaHome size={20} />
                     </NavLink>
                   </li>
 
                   <li>
-                    <NavLink href="/profile" className="link-user">
+                    <NavLink to="/profile" className="link-user">
                       {authState.username}
                     </NavLink>
                   </li>
                   <li>
                     {authState.status && (
-                      <NavLink href="/" className="link" onClick={logout}>
+                      <NavLink to="/" className="link" onClick={logout}>
                         <FaSignOutAlt size={20} />
                       </NavLink>
                     )}

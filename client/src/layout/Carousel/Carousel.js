@@ -43,15 +43,14 @@ const Carousel = ({ slides }) => {
     }
   };
 
-  const handleSlideClick = () => {
-    const route = slides[currentSlide].route;
+  const handleSlideClick = (index) => {
+    const route = slides[index].route;
     if (route) {
       navigate(route);
     }
   };
 
   const handleKeyDown = (e) => {
-    // Adiciona suporte para navegação com as teclas de setas
     if (e.key === "ArrowLeft") {
       prevSlide();
     } else if (e.key === "ArrowRight") {
@@ -60,16 +59,16 @@ const Carousel = ({ slides }) => {
   };
 
   useEffect(() => {
-    // Adiciona um temporizador para avançar automaticamente os slides a cada 5 segundos
-    const timer = setInterval(() => {
-      nextSlide();
-    }, 5000);
+    if (slides.length > 3) {
+      const timer = setInterval(() => {
+        nextSlide();
+      }, 5000);
 
-    return () => {
-      // Limpa o temporizador ao desmontar o componente
-      clearInterval(timer);
-    };
-  }, [currentSlide]);
+      return () => {
+        clearInterval(timer);
+      };
+    }
+  }, [currentSlide, slides]);
 
   return (
     <div
@@ -81,25 +80,34 @@ const Carousel = ({ slides }) => {
       onKeyDown={handleKeyDown}
       tabIndex={0}
     >
-      <div className="slide" onBlur={() => slideRef.current.focus()}>
-        <div className="slideContent">
-          <img
-            src={slides[currentSlide].image}
-            alt={slides[currentSlide].title}
-            onClick={handleSlideClick}
-          />
+      <div className="slides">
+        {slides.map((slide, index) => (
+          <div
+            key={index}
+            className={`slide ${index === currentSlide ? 'selected' : ''}`}
+            onClick={() => handleSlideClick(index)}
+          >
+            <img
+              src={slide.image}
+              alt={slide.title}
+            />
+            <div className="slideText">
+              <h3>{slide.title}</h3>
+              {/* <p>{slide.subtitle}</p> */}
+            </div>
+          </div>
+        ))}
+      </div>
+      {slides.length > 3 && (
+        <>
           <div className="navButton prev" onClick={prevSlide}>
             <FaChevronLeft size={50} />
           </div>
           <div className="navButton next" onClick={nextSlide}>
             <FaChevronRight size={50} />
           </div>
-          <div className="slideText">
-            <h3>{slides[currentSlide].title}</h3>
-            <p>{slides[currentSlide].subtitle}</p>
-          </div>
-        </div>
-      </div>
+        </>
+      )}
     </div>
   );
 };

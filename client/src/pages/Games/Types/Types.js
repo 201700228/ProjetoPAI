@@ -5,20 +5,20 @@ import singlePlayer from "../../../assets/carousel-singleplayer.jpg";
 import torneio from "../../../assets/carousel-tournament.jpg";
 
 const GameTypes = () => {
-  const { gameType } = useParams();
+  const { gameOption } = useParams();
 
   const slides = [
     {
       title: "Single Player",
       subtitle: "",
       image: singlePlayer,
-      route: `/play/${gameType}/single-player`,
+      route: `/play/${gameOption}/single-player`,
     },
     {
       title: "Torneio",
       subtitle: "",
       image: torneio,
-      route: `/play/${gameType}/tournament`,
+      route: `/play/${gameOption}/tournament`,
     },
   ];
 

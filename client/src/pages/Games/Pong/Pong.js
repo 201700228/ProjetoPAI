@@ -177,7 +177,7 @@ const Pong = () => {
 
   return (
     <div>
-      <div class="colors-container" ></div>
+      <div className="colors-container" ></div>
       <canvas className="canvas" ref={canvasRef} width={1200} height={600} />
     </div>
   );

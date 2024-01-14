@@ -7,14 +7,12 @@ const HomePage = () => {
   const slides = [
     {
       title: "Jogar",
-      subtitle: "Single Player e Torneios",
+
       image: playGames,
       route: "/play",
     },
     {
       title: "Fórum",
-      subtitle:
-        "Plataforma onde pode discutir sobre jogos, compartilhar experiências e fazer perguntas.",
       image: forum,
       route: "/forum",
     },

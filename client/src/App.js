@@ -21,6 +21,8 @@ import "react-toastify/dist/ReactToastify.css";
 import Chat from "./pages/Chat/chat"; // Import the new Chat component
 import GameOptions from "./pages/Games/Options/Options";
 import GameTypes from "./pages/Games/Types/Types";
+import Galaga from "./pages/Games/Galaga/Game";
+import Pong from "./pages/Games/Pong/Pong"
 
 function App() {
   const [authState, setAuthState] = useState({
@@ -47,7 +49,7 @@ function App() {
           });
         }
       });
-  }, []);
+  }, [authState]);
 
   const logout = () => {
     localStorage.removeItem("accessToken");
@@ -117,7 +119,9 @@ function App() {
             <Route path="/profile" element={<Profile />} />
             <Route path="/chat" element={<Chat />} />
             <Route path="/play" element={<GameOptions />} />
-            <Route path="/play/:gameType" element={<GameTypes />} />
+            <Route path="/play/:gameOption" element={<GameTypes />} />
+            <Route path="/play/galaga/single-player" element={<Galaga />} />
+            <Route path="/play/pong/single-player" element={<Pong />} />
           </Routes>
         </div>
       </Router>

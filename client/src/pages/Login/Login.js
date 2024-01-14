@@ -3,7 +3,7 @@ import { Form, Button, Row, Col } from "react-bootstrap";
 import * as Yup from "yup";
 import { Formik, Field } from "formik";
 import axios from "axios";
-import { useHistory } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import { AuthContext } from "../../helpers/AuthContext";
 import "./Login.css";
 import "../../App.css";
@@ -18,7 +18,7 @@ const LoginForm = () => {
 
   const [isValid, setIsValid] = useState(false);
   const { setAuthState } = useContext(AuthContext);
-  const history = useHistory();
+  const navigate = useNavigate();
 
   return (
     <div className="main-login">
@@ -46,7 +46,7 @@ const LoginForm = () => {
                     id: response.data.id,
                     status: true,
                   });
-                  history.push("/");
+                  navigate("/");
 
                   toast.success("Login successful", {
                     className: "toast-success",

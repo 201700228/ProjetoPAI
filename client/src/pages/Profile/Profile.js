@@ -9,7 +9,7 @@ import { imageDataToFile, getImageTypeFromBase64 } from "../../Files";
 import "./Profile.css";
 import { toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
-import { useHistory } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 
 function Profile() {
   const { setAuthState } = useContext(AuthContext);
@@ -26,7 +26,7 @@ function Profile() {
   });
   const [isImageChanged, setIsImageChanged] = useState(false);
 
-  const history = useHistory();
+  const navigate = useNavigate();
 
   useEffect(() => {
     if (authState.status) {
@@ -167,7 +167,7 @@ function Profile() {
               username: response.data.username,
             }));
 
-            history.push("/");
+            navigate("/");
           }
         })
         .catch((error) => {

@@ -1,6 +1,11 @@
 import "./App.css";
 import "./css/Navbar.css";
-import { BrowserRouter as Router, Route, Switch, Link } from "react-router-dom";
+import {
+  BrowserRouter as Router,
+  Routes,
+  Route,
+  NavLink,
+} from "react-router-dom";
 import HomePage from "./layout/Home";
 import LoginForm from "./pages/Login/Login";
 import RegisterForm from "./pages/Register/Register";
@@ -11,10 +16,11 @@ import axios from "axios";
 import backgroundImage from "./assets/background.gif";
 import logoImage from "./assets/logo.png";
 import { FaSignOutAlt, FaHome } from "react-icons/fa";
-import { useHistory } from "react-router-dom";
 import { ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import Chat from "./pages/Chat/chat"; // Import the new Chat component
+import GameOptions from "./pages/Games/Options/Options";
+import GameTypes from "./pages/Games/Types/Types";
 
 function App() {
   const [authState, setAuthState] = useState({
@@ -22,8 +28,6 @@ function App() {
     id: 0,
     status: false,
   });
-
-  const history = useHistory();
 
   useEffect(() => {
     axios
@@ -61,43 +65,43 @@ function App() {
       <Router>
         <div style={backgroundStyle}>
           <nav className="navbar">
-            <Link to="/" className="logo-link">
+            <NavLink to="/" className="logo-link">
               <img src={logoImage} alt="RetroReunion Logo" className="logo" />
-            </Link>
+            </NavLink>
             <ul className="nav-list">
               {!authState.status ? (
                 <>
                   <li>
-                    <Link className="link" to="/login">
+                    <NavLink className="link" href="/login">
                       {" "}
                       Login
-                    </Link>
+                    </NavLink>
                   </li>
                   <li>
-                    <Link className="link" to="/registration">
+                    <NavLink className="link" href="/registration">
                       {" "}
                       Registar
-                    </Link>
+                    </NavLink>
                   </li>
                 </>
               ) : (
                 <>
                   <li>
-                    <Link to="/" className="link">
+                    <NavLink href="/" className="link">
                       <FaHome size={20} />
-                    </Link>
+                    </NavLink>
                   </li>
 
                   <li>
-                    <Link to="/profile" className="link-user">
+                    <NavLink href="/profile" className="link-user">
                       {authState.username}
-                    </Link>
+                    </NavLink>
                   </li>
                   <li>
                     {authState.status && (
-                      <Link to="/" className="link" onClick={logout}>
+                      <NavLink href="/" className="link" onClick={logout}>
                         <FaSignOutAlt size={20} />
-                      </Link>
+                      </NavLink>
                     )}
                   </li>
                 </>
@@ -105,13 +109,16 @@ function App() {
             </ul>
           </nav>
           <ToastContainer />
-          <Switch>
-            <Route exact path="/" component={HomePage} />
-            <Route path="/registration" exact component={RegisterForm} />
-            <Route path="/login" exact component={LoginForm} />
-            <Route path="/profile" exact component={Profile} />
-            <Route path="/chat" exact component={Chat} />
-          </Switch>
+
+          <Routes>
+            <Route path="/" element={<HomePage />} />
+            <Route path="/registration" element={<RegisterForm />} />
+            <Route path="/login" element={<LoginForm />} />
+            <Route path="/profile" element={<Profile />} />
+            <Route path="/chat" element={<Chat />} />
+            <Route path="/play" element={<GameOptions />} />
+            <Route path="/play/:gameType" element={<GameTypes />} />
+          </Routes>
         </div>
       </Router>
     </AuthContext.Provider>

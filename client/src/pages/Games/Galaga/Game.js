@@ -7,7 +7,7 @@ import heroImgSrc from "../../../assets/hero-ship.png";
 import galagaLogoSrc from "../../../assets/galaga-logo.png";
 import { useNavigate } from "react-router-dom";
 import { drawStartScreen, drawEndScreen, drawScoreHealth } from "./Canvas";
-import { fireSound, backgroundSound } from "./Sound";
+import { fireSound, backgroundSound, gameOverSound } from "./Sound";
 import {
   createVars,
   Player,
@@ -32,11 +32,12 @@ const Galaga = () => {
 
   const { playBackground, pauseBackground } = backgroundSound(gameOver);
 
+
   useEffect(() => {
     const canvas = canvasRef.current;
     const ctx = canvas.getContext("2d");
     ctx.font = "1em Arial";
-
+  
     const handleStart = () => {
       if (!gameOver) {
         setGameStarted(true);
@@ -44,18 +45,22 @@ const Galaga = () => {
         startGame();
       }
     };
-
+  
     const drawStartButton = drawStartScreen(
       ctx,
       canvas,
       handleStart,
       galagaLogoSrc
     );
-
+  
     const handleEnd = () => {
       cancelAnimationFrame(animationFrameId);
+      const currentPath = window.location.pathname;
+      const parentPath = currentPath.split('/').slice(0, -1).join('/');
+      navigate(parentPath);
+      pauseBackground();
     };
-
+  
     let animationFrameId;
 
     const startGame = () => {
@@ -85,14 +90,22 @@ const Galaga = () => {
         if (!gameOver) {
           drawHealthkits(canvas, ctx, enemies, healthkits);
         }
-      }, 8000);
+      }, 20000);
 
       const handleMouseMove = (event) => {
         mouse.x = Math.max(0, Math.min(event.clientX, 950));
       };
 
       const animate = () => {
+
+        
         if (health === 0) {
+        
+          cancelAnimationFrame(animationFrameId);
+      
+          document.removeEventListener("mousemove", handleMouseMove);
+          document.removeEventListener("keydown", handleSpacebarPress);
+      
           const milliseconds = performance.now() - startTime;
           const seconds = Math.ceil(milliseconds / 1000);
           const drawEndButton = drawEndScreen(
@@ -102,10 +115,9 @@ const Galaga = () => {
             seconds,
             handleEnd
           );
-
+      
           drawEndButton();
-          pauseBackground();
-
+      
           return;
         }
 
@@ -147,7 +159,6 @@ const Galaga = () => {
   }, [
     gameStarted,
     gameOver,
-    navigate,
     startTime,
     playBackground,
     playShootSound,

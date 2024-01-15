@@ -9,6 +9,11 @@ const Carousel = ({ slides }) => {
   const [isDragging, setIsDragging] = useState(false);
   const slideRef = useRef(null);
   const navigate = useNavigate();
+  const [loadedImages, setLoadedImages] = useState([]);
+
+  const handleImageLoad = (index) => {
+    setLoadedImages((prevLoadedImages) => [...prevLoadedImages, index]);
+  };
 
   const nextSlide = () => {
     setCurrentSlide((prevSlide) => (prevSlide + 1) % slides.length);
@@ -68,7 +73,7 @@ const Carousel = ({ slides }) => {
         clearInterval(timer);
       };
     }
-  }, [currentSlide, slides]);
+  }, [currentSlide, slides, nextSlide]);
 
   return (
     <div
@@ -84,17 +89,20 @@ const Carousel = ({ slides }) => {
         {slides.map((slide, index) => (
           <div
             key={index}
-            className={`slide ${index === currentSlide ? 'selected' : ''}`}
+            className={`slide ${index === currentSlide ? "selected" : ""}`}
             onClick={() => handleSlideClick(index)}
           >
             <img
               src={slide.image}
               alt={slide.title}
+              onLoad={() => handleImageLoad(index)}
             />
-            <div className="slideText">
-              <h3>{slide.title}</h3>
-              {/* <p>{slide.subtitle}</p> */}
-            </div>
+            {loadedImages.includes(index) && (
+              <div className="slideText">
+                <h3>{slide.title}</h3>
+                {/* <p>{slide.subtitle}</p> */}
+              </div>
+            )}
           </div>
         ))}
       </div>

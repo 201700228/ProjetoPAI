@@ -211,7 +211,8 @@ export function updateEnemies(canvas, enemies, health) {
     enemies.list[k].update();
     if (enemies.list[k].y > canvas.height) {
       enemies.list.splice(k, 1);
-      healthUpdated -= 10;
+      
+      healthUpdated = Math.max(0, healthUpdated - 10);
     }
   }
 

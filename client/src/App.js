@@ -22,7 +22,8 @@ import Chat from "./pages/Chat/chat"; // Import the new Chat component
 import GameOptions from "./pages/Games/Options/Options";
 import GameTypes from "./pages/Games/Types/Types";
 import Galaga from "./pages/Games/Galaga/Game";
-import Pong from "./pages/Games/Pong/Pong"
+import Pong from "./pages/Games/Pong/Pong";
+import { Navigate } from "react-router-dom";
 
 function App() {
   const [authState, setAuthState] = useState({
@@ -111,15 +112,52 @@ function App() {
           <ToastContainer />
 
           <Routes>
-            <Route path="/" element={<HomePage />} />
-            <Route path="/registration" element={<RegisterForm />} />
-            <Route path="/login" element={<LoginForm />} />
-            <Route path="/profile" element={<Profile />} />
-            <Route path="/chat" element={<Chat />} />
-            <Route path="/play" element={<GameOptions />} />
-            <Route path="/play/:gameOption" element={<GameTypes />} />
-            <Route path="/play/galaga/single-player" element={<Galaga />} />
-            <Route path="/play/pong/single-player" element={<Pong />} />
+            <Route
+              path="/"
+              element={
+                authState.status ? <HomePage /> : <Navigate to="/login" />
+              }
+            />
+            <Route
+              path="/registration"
+              element={
+                authState.status ? <Navigate to="/" /> : <RegisterForm />
+              }
+            />
+            <Route
+              path="/login"
+              element={authState.status ? <Navigate to="/" /> : <LoginForm />}
+            />
+            <Route
+              path="/profile"
+              element={
+                authState.status ? <Profile /> : <Navigate to="/login" />
+              }
+            />
+            <Route
+              path="/chat"
+              element={authState.status ? <Chat /> : <Navigate to="/login" />}
+            />
+            <Route
+              path="/play"
+              element={
+                authState.status ? <GameOptions /> : <Navigate to="/login" />
+              }
+            />
+            <Route
+              path="/play/:gameOption"
+              element={
+                authState.status ? <GameTypes /> : <Navigate to="/login" />
+              }
+            />
+            <Route
+              path="/play/galaga/single-player"
+              element={authState.status ? <Galaga /> : <Navigate to="/login" />}
+            />
+            <Route
+              path="/play/pong/single-player"
+              element={authState.status ? <Pong /> : <Navigate to="/login" />}
+            />
           </Routes>
         </div>
       </Router>

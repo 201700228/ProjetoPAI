@@ -199,7 +199,7 @@ function Profile() {
             onClick={() => document.getElementById("inputFile").click()}
           >
             <div className="profile-picture-overlay">
-              <canvas id="imageCanvas" className="profile-picture-preview" />
+            <canvas id="imageCanvas" className="profile-picture-view" />
               <div className="filter-options">
                 <p
                   onClick={(e) => {

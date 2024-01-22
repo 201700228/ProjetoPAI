@@ -33,15 +33,16 @@ function App() {
   });
 
   useEffect(() => {
-    axios
-      .get("http://localhost:3001/auth/auth", {
-        headers: {
-          accessToken: localStorage.getItem("accessToken"),
-        },
-      })
-      .then((response) => {
+    const fetchAuthStatus = async () => {
+      try {
+        const response = await axios.get("http://localhost:3001/auth/auth", {
+          headers: {
+            accessToken: localStorage.getItem("accessToken"),
+          },
+        });
+
         if (response.data.error) {
-          setAuthState({ ...authState, status: false });
+          setAuthState((prevState) => ({ ...prevState, status: false }));
         } else {
           setAuthState({
             username: response.data.username,
@@ -49,8 +50,13 @@ function App() {
             status: true,
           });
         }
-      });
-  }, [authState]);
+      } catch (error) {
+        // Handle errors if needed
+      }
+    };
+
+    fetchAuthStatus();
+  }, []); 
 
   const logout = () => {
     localStorage.removeItem("accessToken");

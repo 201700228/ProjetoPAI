@@ -1,6 +1,6 @@
 import React from "react";
 import { useParams } from "react-router-dom";
-import Carousel from "../../../layout/Carousel/Carousel";
+import Carousel from "../Carousel";
 import singlePlayer from "../../../assets/carousel-singleplayer.jpg";
 import torneio from "../../../assets/carousel-tournament.jpg";
 

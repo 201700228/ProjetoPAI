@@ -1,0 +1,105 @@
+@import "../../../App.css";
+@import "../../../css/Colors.css";
+
+.gamesList {
+  width: 80%;
+  margin: 20px auto;
+  border-collapse: collapse;
+  margin-top: 20px;
+}
+
+.topDiv {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.searchContainer {
+  display: flex;
+  align-items: center; /* Adicionado para centralizar verticalmente os elementos */
+}
+
+
+.searchInput {
+  padding: 8px;
+  border: 1px solid var(--pacman);
+  border-radius: 4px;
+  margin: 5px;
+  width: 100%;
+  color: var(--pacman); /* Define a cor do texto para pacman */
+  background-color: var(--black); /* Define a cor de fundo para preto */
+}
+
+.searchInput:focus {
+  outline: none;
+  border-color: var(--yellow);
+  box-shadow: 0 0 5px var(--yellow);
+}
+
+
+.gamesListButton {
+  cursor: pointer;
+  margin-right: 5px;
+  padding: 8px;
+  background-color: var(--black);
+  color: var(--pacman);
+  border: none;
+  border-radius: 4px;
+  margin: 15px
+}
+
+.gamesList th,
+.gamesList td {
+  border: 1px solid var(--black);
+  padding: 12px;
+  text-align: left;
+  color: var(--pacman);
+  background-color: var(--black);
+}
+
+.gamesList th {
+  background-color: var(--black);
+}
+
+.gamesList button {
+  cursor: pointer;
+  margin-right: 5px;
+  padding: 8px;
+  background-color: var(--black);
+  color: var(--pacman);
+  border: none;
+  border-radius: 4px;
+}
+
+.gamesList input[type="text"] {
+  padding: 8px;
+  border: 1px solid var(--pacman);
+  border-radius: 4px;
+  margin: 2px;
+  width: 100%;
+  color: var(--pacman); /* Define a cor do texto para pacman */
+  background-color: var(--black); /* Define a cor de fundo para preto */
+}
+
+.gamesList input[type="text"]:focus {
+  outline: none;
+  border-color: var(--yellow);
+  box-shadow: 0 0 5px var(--yellow);
+}
+
+/* Estilo para tornar a tabela responsiva em telas menores */
+@media (max-width: 600px) {
+  .gamesList {
+    width: 100%;
+    margin: 10px auto; /* Ajuste de margem para telas menores */
+  }
+
+  .gamesList th,
+  .gamesList td {
+    padding: 8px;
+  }
+
+  .gamesList button {
+    padding: 6px;
+  }
+}

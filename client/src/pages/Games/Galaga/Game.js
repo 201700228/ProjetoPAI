@@ -1,13 +1,12 @@
 import React, { useEffect, useRef, useState } from "react";
 import "./Galaga.css";
 import "../../../css/Colors.css";
-
 import enemyImgSrc from "../../../assets/enemy-ship.png";
 import heroImgSrc from "../../../assets/hero-ship.png";
 import galagaLogoSrc from "../../../assets/galaga-logo.png";
 import { useNavigate } from "react-router-dom";
 import { drawStartScreen, drawEndScreen, drawScoreHealth } from "./Canvas";
-import { fireSound, backgroundSound, gameOverSound } from "./Sound";
+import { fireSound, backgroundSound } from "./Sound";
 import {
   createVars,
   Player,
@@ -21,6 +20,8 @@ import {
   updateHealthHitKit,
 } from "./Logic";
 
+import axios from "axios";
+
 const Galaga = () => {
   const canvasRef = useRef(null);
   const [startTime, setStartTime] = useState(null);
@@ -31,6 +32,24 @@ const Galaga = () => {
   const playShootSound = fireSound(false);
 
   const { playBackground, pauseBackground } = backgroundSound(gameOver);
+
+  const sendGameResultsToAPI = async (score) => {
+    const apiUrl = "http://localhost:3001/leaderboard/add"; 
+    const accessToken = localStorage.getItem("accessToken");
+    try {
+      const response = await axios.post(apiUrl, {
+        userId: accessToken.id, 
+        gameId: "seuGameIdAqui", 
+        result: score,
+        victory: null,
+        dateTime: new Date().toISOString(), 
+      });
+  
+      console.log("API call success:", response.data);
+    } catch (error) {
+      console.error("Error during API call:", error.message);
+    }
+  };
 
   useEffect(() => {
     const canvas = canvasRef.current;
@@ -52,12 +71,14 @@ const Galaga = () => {
       galagaLogoSrc
     );
 
-    const handleEnd = () => {
+    const handleEnd = async (score) => {
       cancelAnimationFrame(animationFrameId);
       const currentPath = window.location.pathname;
       const parentPath = currentPath.split("/").slice(0, -1).join("/");
+      console.log(score);
       navigate(parentPath);
       pauseBackground();
+      //await sendGameResultsToAPI(score);
     };
 
     let animationFrameId;
@@ -109,7 +130,10 @@ const Galaga = () => {
             canvas,
             score,
             seconds,
-            handleEnd
+            () => {
+               // Mova o console.log(score) para dentro da função callback
+              handleEnd(score);
+            }
           );
 
           drawEndButton();
@@ -143,7 +167,6 @@ const Galaga = () => {
       return () => {
         clearInterval(drawEnemiesInterval);
         clearInterval(drawHealthkitsInterval);
-        // Limpar animações pendentes
         cancelAnimationFrame(animationFrameId);
       };
     };
@@ -156,9 +179,10 @@ const Galaga = () => {
     gameStarted,
     gameOver,
     startTime,
+    navigate,
     playBackground,
     playShootSound,
-    pauseBackground,
+    pauseBackground
   ]);
 
   return (

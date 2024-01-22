@@ -3,7 +3,7 @@ const router = express.Router();
 const { Game } = require("../models");
 
 // Endpoint para criar um novo jogo
-router.post("/games", async (req, res) => {
+router.post("/add", async (req, res) => {
   try {
     const newGame = await Game.create(req.body);
     res.status(201).json(newGame);
@@ -13,7 +13,7 @@ router.post("/games", async (req, res) => {
 });
 
 // Endpoint para obter todos os jogos
-router.get("/games", async (req, res) => {
+router.get("/list", async (req, res) => {
   try {
     const games = await Game.findAll();
     res.json(games);
@@ -23,7 +23,7 @@ router.get("/games", async (req, res) => {
 });
 
 // Endpoint para obter um jogo específico por ID
-router.get("/games/:gameId", async (req, res) => {
+router.get("/game/:gameId", async (req, res) => {
   const gameId = req.params.gameId;
   try {
     const game = await Game.findByPk(gameId);
@@ -34,6 +34,55 @@ router.get("/games/:gameId", async (req, res) => {
     }
   } catch (error) {
     res.status(500).json({ error: "Could not retrieve the game" });
+  }
+});
+
+// Endpoint para apagar um jogo específico por ID
+router.delete("/game/:gameId", async (req, res) => {
+  const gameId = req.params.gameId;
+  try {
+    const game = await Game.findByPk(gameId);
+    if (game) {
+      await game.destroy();
+      res.json({ message: "Game deleted successfully" });
+    } else {
+      res.status(404).json({ error: "Game not found" });
+    }
+  } catch (error) {
+    res.status(500).json({ error: "Could not delete the game" });
+  }
+});
+
+// Endpoint para atualizar um jogo específico por ID
+router.put("/update/:gameId", async (req, res) => {
+  const gameId = req.params.gameId;
+  try {
+    const game = await Game.findByPk(gameId);
+    if (game) {
+      await game.update(req.body);
+      res.json(game);
+    } else {
+      res.status(404).json({ error: "Game not found" });
+    }
+  } catch (error) {
+    res.status(500).json({ error: "Could not update the game" });
+  }
+});
+
+// Endpoint para obter jogos com o nome
+router.get("/search", async (req, res) => {
+  const { name } = req.query;
+  try {
+    const games = await Game.findAll({
+      where: {
+        name: {
+          [Op.iLike]: `%${name}%`,
+        },
+      },
+    });
+    res.json(games);
+  } catch (error) {
+    res.status(500).json({ error: "Could not retrieve games" });
   }
 });
 

@@ -15,15 +15,16 @@ import { useState, useEffect } from "react";
 import axios from "axios";
 import backgroundImage from "./assets/background.gif";
 import logoImage from "./assets/logo.png";
-import { FaSignOutAlt, FaHome } from "react-icons/fa";
+import { FaSignOutAlt, FaHome, FaGamepad } from "react-icons/fa";
 import { ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import Chat from "./pages/Chat/chat"; // Import the new Chat component
-import GameOptions from "./pages/Games/Options/Options";
-import GameTypes from "./pages/Games/Types/Types";
+import GameOptions from "./layout/Carousel/GameOptions/GameOptions";
+import GameTypes from "./layout/Carousel/GameTypes/GameTypes";
 import Galaga from "./pages/Games/Galaga/Game";
 import Pong from "./pages/Games/Pong/Pong";
 import { Navigate } from "react-router-dom";
+import GamesTable from "./pages/Tables/Games/Games";
 
 function App() {
   const [authState, setAuthState] = useState({
@@ -56,7 +57,7 @@ function App() {
     };
 
     fetchAuthStatus();
-  }, []); 
+  }, []);
 
   const logout = () => {
     localStorage.removeItem("accessToken");
@@ -100,6 +101,12 @@ function App() {
                   </li>
 
                   <li>
+                    <NavLink to="/games" className="link">
+                      <FaGamepad size={20} />
+                    </NavLink>
+                  </li>
+
+                  <li>
                     <NavLink to="/profile" className="link-user">
                       {authState.username}
                     </NavLink>
@@ -130,6 +137,7 @@ function App() {
                 authState.status ? <Navigate to="/" /> : <RegisterForm />
               }
             />
+
             <Route
               path="/login"
               element={authState.status ? <Navigate to="/" /> : <LoginForm />}
@@ -148,6 +156,12 @@ function App() {
               path="/play"
               element={
                 authState.status ? <GameOptions /> : <Navigate to="/login" />
+              }
+            />
+            <Route
+              path="/games"
+              element={
+                authState.status ? <GamesTable /> : <Navigate to="/login" />
               }
             />
             <Route

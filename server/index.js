@@ -20,7 +20,6 @@ const io = socketIo(server, {
 const db = require("./models");
 db.Message = require("./models/Message")(db.sequelize, db.Sequelize);
 
-const scoreRouter = require("./routes/Score");
 const commentRouter = require("./routes/Comment");
 const userRouter = require("./routes/User");
 const leaderboardRouter = require("./routes/Leaderboard");
@@ -32,7 +31,6 @@ const commentTopicRouter = require("./routes/CommentTopic");
 const userTournamentRouter = require("./routes/UserTournament");
 const messageRouter = require("./routes/Message");
 
-app.use("/scores", scoreRouter);
 app.use("/comments", commentRouter);
 app.use("/auth", userRouter);
 app.use("/leaderboards", leaderboardRouter);

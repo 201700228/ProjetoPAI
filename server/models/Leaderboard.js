@@ -4,6 +4,10 @@ module.exports = (sequelize, DataTypes) => {
       type: DataTypes.INTEGER,
       allowNull: false,
     },
+    victory: {
+      type: DataTypes.BOOLEAN,
+      allowNull: true,
+    },
     dateTime: {
       type: DataTypes.DATE,
       allowNull: false,

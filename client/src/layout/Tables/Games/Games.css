@@ -56,7 +56,6 @@
   text-align: left;
   color: var(--pacman);
   background-color: var(--black);
-  font-weight: bold;
 }
 
 .gamesList th {

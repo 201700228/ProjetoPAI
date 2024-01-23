@@ -18,6 +18,7 @@ const io = socketIo(server, {
 });
 
 const db = require("./models");
+db.User = require("./models/User")(db.sequelize, db.Sequelize);
 db.Message = require("./models/Message")(db.sequelize, db.Sequelize);
 
 const commentRouter = require("./routes/Comment");
@@ -46,25 +47,42 @@ app.use("/messages", messageRouter);
 app.use("/game-options", gameOptionsRouter);
 app.use("/game-options-rel", gameOptionsRelRouter);
 
+
+app.get("/users/:id", async (req, res) => {
+  try {
+    const user = await db.User.findByPk(req.params.id);
+    res.json(user);
+  } catch (error) {
+    console.error("Error fetching user:", error);
+    res.status(500).send("Internal Server Error");
+  }
+});
+
 // WebSocket logic
 io.on("connection", (socket) => {
   console.log("User connected");
 
   socket.on("message", async (data) => {
-    // Save the message and sender to the database
+    // Save the message to the database
     try {
       const newMessage = await db.Message.create({
         text: data.text,
-        sender: data.sender, // Save the sender's username
+        UserId: data.user.id,
       });
 
-      // Emit the message to all connected clients
-      io.emit("message", { text: newMessage.text, sender: newMessage.sender });
-
+      // Fetch the associated user data (username and profilePicture)
+      const sender = await db.User.findByPk(data.user.id);
+      
+      io.emit("message", {
+        text: newMessage.text,
+        sender: sender.username, // Access username directly
+        profilePicture: sender.profilePicture, // Access profilePicture directly
+      });
     } catch (error) {
       console.error("Error saving message to the database:", error);
     }
   });
+
 
   socket.on("disconnect", () => {
     console.log("User disconnected");

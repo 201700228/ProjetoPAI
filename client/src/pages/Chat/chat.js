@@ -27,23 +27,48 @@ const Chat = ({ authState }) => {
     const fetchPreviousMessages = async () => {
       try {
         const response = await axios.get("http://localhost:3001/messages/all");
-        setMessages(response.data);
+        const messagesWithSenderInfo = [];
+    
+        for (const message of response.data) {
+          try {
+            const senderResponse = await axios.get(`http://localhost:3001/users/${message.UserId}`);
+            const sender = senderResponse.data;
+    
+            if (sender) {
+              messagesWithSenderInfo.push({
+                text: message.text,
+                sender: sender.username,
+              });
+            } else {
+              // Handle the case when sender is null
+              messagesWithSenderInfo.push({
+                text: message.text,
+                sender: "Unknown User",
+              });
+            }
+          } catch (senderError) {
+            console.error(`Error fetching sender for message ID ${message.id}:`, senderError);
+          }
+        }
+    
+        setMessages(messagesWithSenderInfo);
       } catch (error) {
         console.error("Error fetching previous messages:", error);
       }
     };
-
+  
     fetchPreviousMessages();
-  }, []); 
-
+  }, []);
+  
   const sendMessage = () => {
     if (messageInput.trim() !== "") {
       const message = {
         text: messageInput,
-        sender: authState.username, // Include the sender information
+        user: authState // Include the sender information
       };
 
-      console.log('message sender', message.sender)
+      console.log('message', message);
+
       socket.emit("message", message);
       setMessageInput("");
     }

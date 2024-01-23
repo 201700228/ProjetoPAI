@@ -4,11 +4,10 @@ module.exports = (sequelize, DataTypes) => {
       type: DataTypes.STRING,
       allowNull: false,
     },
-    sender: {
-      type: DataTypes.STRING, // Assuming the sender's username is a string
+    UserId: {
+      type: DataTypes.INTEGER, // Assuming user IDs are integers
       allowNull: false,
     },
   });
-
   return Message;
 };

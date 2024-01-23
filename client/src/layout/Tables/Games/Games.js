@@ -164,6 +164,8 @@ const GamesTable = () => {
                     }}
                     readOnly={editMode !== game.id}
                     style={{
+                      backgroundColor: editMode === game.id ? "white" : "black",
+                      color: editMode === game.id ? "black" : "#FFFE01",
                       border:
                         editMode === game.id ? "1px solid #FFFE01" : "none",
                     }}
@@ -186,6 +188,8 @@ const GamesTable = () => {
                     }}
                     readOnly={editMode !== game.id}
                     style={{
+                      backgroundColor: editMode === game.id ? "white" : "black",
+                      color: editMode === game.id ? "black" : "#FFFE01",
                       border:
                         editMode === game.id ? "1px solid #FFFE01" : "none",
                     }}

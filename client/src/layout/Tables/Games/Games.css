@@ -1,17 +1,42 @@
 @import "../../../App.css";
 @import "../../../css/Colors.css";
 
-.gamesList {
-  width: 80%;
+body {
+  font-family: 'Arial', sans-serif;
+  background-color: #f4f4f4;
+  margin: 0;
+  padding: 0;
+}
+
+.container {
+  max-width: 800px;
   margin: 20px auto;
-  border-collapse: collapse;
-  margin-top: 20px;
+  background-color: #fff;
+  padding: 20px;
+  border-radius: 8px;
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+}
+
+h1 {
+  color: #333;
+  text-align: center;
 }
 
 .topDiv {
   display: flex;
   justify-content: space-between;
   align-items: center;
+  margin-bottom: 20px;
+}
+
+.gamesListButton {
+  cursor: pointer;
+  padding: 10px;
+  background-color: var(--pacman);
+  color: var(--black);
+  font-weight: bold;
+  border: none;
+  border-radius: 4px;
 }
 
 .searchContainer {
@@ -19,39 +44,25 @@
   align-items: center;
 }
 
-
 .searchInput {
-  padding: 8px;
+  padding: 10px;
   border: 1px solid var(--pacman);
   border-radius: 4px;
-  margin: 5px;
+  margin-left: 10px;
   width: 100%;
-  color: var(--pacman) !important; 
-  background-color: var(--black); 
-}
-
-.searchInput:focus {
-  outline: none;
-  border-color: var(--yellow);
-  box-shadow: 0 0 5px var(--yellow);
-}
-
-
-.gamesListButton {
-  cursor: pointer;
-  margin-right: 5px;
-  padding: 8px;
-  background-color: var(--pacman) !important;
-  color: var(--black) !important;
   font-weight: bold;
-  border: none;
-  border-radius: 4px;
-  margin: 15px
+  background-color: var(--black);
+}
+
+.gamesList {
+  margin: 0 auto;
+  border-collapse: collapse;
+  width: 100%;
 }
 
 .gamesList th,
 .gamesList td {
-  border: 1px solid var(--black);
+  border: 1px solid var(--pacman);
   padding: 12px;
   text-align: left;
   color: var(--pacman);
@@ -60,21 +71,21 @@
 
 .gamesList th {
   background-color: var(--black);
+  color: var(--pacman);
 }
 
 .gamesList button {
   cursor: pointer;
-  margin-right: 5px;
   padding: 8px;
-  background-color: var(--black);
-  color: var(--pacman);
+  background-color: var(--pacman);
+  color: var(--black);
   border: none;
   border-radius: 4px;
+  margin-right: 5px;
 }
 
 .gamesList input[type="text"] {
-  padding: 8px;
-  border: 1px solid var(--pacman);
+  padding: 10px;
   border-radius: 4px;
   margin: 2px;
   width: 100%;
@@ -82,16 +93,10 @@
   background-color: var(--black);
 }
 
-.gamesList input[type="text"]:focus {
-  outline: none;
-  border-color: var(--yellow);
-  box-shadow: 0 0 5px var(--yellow);
-}
-
 @media (max-width: 600px) {
   .gamesList {
     width: 100%;
-    margin: 10px auto; 
+    margin: 10px auto;
   }
 
   .gamesList th,

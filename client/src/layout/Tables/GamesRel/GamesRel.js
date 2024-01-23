@@ -7,10 +7,10 @@ const GamesRelTable = () => {
   const [games, setGames] = useState([]);
   const [allGameOptions, setAllGameOptions] = useState([]);
   const [filter, setFilter] = useState("");
-  const [editMode, setEditMode] = useState(null);
+  const [setEditMode] = useState(null);
   const [showModal, setShowModal] = useState(false);
   const [editingGame, setEditingGame] = useState({});
-  const [selectedOptions, setSelectedOptions] = useState([]);
+  const [setSelectedOptions] = useState([]);
   const [currentOption, setCurrentOption] = useState("");
   const [gameOptionsRel, setGameOptionsRel] = useState([]);
 
@@ -49,7 +49,6 @@ const GamesRelTable = () => {
     setShowModal(true);
 
     try {
-      // Carrega as ligações com base no gameId
       const response = await axios.get(
         `http://localhost:3001/game-options-rel/game/${id}`
       );
@@ -76,19 +75,16 @@ const GamesRelTable = () => {
 
   const handleAddOption = async (gameId, gameOptionId) => {
     try {
-      // Adiciona a nova ligação no servidor
       await axios.post(`http://localhost:3001/game-options-rel`, {
         GameId: gameId,
-        GameOptionsId: gameOptionId,
+        GameOptionId: gameOptionId,
       });
 
-      // Atualiza a lista de ligações no estado
       const response = await axios.get(
         `http://localhost:3001/game-options-rel/game/${gameId}`
       );
       setGameOptionsRel(response.data);
 
-      // Atualiza as opções selecionadas
       setSelectedOptions((prevOptions) => [...prevOptions, currentOption]);
       setCurrentOption("");
     } catch (error) {
@@ -96,22 +92,19 @@ const GamesRelTable = () => {
     }
   };
 
-  const handleRemoveOption = async (optionToRemove) => {
+  const handleRemoveOption = async (optionId) => {
     try {
-      // Remove a ligação do servidor
       await axios.delete(
-        `http://localhost:3001/game-options-rel/game/${editingGame.id}/option/${optionToRemove}`
+        `http://localhost:3001/game-options-rel/game/${editingGame.id}/option/${optionId}`
       );
 
-      // Atualiza a lista de ligações no estado
       const response = await axios.get(
         `http://localhost:3001/game-options-rel/game/${editingGame.id}`
       );
       setGameOptionsRel(response.data);
 
-      // Atualiza as opções selecionadas
       setSelectedOptions((prevOptions) =>
-        prevOptions.filter((option) => option !== optionToRemove)
+        prevOptions.filter((option) => option.id !== optionId)
       );
     } catch (error) {
       console.error("Erro ao remover ligações da API:", error);
@@ -196,9 +189,7 @@ const GamesRelTable = () => {
                       {option.GameOption.name}
                       <button
                         className="remove-option"
-                        onClick={() =>
-                          handleRemoveOption(option.GameOption.name)
-                        }
+                        onClick={() => handleRemoveOption(option.GameOption.id)}
                       >
                         <FaTimes />
                       </button>

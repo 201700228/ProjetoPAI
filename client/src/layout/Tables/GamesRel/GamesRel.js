@@ -7,10 +7,10 @@ const GamesRelTable = () => {
   const [games, setGames] = useState([]);
   const [allGameOptions, setAllGameOptions] = useState([]);
   const [filter, setFilter] = useState("");
-  const [setEditMode] = useState(null);
+  const [editMode, setEditMode] = useState(null);
   const [showModal, setShowModal] = useState(false);
   const [editingGame, setEditingGame] = useState({});
-  const [setSelectedOptions] = useState([]);
+  const [selectedOptions, setSelectedOptions] = useState([]);
   const [currentOption, setCurrentOption] = useState("");
   const [gameOptionsRel, setGameOptionsRel] = useState([]);
 
@@ -113,7 +113,8 @@ const GamesRelTable = () => {
 
   return (
     <div>
-      <div className="topDivGamesRel">
+      <div className="topDiv">
+        <div></div>
         <div className="searchContainer">
           <input
             type="text"
@@ -183,19 +184,23 @@ const GamesRelTable = () => {
                   ))}
                 </select>
 
-                {gameOptionsRel.map((option, index) => (
-                  <div className="options-selected-div" key={index}>
-                    <span className="option-selected">
-                      {option.GameOption.name}
-                      <button
-                        className="remove-option"
-                        onClick={() => handleRemoveOption(option.GameOption.id)}
-                      >
-                        <FaTimes />
-                      </button>
-                    </span>
-                  </div>
-                ))}
+                <div className="selected-options">
+                  {gameOptionsRel.map((option, index) => (
+                    <div className="options-selected-div" key={index}>
+                      <span className="option-selected">
+                        {option.GameOption.name}
+                        <button
+                          className="remove-option"
+                          onClick={() =>
+                            handleRemoveOption(option.GameOption.id)
+                          }
+                        >
+                          <FaTimes />
+                        </button>
+                      </span>
+                    </div>
+                  ))}
+                </div>
               </div>
             </div>
           </div>

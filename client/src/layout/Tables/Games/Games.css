@@ -50,8 +50,13 @@ h1 {
   border-radius: 4px;
   margin-left: 10px;
   width: 100%;
-  font-weight: bold;
+  color: var(--pacman);
   background-color: var(--black);
+}
+
+.searchInput:focus {
+  border: 1px solid var(--pacman);
+  outline: none;
 }
 
 .gamesList {

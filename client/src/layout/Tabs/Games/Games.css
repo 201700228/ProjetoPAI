@@ -8,22 +8,27 @@
 }
 
 .tabs-button {
-  background-color: var(--black) !important;
-  color: var(--pacman) !important;
-  font-weight: bold !important;
-  padding: 10px 20px;
+  background-color: var(--black);
+  color: var(--pacman);
+  font-weight: bold;
+  padding: 12px 24px;
   font-size: 16px;
   cursor: pointer;
   margin-right: 10px;
-  border-radius: 5px;
+  border: none;
+  border-radius: 8px 8px 0 0;
+  transition: background-color 0.3s, color 0.3s;
 }
 
 .tabs-button.active {
-  background-color: var(--lightblue) !important;
-  color: var(--black) !important;
+  background-color: var(--lightblue);
+  color: var(--black);
 }
 
 .tab-content {
+  width: 70%;
+  margin: 20px auto;
   padding: 20px;
-  border-radius: 5px;
+  border-radius: 0 0 8px 8px;
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
 }

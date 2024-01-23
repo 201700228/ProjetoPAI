@@ -1,12 +1,23 @@
 module.exports = (sequelize, DataTypes) => {
   const CommentTopic = sequelize.define('CommentTopic', {
-    // Define attributes if necessary
+    commentId: {
+      type: DataTypes.INTEGER,
+      allowNull: false,
+    },
+    topicId: {
+      type: DataTypes.INTEGER,
+      allowNull: false,
+    },
   });
 
   CommentTopic.associate = (models) => {
-    CommentTopic.belongsTo(models.Comment);
-    CommentTopic.belongsTo(models.Topic);
+    CommentTopic.belongsTo(models.Comment, {
+      foreignKey: 'commentId',
+    });
+    CommentTopic.belongsTo(models.Topic, {
+      foreignKey: 'topicId',
+    });
   };
-
+  
   return CommentTopic;
 };

@@ -1,11 +1,22 @@
 module.exports = (sequelize, DataTypes) => {
   const Forum = sequelize.define('Forum', {
-    // Define attributes if necessary
+    gameId: {
+      type: DataTypes.INTEGER,
+      allowNull: false,
+    },
+    topicId: {
+      type: DataTypes.INTEGER,
+      allowNull: false,
+    },
   });
 
   Forum.associate = (models) => {
-    Forum.belongsTo(models.Game);
-    Forum.belongsTo(models.Topic);
+    Forum.belongsTo(models.Game, {
+      foreignKey: 'gameId',
+    });
+    Forum.belongsTo(models.Topic, {
+      foreignKey: 'topicId',
+    });
   };
 
   return Forum;

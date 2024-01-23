@@ -24,7 +24,6 @@ module.exports = (sequelize, DataTypes) => {
       type: DataTypes.DATE,
       allowNull: false,
     },
-
     profilePicture: {
       type: DataTypes.BLOB, 
       allowNull: true, 

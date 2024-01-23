@@ -8,6 +8,10 @@ module.exports = (sequelize, DataTypes) => {
         type: DataTypes.TEXT,
         allowNull: true,
       },
+      picture: {
+        type: DataTypes.BLOB, 
+        allowNull: true, 
+      },
     });
   
   

@@ -1,11 +1,22 @@
 module.exports = (sequelize, DataTypes) => {
   const UserTournament = sequelize.define('UserTournament', {
-    // Define attributes if necessary
+    userId: {
+      type: DataTypes.INTEGER,
+      allowNull: false,
+    },
+    tournamentId: {
+      type: DataTypes.INTEGER,
+      allowNull: false,
+    },
   });
 
   UserTournament.associate = (models) => {
-    UserTournament.belongsTo(models.User);
-    UserTournament.belongsTo(models.Tournament);
+    UserTournament.belongsTo(models.User, {
+      foreignKey: 'userId',
+    });
+    UserTournament.belongsTo(models.Tournament, {
+      foreignKey: 'tournamentId',
+    });
   };
 
   return UserTournament;

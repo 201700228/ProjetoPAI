@@ -16,7 +16,7 @@
 
 .searchContainer {
   display: flex;
-  align-items: center; /* Adicionado para centralizar verticalmente os elementos */
+  align-items: center;
 }
 
 
@@ -26,8 +26,8 @@
   border-radius: 4px;
   margin: 5px;
   width: 100%;
-  color: var(--pacman); /* Define a cor do texto para pacman */
-  background-color: var(--black); /* Define a cor de fundo para preto */
+  color: var(--pacman) !important; 
+  background-color: var(--black); 
 }
 
 .searchInput:focus {
@@ -79,8 +79,8 @@
   border-radius: 4px;
   margin: 2px;
   width: 100%;
-  color: var(--pacman); /* Define a cor do texto para pacman */
-  background-color: var(--black); /* Define a cor de fundo para preto */
+  color: var(--pacman);
+  background-color: var(--black);
 }
 
 .gamesList input[type="text"]:focus {
@@ -89,11 +89,10 @@
   box-shadow: 0 0 5px var(--yellow);
 }
 
-/* Estilo para tornar a tabela responsiva em telas menores */
 @media (max-width: 600px) {
   .gamesList {
     width: 100%;
-    margin: 10px auto; /* Ajuste de margem para telas menores */
+    margin: 10px auto; 
   }
 
   .gamesList th,

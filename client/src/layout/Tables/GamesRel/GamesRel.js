@@ -12,6 +12,7 @@ const GamesRelTable = () => {
   const [editingGame, setEditingGame] = useState({});
   const [selectedOptions, setSelectedOptions] = useState([]);
   const [currentOption, setCurrentOption] = useState("");
+  const [gameOptionsRel, setGameOptionsRel] = useState([]);
 
   useEffect(() => {
     const fetchGames = async () => {
@@ -41,29 +42,80 @@ const GamesRelTable = () => {
     fetchGames();
   }, []);
 
-  const handleEdit = (id) => {
+  const handleEdit = async (id) => {
     const gameToEdit = games.find((game) => game.id === id);
     setEditingGame(gameToEdit);
     setEditMode(id);
     setShowModal(true);
-  };
 
-  useEffect(() => {
-    // Este useEffect será chamado sempre que currentOption mudar
-    handleAddOption(currentOption);
-  }, [currentOption]);
-
-  const handleAddOption = (option) => {
-    if (option && !selectedOptions.includes(option)) {
-      setSelectedOptions((prevOptions) => [...prevOptions, option]);
-      setCurrentOption("");
+    try {
+      // Carrega as ligações com base no gameId
+      const response = await axios.get(
+        `http://localhost:3001/game-options-rel/game/${id}`
+      );
+      setGameOptionsRel(response.data);
+    } catch (error) {
+      console.error("Erro ao obter ligações da API:", error);
     }
   };
 
-  const handleRemoveOption = (optionToRemove) => {
-    setSelectedOptions((prevOptions) =>
-      prevOptions.filter((option) => option !== optionToRemove)
-    );
+  const handleSelectChange = (e) => {
+    const selectedOption = e.target.value;
+    setCurrentOption(selectedOption);
+
+    if (editingGame.id) {
+      const gameOptionId = allGameOptions.find(
+        (gameOption) => gameOption.name === selectedOption
+      )?.id;
+
+      if (gameOptionId) {
+        handleAddOption(editingGame.id, gameOptionId);
+      }
+    }
+  };
+
+  const handleAddOption = async (gameId, gameOptionId) => {
+    try {
+      // Adiciona a nova ligação no servidor
+      await axios.post(`http://localhost:3001/game-options-rel`, {
+        GameId: gameId,
+        GameOptionsId: gameOptionId,
+      });
+
+      // Atualiza a lista de ligações no estado
+      const response = await axios.get(
+        `http://localhost:3001/game-options-rel/game/${gameId}`
+      );
+      setGameOptionsRel(response.data);
+
+      // Atualiza as opções selecionadas
+      setSelectedOptions((prevOptions) => [...prevOptions, currentOption]);
+      setCurrentOption("");
+    } catch (error) {
+      console.error("Erro ao adicionar ligações da API:", error);
+    }
+  };
+
+  const handleRemoveOption = async (optionToRemove) => {
+    try {
+      // Remove a ligação do servidor
+      await axios.delete(
+        `http://localhost:3001/game-options-rel/game/${editingGame.id}/option/${optionToRemove}`
+      );
+
+      // Atualiza a lista de ligações no estado
+      const response = await axios.get(
+        `http://localhost:3001/game-options-rel/game/${editingGame.id}`
+      );
+      setGameOptionsRel(response.data);
+
+      // Atualiza as opções selecionadas
+      setSelectedOptions((prevOptions) =>
+        prevOptions.filter((option) => option !== optionToRemove)
+      );
+    } catch (error) {
+      console.error("Erro ao remover ligações da API:", error);
+    }
   };
 
   return (
@@ -128,7 +180,7 @@ const GamesRelTable = () => {
                 <select
                   id="gameOptions"
                   value={currentOption}
-                  onChange={(e) => setCurrentOption(e.target.value)}
+                  onChange={handleSelectChange}
                 >
                   <option value="">Selecione uma opção...</option>
                   {allGameOptions.map((option) => (
@@ -138,13 +190,15 @@ const GamesRelTable = () => {
                   ))}
                 </select>
 
-                {selectedOptions.map((option, index) => (
-                  <div className="options-selected-div">
-                    <span className="option-selected" key={index}>
-                      {option}
+                {gameOptionsRel.map((option, index) => (
+                  <div className="options-selected-div" key={index}>
+                    <span className="option-selected">
+                      {option.GameOption.name}
                       <button
                         className="remove-option"
-                        onClick={() => handleRemoveOption(option)}
+                        onClick={() =>
+                          handleRemoveOption(option.GameOption.name)
+                        }
                       >
                         <FaTimes />
                       </button>

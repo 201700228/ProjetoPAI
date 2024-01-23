@@ -12,10 +12,16 @@ module.exports = (sequelize, DataTypes) => {
       type: DataTypes.DATE,
       allowNull: false,
     },
+    userId: {
+      type: DataTypes.INTEGER,
+      allowNull: false,
+    },
   });
 
   Topic.associate = (models) => {
-    Topic.belongsTo(models.User);
+    Topic.belongsTo(models.User, {
+      foreignKey: 'userId',
+    });
   };
 
   return Topic;

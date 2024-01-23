@@ -12,11 +12,23 @@ module.exports = (sequelize, DataTypes) => {
       type: DataTypes.DATE,
       allowNull: false,
     },
+    userId: {
+      type: DataTypes.INTEGER,
+      allowNull: false,
+    },
+    gameId: {
+      type: DataTypes.INTEGER,
+      allowNull: false,
+    },
   });
 
   Leaderboard.associate = (models) => {
-    Leaderboard.belongsTo(models.User);
-    Leaderboard.belongsTo(models.Game);
+    Leaderboard.belongsTo(models.User, {
+      foreignKey: 'userId',
+    });
+    Leaderboard.belongsTo(models.Game, {
+      foreignKey: 'gameId',
+    });
   };
 
   return Leaderboard;

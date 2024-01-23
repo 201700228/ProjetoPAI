@@ -18,13 +18,13 @@ import logoImage from "./assets/logo.png";
 import { FaSignOutAlt, FaHome, FaGamepad } from "react-icons/fa";
 import { ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
-import Chat from "./pages/Chat/chat"; // Import the new Chat component
+import Chat from "./pages/Chat/chat"; 
 import GameOptions from "./layout/Carousel/GameOptions/GameOptions";
 import GameTypes from "./layout/Carousel/GameTypes/GameTypes";
 import Galaga from "./pages/Games/Galaga/Game";
 import Pong from "./pages/Games/Pong/Pong";
 import { Navigate } from "react-router-dom";
-import GamesTable from "./pages/Tables/Games/Games";
+import GamesTable from "./layout/Tabs/Games/Games";
 
 function App() {
   const [authState, setAuthState] = useState({

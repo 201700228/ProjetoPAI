@@ -1,0 +1,88 @@
+@import "../../../App.css";
+@import "../../../css/Colors.css";
+
+
+.topDivGamesRel {
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+}
+
+.modal {
+  position: fixed;
+  top: 50%;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.5);
+}
+
+.modal-header {
+  border-bottom: none !important;
+}
+
+.modal-content {
+  background-color: var(--black) !important;
+  color: var(--pacman) !important;
+  margin: 15% auto;
+  padding: 20px;
+  width: 80%;
+  max-width: 600px;
+  border: 2px solid var(--pacman) !important;
+}
+
+.close {
+  color: var(--pacman);
+  float: right;
+  font-size: 28px;
+  font-weight: bold;
+  cursor: pointer;
+}
+
+.close:hover,
+.close:focus {
+  color: var(--lightblue);
+  text-decoration: none;
+  cursor: pointer;
+}
+
+#gameOptions {
+  width: 100%;
+  padding: 10px;
+  font-size: 1rem;
+  border: 1px solid var(--pacman) !important;
+  border-radius: 4px;
+  background-color: var(--black);
+  color: var(--pacman);
+  transition: border-color 0.3s ease;
+}
+
+#gameOptions:focus {
+  border-color: var(--pacman) !important;
+  outline: none;
+}
+
+#gameOptions option {
+  font-size: 1rem;
+  background-color: var(--black);
+  color: var(--pacman);
+}
+
+#gameOptions::-ms-expand {
+  margin-right: 10px;
+}
+
+.remove-option{
+  background-color: var(--black);
+  color: var(--pacman);
+  border: none;
+  margin-left: 5px;
+}
+
+.options-selected-div{
+  margin-top: 10px;
+}
+
+.option-selected{
+  color: var(--lightblue);
+}
+

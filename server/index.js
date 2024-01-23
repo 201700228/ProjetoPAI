@@ -30,6 +30,8 @@ const gameRouter = require("./routes/Game");
 const commentTopicRouter = require("./routes/CommentTopic");
 const userTournamentRouter = require("./routes/UserTournament");
 const messageRouter = require("./routes/Message");
+const gameOptionsRouter = require("./routes/GameOptions");
+const gameOptionsRelRouter = require("./routes/GameOptionsRel")
 
 app.use("/comments", commentRouter);
 app.use("/auth", userRouter);
@@ -41,6 +43,8 @@ app.use("/games", gameRouter);
 app.use("/comment-topics", commentTopicRouter);
 app.use("/user-tournaments", userTournamentRouter);
 app.use("/messages", messageRouter);
+app.use("/game-options", gameOptionsRouter);
+app.use("/game-options-rel", gameOptionsRelRouter);
 
 // WebSocket logic
 io.on("connection", (socket) => {

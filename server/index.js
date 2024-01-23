@@ -51,13 +51,16 @@ io.on("connection", (socket) => {
   console.log("User connected");
 
   socket.on("message", async (data) => {
-    // Save the message to the database
+    // Save the message and sender to the database
     try {
-      const newMessage = await db.Message.create({ text: data.text });
-      io.emit("message", { text: data.text });
+      const newMessage = await db.Message.create({
+        text: data.text,
+        sender: data.sender, // Save the sender's username
+      });
 
-      // Send the saved message to the client if needed
-      // io.emit("message", { text: newMessage.text });
+      // Emit the message to all connected clients
+      io.emit("message", { text: newMessage.text, sender: newMessage.sender });
+
     } catch (error) {
       console.error("Error saving message to the database:", error);
     }

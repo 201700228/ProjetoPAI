@@ -148,10 +148,7 @@ function App() {
                 authState.status ? <Profile /> : <Navigate to="/login" />
               }
             />
-            <Route
-              path="/chat"
-              element={authState.status ? <Chat /> : <Navigate to="/login" />}
-            />
+            <Route path="/chat" element={<Chat authState={authState} />} />
             <Route
               path="/play"
               element={

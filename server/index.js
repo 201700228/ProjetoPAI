@@ -51,7 +51,18 @@ app.use("/game-options-rel", gameOptionsRelRouter);
 app.get("/users/:id", async (req, res) => {
   try {
     const user = await db.User.findByPk(req.params.id);
-    user.profilePicture = user.profilePicture.toString('base64');
+
+    if (!user) {
+      // If user is not found, send a 404 Not Found response
+      res.status(404).json({ error: "User not found" });
+      return;
+    }
+
+    // Check if user.profilePicture is not null before converting to base64
+    if (user.profilePicture) {
+      user.profilePicture = user.profilePicture.toString('base64');
+    }
+
     res.json(user);
   } catch (error) {
     console.error("Error fetching user:", error);
@@ -61,8 +72,6 @@ app.get("/users/:id", async (req, res) => {
 
 // WebSocket logic
 io.on("connection", (socket) => {
-  // console.log("User connected");
-
   socket.on("message", async (data) => {
     // Save the message to the database
     try {
@@ -73,25 +82,17 @@ io.on("connection", (socket) => {
 
       // Fetch the associated user data (username and profilePicture)
       const sender = await db.User.findByPk(data.user.id);
-      console.log('sender.profilePicture', sender.profilePicture)
       if (sender) {
         const profilePictureBase64 = sender.profilePicture ? sender.profilePicture.toString('base64') : null;
         io.emit("message", {
           text: newMessage.text,
-          sender: sender.username, // Access username directly
+          sender: sender.username,
           profilePicture: profilePictureBase64,
         });
-
-      } else {
-        // console.error("Sender not found");
       }
     } catch (error) {
       console.error("Error saving message to the database:", error);
     }
-  });
-
-  socket.on("disconnect", () => {
-    // console.log("User disconnected");
   });
 });
 

@@ -12,19 +12,14 @@ const Chat = ({ authState }) => {
   const messagesContainerRef = useRef(null);
 
   useEffect(() => {
-    console.log("Connecting to socket...");
-
     const handleReceiveMessage = (message) => {
       setMessages((prevMessages) => [...prevMessages, message]);
     };
 
-    console.log('handleReceiveMessage', handleReceiveMessage)
     socket.on("message", handleReceiveMessage);
 
     return () => {
-      console.log("Disconnecting from socket...");
       socket.off("message", handleReceiveMessage);
-      socket.disconnect();
     };
   }, []);
 
@@ -35,29 +30,29 @@ const Chat = ({ authState }) => {
         const messagesWithSenderInfo = [];
 
         for (const message of response.data) {
-          try {
-            const senderResponse = await axios.get(`http://localhost:3001/users/${message.UserId}`);
-            const sender = senderResponse.data;
+          if (message.UserId > 0) {
+            try {
+              const senderResponse = await axios.get(`http://localhost:3001/users/${message.UserId}`);
+              const sender = senderResponse.data;
 
-            if (sender) {
-              messagesWithSenderInfo.push({
-                text: message.text,
-                sender: sender.username,
-                profilePicture: sender.profilePicture,
-              });
-            } else {
-              // Handle the case when sender is null
-              messagesWithSenderInfo.push({
-                text: message.text,
-                sender: "Unknown User",
-                profilePicture: null,
-              });
+              if (sender) {
+                messagesWithSenderInfo.push({
+                  text: message.text,
+                  sender: sender.username,
+                  profilePicture: sender.profilePicture,
+                });
+              } else {
+                messagesWithSenderInfo.push({
+                  text: message.text,
+                  sender: "Unknown User",
+                  profilePicture: null,
+                });
+              }
+            } catch (senderError) {
+              console.error(`Error fetching sender for message ID ${message.id}:`, senderError);
             }
-          } catch (senderError) {
-            console.error(`Error fetching sender for message ID ${message.id}:`, senderError);
           }
         }
-
         setMessages(messagesWithSenderInfo);
       } catch (error) {
         console.error("Error fetching previous messages:", error);
@@ -78,7 +73,7 @@ const Chat = ({ authState }) => {
     if (messageInput.trim() !== "") {
       const message = {
         text: messageInput,
-        user: authState // Include the sender information
+        user: authState
       };
 
       socket.emit("message", message);
@@ -88,15 +83,15 @@ const Chat = ({ authState }) => {
 
   const handleKeyDown = (e) => {
     if (e.key === 'Enter') {
-      e.preventDefault(); // Prevent the default behavior (submitting the form)
+      e.preventDefault();
       sendMessage();
     }
   };
 
   const handleEmojiSelect = (emoji) => {
-    const input = document.getElementById("messageInput"); // Replace "messageInput" with the actual ID of your input field
+    const input = document.getElementById("messageInput");
 
-    // Check if there is a selection
+    // Check if there is a selection inside of our input
     if (input.selectionStart !== undefined && input.selectionEnd !== undefined) {
       const startPos = input.selectionStart;
       const endPos = input.selectionEnd;

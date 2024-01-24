@@ -1,0 +1,115 @@
+@import "../../../../App.css";
+@import "../../../../css/Colors.css";
+
+body {
+  font-family: 'Arial', sans-serif;
+  background-color: #f4f4f4;
+  margin: 0;
+  padding: 0;
+}
+
+.container {
+  max-width: 800px;
+  margin: 20px auto;
+  background-color: #fff;
+  padding: 20px;
+  border-radius: 8px;
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+}
+
+h1 {
+  color: #333;
+  text-align: center;
+}
+
+.topDiv {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
+}
+
+.gamesListButton {
+  cursor: pointer;
+  padding: 10px;
+  background-color: var(--pacman);
+  color: var(--black);
+  font-weight: bold;
+  border: none;
+  border-radius: 4px;
+}
+
+.searchContainer {
+  display: flex;
+  align-items: center;
+}
+
+.searchInput {
+  padding: 10px;
+  border: 1px solid var(--pacman);
+  border-radius: 4px;
+  margin-left: 10px;
+  width: 100%;
+  color: var(--pacman);
+  background-color: var(--black);
+}
+
+.searchInput:focus {
+  border: 1px solid var(--pacman);
+  outline: none;
+}
+
+.gamesList {
+  margin: 0 auto;
+  border-collapse: collapse;
+  width: 100%;
+}
+
+.gamesList th,
+.gamesList td {
+  border: 1px solid var(--pacman);
+  padding: 12px;
+  text-align: left;
+  color: var(--pacman);
+  background-color: var(--black);
+}
+
+.gamesList th {
+  background-color: var(--black);
+  color: var(--pacman);
+}
+
+.gamesList button {
+  cursor: pointer;
+  padding: 8px;
+  background-color: var(--pacman);
+  color: var(--black);
+  border: none;
+  border-radius: 4px;
+  margin-right: 5px;
+}
+
+.gamesList input[type="text"] {
+  padding: 10px;
+  border-radius: 4px;
+  margin: 2px;
+  width: 100%;
+  color: var(--pacman);
+  background-color: var(--black);
+}
+
+@media (max-width: 600px) {
+  .gamesList {
+    width: 100%;
+    margin: 10px auto;
+  }
+
+  .gamesList th,
+  .gamesList td {
+    padding: 8px;
+  }
+
+  .gamesList button {
+    padding: 6px;
+  }
+}

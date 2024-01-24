@@ -15,7 +15,7 @@ import { useState, useEffect } from "react";
 import axios from "axios";
 import backgroundImage from "./assets/background.gif";
 import logoImage from "./assets/logo.png";
-import { FaSignOutAlt, FaHome, FaGamepad } from "react-icons/fa";
+import { FaSignOutAlt, FaHome, FaGamepad, FaTrophy  } from "react-icons/fa";
 import { ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import Chat from "./pages/Chat/chat";
@@ -23,7 +23,8 @@ import GameOptions from "./layout/Carousel/GameOptions/GameOptions";
 import GameTypes from "./layout/Carousel/GameTypes/GameTypes";
 import HomeGame from "./pages/Games/HomeGame";
 import { Navigate } from "react-router-dom";
-import GamesTable from "./layout/Tabs/Games/Games";
+import TabsGames from "./layout/Tabs/Games/Games";
+import TabsLeaderboards from "./layout/Tabs/Leaderboards/Leaderboards";
 
 function App() {
   const [authState, setAuthState] = useState({
@@ -106,6 +107,12 @@ function App() {
                   </li>
 
                   <li>
+                    <NavLink to="/leaderboards" className="link">
+                      <FaTrophy size={20} />
+                    </NavLink>
+                  </li>
+
+                  <li>
                     <NavLink to="/profile" className="link-user">
                       {authState.username}
                     </NavLink>
@@ -160,7 +167,7 @@ function App() {
             <Route
               path="/games"
               element={
-                authState.status ? <GamesTable /> : <Navigate to="/login" />
+                authState.status ? <TabsGames /> : <Navigate to="/login" />
               }
             />
             <Route
@@ -171,7 +178,19 @@ function App() {
             />
             <Route
               path="/play/games/:gameId/:gameOptionId"
-              element={authState.status ? <HomeGame /> : <Navigate to="/login" />}
+              element={
+                authState.status ? <HomeGame /> : <Navigate to="/login" />
+              }
+            />
+            <Route
+              path="/leaderboards"
+              element={
+                authState.status ? (
+                  <TabsLeaderboards />
+                ) : (
+                  <Navigate to="/login" />
+                )
+              }
             />
           </Routes>
         </div>

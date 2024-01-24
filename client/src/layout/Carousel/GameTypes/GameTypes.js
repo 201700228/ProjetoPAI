@@ -33,12 +33,12 @@ const GameTypes = () => {
           };
         });
 
-        formattedOptions.push({
-          name: "Leaderboards",
-          description: "Check the leaderboards for this game.",
-          picture: hardcodedPictureUrls["Leaderboards"],
-          route: `/leaderboards/${gameId}`, 
-        });
+        // formattedOptions.push({
+        //   name: "Leaderboards",
+        //   description: "Check the leaderboards for this game.",
+        //   picture: hardcodedPictureUrls["Leaderboards"],
+        //   route: `/leaderboards`, 
+        // });
 
         setGameOptions(formattedOptions);
       } catch (error) {

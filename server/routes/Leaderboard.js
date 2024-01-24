@@ -1,6 +1,60 @@
 const express = require("express");
 const router = express.Router();
-const { Leaderboard } = require("../models");
+const { Leaderboard, User, Game, sequelize  } = require("../models");
+
+// Rota para obter todas as leaderboards
+router.get("/", async (req, res) => {
+  try {
+    const allLeaderboards = await Leaderboard.findAll({
+      include: [
+        {
+          model: User,
+          attributes: ["username"],
+        },
+        {
+          model: Game,
+          attributes: ["name"],
+        },
+      ],
+      attributes: ["result", "dateTime"],
+    });
+
+    res.json(allLeaderboards);
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ error: "Could not retrieve all leaderboards" });
+  }
+});
+
+// Rota para obter o número de vitórias de cada jogador em cada jogo
+router.get("/victories", async (req, res) => {
+  try {
+    const victoriesByPlayerAndGame = await Leaderboard.findAll({
+      attributes: [
+        "userId",
+        "gameId",
+        [sequelize.fn("COUNT", sequelize.literal("CASE WHEN victory = true THEN 1 END")), "victories"],
+      ],
+      include: [
+        {
+          model: User,
+          attributes: ["username"],
+        },
+        {
+          model: Game,
+          attributes: ["name"],
+        },
+      ],
+      group: ["userId", "gameId", "User.username", "Game.name"], // Adicione os campos ao grupo
+    });
+
+    res.json(victoriesByPlayerAndGame);
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ error: "Could not retrieve victories by player and game" });
+  }
+});
+
 
 // Endpoint para obter a leaderboard de um jogo específico
 router.get("/:gameId", async (req, res) => {
@@ -13,7 +67,7 @@ router.get("/:gameId", async (req, res) => {
   }
 });
 
-// Endpoint para obter a posição do utilizador na leaderboard de um jogo específico
+// Endpoint para obter as pontuções do utilizador na leaderboard de um jogo específico
 router.get("/user/:userId/:gameId", async (req, res) => {
   const { userId, gameId } = req.params;
   try {

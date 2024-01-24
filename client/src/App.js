@@ -18,11 +18,10 @@ import logoImage from "./assets/logo.png";
 import { FaSignOutAlt, FaHome, FaGamepad } from "react-icons/fa";
 import { ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
-import Chat from "./pages/Chat/chat"; 
+import Chat from "./pages/Chat/chat";
 import GameOptions from "./layout/Carousel/GameOptions/GameOptions";
 import GameTypes from "./layout/Carousel/GameTypes/GameTypes";
-import Galaga from "./pages/Games/Galaga/Game";
-import Pong from "./pages/Games/Pong/Pong";
+import HomeGame from "./pages/Games/HomeGame";
 import { Navigate } from "react-router-dom";
 import GamesTable from "./layout/Tabs/Games/Games";
 
@@ -155,7 +154,7 @@ function App() {
             <Route
               path="/play"
               element={
-                authState.status ? <GameOptions /> : <GameOptions />
+                authState.status ? <GameOptions /> : <Navigate to="/login" />
               }
             />
             <Route
@@ -165,18 +164,14 @@ function App() {
               }
             />
             <Route
-              path="/play/:gameOption"
+              path="/play/games/:gameId"
               element={
                 authState.status ? <GameTypes /> : <Navigate to="/login" />
               }
             />
             <Route
-              path="/play/galaga/single-player"
-              element={authState.status ? <Galaga /> : <Navigate to="/login" />}
-            />
-            <Route
-              path="/play/pong/single-player"
-              element={authState.status ? <Pong /> : <Navigate to="/login" />}
+              path="/play/games/:gameId/:gameOptionId"
+              element={authState.status ? <HomeGame /> : <Navigate to="/login" />}
             />
           </Routes>
         </div>

@@ -2,10 +2,18 @@ import React, { useState, useEffect } from "react";
 import Carousel from "../Carousel";
 import axios from "axios";
 import { useLocation } from "react-router-dom";
+import galaga from "../../../assets/carousel-galaga.jpg";
+import pong from "../../../assets/carousel-pong.jpg";
 
 const GameOptions = () => {
   const location = useLocation();
   const [slides, setSlides] = useState([]);
+
+  const hardcodedPictureUrls = {
+    "Galaga": galaga,
+    "Pong": pong,
+  };
+
 
   useEffect(() => {
     fetchSlidesFromAPI();
@@ -18,12 +26,19 @@ const GameOptions = () => {
         try {
           let imageData;
   
-          if (slide.picture && slide.picture.type === "Buffer" && slide.picture.data instanceof Array) {
-            imageData = await bufferToBase64(slide.picture.data);
+          // if (slide.picture && slide.picture.type === "Buffer" && slide.picture.data instanceof Array) {
+          //   imageData = await bufferToBase64(slide.picture.data);
+          // }
+
+          if (hardcodedPictureUrls.hasOwnProperty(slide.name)) {
+            imageData = hardcodedPictureUrls[slide.name];
           }
+
+          const route = `/games/${slide.id}`;
   
           return {
             ...slide,
+            route: route,
             picture: imageData || "",
           };
         } catch (error) {

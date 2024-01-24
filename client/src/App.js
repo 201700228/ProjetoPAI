@@ -155,7 +155,7 @@ function App() {
             <Route
               path="/play"
               element={
-                authState.status ? <GameOptions /> : <Navigate to="/login" />
+                authState.status ? <GameOptions /> : <GameOptions />
               }
             />
             <Route

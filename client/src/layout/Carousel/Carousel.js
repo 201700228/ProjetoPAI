@@ -1,4 +1,5 @@
-import React, { useState, useRef, useEffect } from "react";
+// Carousel.js
+import React, { useState, useRef, useEffect, useCallback } from "react";
 import "./Carousel.css";
 import { useNavigate } from "react-router-dom";
 import { FaChevronLeft, FaChevronRight } from "react-icons/fa";
@@ -9,15 +10,10 @@ const Carousel = ({ slides }) => {
   const [isDragging, setIsDragging] = useState(false);
   const slideRef = useRef(null);
   const navigate = useNavigate();
-  const [loadedImages, setLoadedImages] = useState([]);
 
-  const handleImageLoad = (index) => {
-    setLoadedImages((prevLoadedImages) => [...prevLoadedImages, index]);
-  };
-
-  const nextSlide = () => {
+  const nextSlide = useCallback(() => {
     setCurrentSlide((prevSlide) => (prevSlide + 1) % slides.length);
-  };
+  }, [setCurrentSlide, slides.length]);
 
   const prevSlide = () => {
     setCurrentSlide(
@@ -49,7 +45,7 @@ const Carousel = ({ slides }) => {
   };
 
   const handleSlideClick = (index) => {
-    const route = slides[index].route;
+    const route = slides[index]?.route;
     if (route) {
       navigate(route);
     }
@@ -64,6 +60,7 @@ const Carousel = ({ slides }) => {
   };
 
   useEffect(() => {
+    console.log(slides);
     if (slides.length > 3) {
       const timer = setInterval(() => {
         nextSlide();
@@ -93,29 +90,16 @@ const Carousel = ({ slides }) => {
             onClick={() => handleSlideClick(index)}
           >
             <img
-              src={slide.image}
-              alt={slide.title}
-              onLoad={() => handleImageLoad(index)}
+              src={slide.picture}
+              alt={slide.name}
+              loading="eager" // Add this line to force immediate loading
             />
-            {loadedImages.includes(index) && (
-              <div className="slideText">
-                <h3>{slide.title}</h3>
-                {/* <p>{slide.subtitle}</p> */}
-              </div>
-            )}
+            <div className="slideText">
+              <h3>{slide.name}</h3>
+            </div>
           </div>
         ))}
       </div>
-      {slides.length > 3 && (
-        <>
-          <div className="navButton prev" onClick={prevSlide}>
-            <FaChevronLeft size={50} />
-          </div>
-          <div className="navButton next" onClick={nextSlide}>
-            <FaChevronRight size={50} />
-          </div>
-        </>
-      )}
     </div>
   );
 };

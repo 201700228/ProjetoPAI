@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import axios from "axios";
-import { FaEdit, FaTrash, FaSave, FaPlus } from "react-icons/fa";
+import { FaEdit, FaTrash, FaSave, FaPlus, FaTimes } from "react-icons/fa";
 import "./Games.css";
 
 const GamesTable = () => {
@@ -90,29 +90,44 @@ const GamesTable = () => {
 
   const handleSave = async (index) => {
     try {
+      let savedGame;
+      const formData = new FormData();
+      formData.append("name", newGame.name);
+      formData.append("description", newGame.description);
+      formData.append("picture", newGame.picture);
+
       if (newGame.isNew) {
         const response = await axios.post(
           "http://localhost:3001/games/add",
-          newGame
+          formData,
+          {
+            headers: {
+              "Content-Type": "multipart/form-data",
+            },
+          }
         );
-        setGames([
-          ...games.slice(0, index),
-          response.data,
-          ...games.slice(index + 1),
-        ]);
+        savedGame = response.data;
       } else if (newGame.id !== null && newGame.isEditing) {
         const response = await axios.put(
           `http://localhost:3001/games/update/${newGame.id}`,
-          newGame
+          formData,
+          {
+            headers: {
+              "Content-Type": "multipart/form-data",
+            },
+          }
         );
-        setGames([
-          ...games.slice(0, index),
-          response.data,
-          ...games.slice(index + 1),
-        ]);
+        savedGame = response.data;
       } else {
-        console.warn("Não é possível salvar um novo jogo que não foi editado.");
+        console.warn("Cannot save a new game that hasn't been edited.");
+        return;
       }
+
+      setGames((prevGames) => [
+        ...prevGames.slice(0, index),
+        savedGame,
+        ...prevGames.slice(index + 1),
+      ]);
 
       setEditMode(null);
       setFilter("");
@@ -120,12 +135,12 @@ const GamesTable = () => {
         id: null,
         name: "",
         description: "",
-        picture: "", // Adicione o campo picture aqui
+        picture: savedGame.picture,
         isEditing: false,
         isNew: false,
       });
     } catch (error) {
-      console.error("Erro ao salvar o jogo:", error);
+      console.error("Error saving the game:", error);
     }
   };
 
@@ -179,7 +194,6 @@ const GamesTable = () => {
       <table className="gamesList">
         <thead>
           <tr>
-            <th>ID</th>
             <th>Nome</th>
             <th>Descrição</th>
             <th>Imagem</th>
@@ -193,7 +207,6 @@ const GamesTable = () => {
             )
             .map((game, index) => (
               <tr key={index}>
-                <td>{game.id}</td>
                 <td>
                   <input
                     type="text"
@@ -241,20 +254,27 @@ const GamesTable = () => {
                 <td>
                   {isEditing(game.id) ? (
                     <>
-                      {game.picture ? (
-                        <div>
-                          <img src={game.picture} alt="" />
-                          <button onClick={() => handleDeleteImage(game.id)}>
-                            X
-                          </button>
-                        </div>
-                      ) : (
-                        <div className="imagePreview">
+                      <div
+                        className={`imagePreview ${
+                          newGame.picture ? "added-image" : ""
+                        }`}
+                      >
+                        {newGame.picture ? (
+                          <>
+                            <img src={game.picture} alt="Imagem" />
+                            <button
+                              style={{ marginLeft: "10px" }}
+                              onClick={() => handleDeleteImage(newGame.id)}
+                            >
+                              <FaTimes />
+                            </button>
+                          </>
+                        ) : (
                           <button onClick={handleAddImage}>
-                            Adicionar Imagem
+                            <FaPlus />
                           </button>
-                        </div>
-                      )}
+                        )}
+                      </div>
                     </>
                   ) : (
                     game.picture && <img src={game.picture} alt="Imagem" />
@@ -269,10 +289,10 @@ const GamesTable = () => {
                         </button>
                       ) : (
                         <>
-                          <button onClick={() => handleEdit(game.id)}>
+                          <button onClick={() => handleEdit(game.id)}  style={{ marginTop: "5px" }}>
                             <FaEdit />
                           </button>
-                          <button onClick={() => handleDelete(game.id)}>
+                          <button onClick={() => handleDelete(game.id)} style={{ marginTop: "5px" }}>
                             <FaTrash />
                           </button>
                         </>

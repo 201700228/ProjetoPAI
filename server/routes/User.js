@@ -185,7 +185,6 @@ router.put("/:id", upload.single("profilePicture"), async (req, res) => {
       age--;
     }
 
-    console.log(age);
     if (year.toString().length == 4 && age < 18) {
       return res
         .status(400)

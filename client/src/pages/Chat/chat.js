@@ -125,31 +125,35 @@ const Chat = ({ authState }) => {
               if (message.sender === authState.username) {
                 return (
                   <div key={index} style={{ color: "black", padding: "5px", textAlign: "right" }}>
-                    <strong style={{ color: "var(--pacman)" }}>{message.sender} </strong>
-                    {message.profilePicture && (
-                      <img
-                        src={`data:image/png;base64,${message.profilePicture}`}
-                        alt={`${message.sender}'s profile`}
-                        style={{ width: "20px", height: "20px", marginLeft: "5px", borderRadius: "50%", marginBottom: "10px" }}
-                      />
-                    )}
+                    <div style={{ marginBottom: "10px" }}>
+                      <strong style={{ color: "var(--pacman)", verticalAlign: "middle" }}>{message.sender} </strong>
+                      {message.profilePicture && (
+                        <img
+                          src={`data:image/png;base64,${message.profilePicture}`}
+                          alt={`${message.sender}'s profile`}
+                          style={{ width: "20px", marginLeft: "5px", borderRadius: "50%" }}
+                        />
+                      )}
+                    </div>
                     <div>
                       <span style={{ backgroundColor: "yellow", padding: "5px", marginTop: "5px", marginBottom: "10px", marginTop: "10px", borderRadius: "10px 2px 10px 10px" }}>{message.text}</span>
-
                     </div>
                   </div>
                 );
               } else {
                 return (
                   <div key={index} style={{ color: "black", padding: "5px", textAlign: "left" }}>
-                    {message.profilePicture && (
-                      <img
-                        src={`data:image/png;base64,${message.profilePicture}`}
-                        alt={`${message.sender}'s profile`}
-                        style={{ width: "20px", height: "20px", marginRight: "5px", borderRadius: "50%", marginBottom: "10px" }}
-                      />
-                    )}
-                    <strong style={{ color: "var(--pacman)" }}>{message.sender} </strong>
+                    <div style={{ marginBottom: "10px" }}>
+
+                      {message.profilePicture && (
+                        <img
+                          src={`data:image/png;base64,${message.profilePicture}`}
+                          alt={`${message.sender}'s profile`}
+                          style={{ width: "20px", marginRight: "5px", borderRadius: "50%" }}
+                        />
+                      )}
+                      <strong style={{ color: "var(--pacman)", verticalAlign: "middle" }}>{message.sender} </strong>
+                    </div>
                     <div>
                       <span style={{ backgroundColor: "yellow", padding: "5px", marginTop: "5px", marginBottom: "10px", marginTop: "10px", borderRadius: "2px 10px 10px 10px" }}>{message.text}</span>
                     </div>
@@ -158,12 +162,6 @@ const Chat = ({ authState }) => {
               }
             })();
           })}
-
-
-
-
-
-
         </div>
         <div className="row">
           <input

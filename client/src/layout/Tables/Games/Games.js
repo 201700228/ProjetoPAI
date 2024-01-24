@@ -1,7 +1,8 @@
 import React, { useState, useEffect } from "react";
 import axios from "axios";
-import { FaEdit, FaTrash, FaSave, FaPlus } from "react-icons/fa";
+import { FaEdit, FaTrash, FaSave, FaPlus, FaTimes } from "react-icons/fa";
 import "./Games.css";
+import { toast } from "react-toastify";
 
 const GamesTable = () => {
   const [games, setGames] = useState([]);
@@ -9,6 +10,7 @@ const GamesTable = () => {
     id: null,
     name: "",
     description: "",
+    picture: null,
     isEditing: false,
     isNew: false,
   });
@@ -19,7 +21,10 @@ const GamesTable = () => {
   useEffect(() => {
     const fetchGames = async () => {
       try {
-        const response = await axios.get("http://localhost:3001/games/list", {});
+        const response = await axios.get(
+          "http://localhost:3001/games/list",
+          {}
+        );
         setGames(response.data);
         setLastId(
           response.data.length > 0
@@ -27,14 +32,15 @@ const GamesTable = () => {
             : 0
         );
       } catch (error) {
-        console.error("Erro ao obter dados da API:", error);
+        toast.error("Error fetching data from the API", {
+          className: "toast-error",
+        });
       }
     };
     fetchGames();
   }, []);
 
   const handleEdit = (id) => {
-    console.log(`Editar jogo com ID ${id}`);
     setEditMode(id);
     setNewGame({
       ...games.find((game) => game.id === id),
@@ -56,21 +62,33 @@ const GamesTable = () => {
         id: null,
         name: "",
         description: "",
+        picture: null,
         isEditing: false,
         isNew: false,
       });
+      toast.success("Game successfully removed.", {
+        className: "toast-success",
+      });
     } catch (error) {
-      console.error("Erro ao excluir o jogo:", error);
+      toast.error("Error deleting the game.", {
+        className: "toast-error",
+      });
     }
   };
 
   const handleAdd = () => {
     const newId = lastId + 1;
-    const newGame = { id: newId, name: "", description: "", isNew: true };
+    const newGame = {
+      id: newId,
+      name: "",
+      description: "",
+      picture: null,
+      isNew: true,
+    };
     setGames([...games, newGame]);
     setLastId(newId);
     setEditMode(newId);
-    setFilter(""); 
+    setFilter("");
     setNewGame({
       ...newGame,
       isEditing: true,
@@ -79,38 +97,99 @@ const GamesTable = () => {
 
   const handleSave = async (index) => {
     try {
+      let savedGame;
+      const formData = new FormData();
+      formData.append("name", newGame.name);
+      formData.append("description", newGame.description);
+
+      formData.append("picture", newGame.picture);
+
       if (newGame.isNew) {
         const response = await axios.post(
           "http://localhost:3001/games/add",
-          newGame
+          formData,
+          {
+            headers: {
+              "Content-Type": "multipart/form-data",
+            },
+          }
         );
-        setGames([...games.slice(0, index), response.data, ...games.slice(index + 1)]);
+        toast.success("Game successfully created.", {
+          className: "toast-success",
+        });
+
+        savedGame = response.data;
       } else if (newGame.id !== null && newGame.isEditing) {
         const response = await axios.put(
           `http://localhost:3001/games/update/${newGame.id}`,
-          newGame
+          formData,
+          {
+            headers: {
+              "Content-Type": "multipart/form-data",
+            },
+          }
         );
-        setGames([...games.slice(0, index), response.data, ...games.slice(index + 1)]);
-      } else {
 
-        console.warn("Não é possível salvar um novo jogo que não foi editado.");
+        toast.success("Game successfully updated.", {
+          className: "toast-success",
+        });
+
+        savedGame = response.data;
+      } else {
+        toast.error("Cannot save a new game that hasn't been edited.", {
+          className: "toast-error",
+        });
+
+        return;
       }
 
+      setGames((prevGames) => [
+        ...prevGames.slice(0, index),
+        savedGame,
+        ...prevGames.slice(index + 1),
+      ]);
+
       setEditMode(null);
-      setFilter(""); 
+      setFilter("");
       setNewGame({
         id: null,
         name: "",
         description: "",
+        picture: savedGame.picture,
         isEditing: false,
         isNew: false,
       });
     } catch (error) {
-      console.error("Erro ao salvar o jogo:", error);
+      toast.error("Error saving the game.", {
+        className: "toast-error",
+      });
     }
   };
 
   const isEditing = (gameId) => editMode === gameId;
+
+  const handleAddImage = () => {
+    const inputElement = document.createElement("input");
+    inputElement.type = "file";
+    inputElement.accept = "image/*";
+
+    inputElement.addEventListener("change", (e) => {
+      const file = e.target.files[0];
+      if (file) {
+        const updatedGame = {
+          ...newGame,
+          picture: file,
+        };
+        setNewGame(updatedGame);
+      }
+    });
+
+    inputElement.click();
+  };
+
+  const handleDeleteImage = () => {
+    setNewGame({ ...newGame, picture: null });
+  };
 
   return (
     <div>
@@ -137,9 +216,9 @@ const GamesTable = () => {
       <table className="gamesList">
         <thead>
           <tr>
-            <th>ID</th>
             <th>Nome</th>
             <th>Descrição</th>
+            <th>Imagem</th>
             <th>Ações</th>
           </tr>
         </thead>
@@ -150,7 +229,6 @@ const GamesTable = () => {
             )
             .map((game, index) => (
               <tr key={index}>
-                <td>{game.id}</td>
                 <td>
                   <input
                     type="text"
@@ -164,6 +242,8 @@ const GamesTable = () => {
                     }}
                     readOnly={editMode !== game.id}
                     style={{
+                      backgroundColor: editMode === game.id ? "white" : "black",
+                      color: editMode === game.id ? "black" : "#FFFE01",
                       border:
                         editMode === game.id ? "1px solid #FFFE01" : "none",
                     }}
@@ -186,10 +266,41 @@ const GamesTable = () => {
                     }}
                     readOnly={editMode !== game.id}
                     style={{
+                      backgroundColor: editMode === game.id ? "white" : "black",
+                      color: editMode === game.id ? "black" : "#FFFE01",
                       border:
                         editMode === game.id ? "1px solid #FFFE01" : "none",
                     }}
                   />
+                </td>
+                <td>
+                  {isEditing(game.id) ? (
+                    <>
+                      <div
+                        className={`imagePreview ${
+                          newGame.picture ? "added-image" : ""
+                        }`}
+                      >
+                        {newGame.picture ? (
+                          <>
+                            <img src={game.picture} alt="Imagem" />
+                            <button
+                              style={{ marginLeft: "10px" }}
+                              onClick={() => handleDeleteImage(newGame.id)}
+                            >
+                              <FaTimes />
+                            </button>
+                          </>
+                        ) : (
+                          <button onClick={handleAddImage}>
+                            <FaPlus />
+                          </button>
+                        )}
+                      </div>
+                    </>
+                  ) : (
+                    game.picture && <img src={game.picture} alt="Imagem" />
+                  )}
                 </td>
                 <td>
                   {game.id && (
@@ -200,10 +311,16 @@ const GamesTable = () => {
                         </button>
                       ) : (
                         <>
-                          <button onClick={() => handleEdit(game.id)}>
+                          <button
+                            onClick={() => handleEdit(game.id)}
+                            style={{ marginTop: "5px" }}
+                          >
                             <FaEdit />
                           </button>
-                          <button onClick={() => handleDelete(game.id)}>
+                          <button
+                            onClick={() => handleDelete(game.id)}
+                            style={{ marginTop: "5px" }}
+                          >
                             <FaTrash />
                           </button>
                         </>

@@ -6,14 +6,15 @@ import forum from "../assets/carousel-forum.jpg";
 const HomePage = () => {
   const slides = [
     {
-      title: "Jogar",
-
-      image: playGames,
+      name: "Jogar",
+      description: "",
+      picture: playGames,
       route: "/play",
     },
     {
-      title: "Fórum",
-      image: forum,
+      name: "Fórum",
+      description: "",
+      picture: forum,
       route: "/forum",
     },
   ];

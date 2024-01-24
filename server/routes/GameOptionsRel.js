@@ -35,43 +35,31 @@ router.get("/:id", async (req, res) => {
 // POST a new GameOptionsRel record
 router.post("/", async (req, res) => {
   try {
-    console.log(req.body);
+    const { GameId, GameOptionId } = req.body;
 
-    const { GameId, GameOptionsId } = req.body;
+    const existingGameOptionsRel = await GameOptionsRel.findOne({
+      where: {
+        gameId: GameId,
+        gameOptionId: GameOptionId,
+      },
+    });
 
+    if (existingGameOptionsRel) {
+      return res
+        .status(400)
+        .send("Duplicate record: This relationship already exists.");
+    }
+
+    // Se o registro não existir, cria um novo
     const newGameOptionsRel = await GameOptionsRel.create({
       gameId: GameId,
-      gameOptionId: GameOptionsId,
+      gameOptionId: GameOptionId,
     });
 
     res.json(newGameOptionsRel);
   } catch (error) {
     console.error(error);
     res.status(500).send("Internal Server Error: " + error.message);
-  }
-});
-
-// PUT (update) a specific GameOptionsRel record by ID
-router.put("/:id", async (req, res) => {
-  const { id } = req.params;
-  const {
-    /* your request body parameters */
-  } = req.body;
-
-  try {
-    const gameOptionsRel = await db.GameOptionsRel.findByPk(id);
-
-    if (gameOptionsRel) {
-      await gameOptionsRel.update({
-        /* your parameters */
-      });
-      res.json(gameOptionsRel);
-    } else {
-      res.status(404).send("GameOptionsRel not found");
-    }
-  } catch (error) {
-    console.error(error);
-    res.status(500).send("Internal Server Error");
   }
 });
 
@@ -105,22 +93,42 @@ router.get("/game/:gameID", async (req, res) => {
       include: [
         {
           model: GameOptions,
-          attributes: ["id", "optionName"],
+          attributes: ["id", "name", "description"],
         },
       ],
     });
 
     if (gameOptions.length > 0) {
-      // Agora você pode acessar diretamente os dados do GameOptions no resultado do join
       res.json(gameOptions);
     } else {
-      res
-        .status(404)
-        .send("Nenhuma opção de jogo encontrada para o gameId fornecido.");
+      res.status(200).send([]);
     }
   } catch (error) {
     console.error(error);
     res.status(500).send("Erro interno do servidor.");
+  }
+});
+
+router.delete("/game/:gameID/option/:optionID", async (req, res) => {
+  const { gameID, optionID } = req.params;
+
+  try {
+    const gameOptionsRel = await GameOptionsRel.findOne({
+      where: {
+        GameId: gameID,
+        GameOptionId: optionID,
+      },
+    });
+
+    if (gameOptionsRel) {
+      await gameOptionsRel.destroy();
+      res.send("GameOptionsRel deleted successfully");
+    } else {
+      res.status(404).send("GameOptionsRel not found");
+    }
+  } catch (error) {
+    console.error(error);
+    res.status(500).send("Internal Server Error");
   }
 });
 

@@ -1,13 +1,29 @@
 const express = require("express");
 const router = express.Router();
 const { Game } = require("../models");
+const multer = require("multer");
+const storage = multer.memoryStorage();
+const upload = multer({
+  storage: multer.memoryStorage(),
+});
 
 // Endpoint para criar um novo jogo
-router.post("/add", async (req, res) => {
+router.post("/add", upload.single("picture"), async (req, res) => {
   try {
-    const newGame = await Game.create(req.body);
-    res.status(201).json(newGame);
+    const { name, description } = req.body;
+    const newGame = {
+      name,
+      description,
+    };
+
+    if (req.file) {
+      newGame.picture = req.file.buffer;
+    }
+
+    const gameCreated = await Game.create(newGame);
+    res.status(201).json(gameCreated);
   } catch (error) {
+    console.error(error);
     res.status(500).json({ error: "Could not create game" });
   }
 });
@@ -54,17 +70,31 @@ router.delete("/game/:gameId", async (req, res) => {
 });
 
 // Endpoint para atualizar um jogo específico por ID
-router.put("/update/:gameId", async (req, res) => {
+router.put("/update/:gameId", upload.single("picture"), async (req, res) => {
   const gameId = req.params.gameId;
+  const { name, description, picture } = req.body;
+
   try {
     const game = await Game.findByPk(gameId);
+
     if (game) {
-      await game.update(req.body);
+      game.name = name;
+      game.description = description;
+
+      if (req.file) {
+        game.picture = req.file.buffer;
+      } else if (!picture) {
+        game.picture = null;
+      }
+
+      await game.save();
+
       res.json(game);
     } else {
       res.status(404).json({ error: "Game not found" });
     }
   } catch (error) {
+    console.error(error);
     res.status(500).json({ error: "Could not update the game" });
   }
 });

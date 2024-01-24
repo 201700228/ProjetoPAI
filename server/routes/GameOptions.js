@@ -1,12 +1,27 @@
 const express = require("express");
 const router = express.Router();
 const { GameOptions } = require("../models");
+const multer = require("multer");
+const storage = multer.memoryStorage();
+const upload = multer({
+  storage: multer.memoryStorage(),
+});
 
 // Endpoint para criar uma nova opção de jogo
-router.post("/add", async (req, res) => {
+router.post("/add", upload.single("picture"), async (req, res) => {
   try {
-    const newGameOption = await GameOptions.create(req.body);
-    res.status(201).json(newGameOption);
+    const { name, description } = req.body;
+    const newGameOption = {
+      name,
+      description,
+    };
+
+    if (req.file) {
+      newGameOption.picture = req.file.buffer;
+    }
+
+    const gameOptionCreated = await GameOptions.create(newGameOption);
+    res.status(201).json(gameOptionCreated);
   } catch (error) {
     res.status(500).json({ error: "Could not create game option" });
   }
@@ -54,12 +69,22 @@ router.delete("/option/:optionId", async (req, res) => {
 });
 
 // Endpoint para atualizar uma opção de jogo específica por ID
-router.put("/update/:optionId", async (req, res) => {
+router.put("/update/:optionId", upload.single("picture"), async (req, res) => {
   const optionId = req.params.optionId;
+  const { name, description, picture } = req.body;
   try {
     const gameOption = await GameOptions.findByPk(optionId);
     if (gameOption) {
-      await gameOption.update(req.body);
+      gameOption.name = name;
+      gameOption.description = description;
+
+      if (req.file) {
+        gameOption.picture = req.file.buffer;
+      } else if (!picture) {
+        gameOption.picture = null;
+      }
+
+      await gameOption.save();
       res.json(gameOption);
     } else {
       res.status(404).json({ error: "Game option not found" });

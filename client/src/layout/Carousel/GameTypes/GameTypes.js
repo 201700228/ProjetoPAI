@@ -1,30 +1,57 @@
-import React from "react";
+import React, { useState, useEffect } from "react";
 import { useParams } from "react-router-dom";
 import Carousel from "../Carousel";
-import singlePlayer from "../../../assets/carousel-singleplayer.jpg";
-import torneio from "../../../assets/carousel-tournament.jpg";
+import axios from "axios";
+import multiplayer from "../../../assets/carousel-tournament.jpg";
+import singleplayer from "../../../assets/carousel-singleplayer.jpg";
+import leaderboards from "../../../assets/carousel-leaderboard.jpg"; 
 
 const GameTypes = () => {
-  const { gameOption } = useParams();
+  const { gameId } = useParams(); 
+  const [gameOptions, setGameOptions] = useState([]);
 
-  const slides = [
-    {
-      title: "Single Player",
-      subtitle: "",
-      image: singlePlayer,
-      route: `/play/${gameOption}/single-player`,
-    },
-    {
-      title: "Torneio",
-      subtitle: "",
-      image: torneio,
-      route: `/play/${gameOption}/tournament`,
-    },
-  ];
+  const hardcodedPictureUrls = {
+    "Multiplayer": multiplayer,
+    "Singleplayer": singleplayer,
+    "Leaderboards": leaderboards,
+  };
+
+  useEffect(() => {
+    const fetchGameOptions = async (gameId) => {
+      try {
+        const response = await axios.get(`http://localhost:3001/game-options-rel/game/${gameId}`);
+        const formattedOptions = response.data.map((optionRel) => {
+          let imageData;
+          if (Object.keys(hardcodedPictureUrls).includes(optionRel.GameOption.name)) {
+            imageData = hardcodedPictureUrls[optionRel.GameOption.name];
+          }
+          return {
+            name: optionRel.GameOption.name,
+            description: optionRel.GameOption.description,
+            picture: imageData || "", 
+            route: `/play/games/${gameId}/${optionRel.GameOption.id}`,
+          };
+        });
+
+        // formattedOptions.push({
+        //   name: "Leaderboards",
+        //   description: "Check the leaderboards for this game.",
+        //   picture: hardcodedPictureUrls["Leaderboards"],
+        //   route: `/leaderboards`, 
+        // });
+
+        setGameOptions(formattedOptions);
+      } catch (error) {
+        console.error("Error fetching game options:", error);
+      }
+    };
+
+    fetchGameOptions(gameId);
+  }, [gameId]);
 
   return (
     <div className="home-page">
-      <Carousel slides={slides} />
+      <Carousel slides={gameOptions} />
     </div>
   );
 };

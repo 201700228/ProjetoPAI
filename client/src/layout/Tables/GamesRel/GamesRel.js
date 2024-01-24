@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react";
 import axios from "axios";
 import { FaEdit, FaTimes } from "react-icons/fa";
 import "./GamesRel.css";
+import { toast } from "react-toastify";
 
 const GamesRelTable = () => {
   const [games, setGames] = useState([]);
@@ -23,7 +24,9 @@ const GamesRelTable = () => {
         );
         setGames(response.data);
       } catch (error) {
-        console.error("Erro ao obter dados da API:", error);
+        toast.error("Error fetching game data from the API", {
+          className: "toast-error",
+        });
       }
     };
 
@@ -34,7 +37,9 @@ const GamesRelTable = () => {
         );
         setAllGameOptions(response.data);
       } catch (error) {
-        console.error("Erro ao obter dados da API:", error);
+        toast.error("Error fetching game options data from the API", {
+          className: "toast-error",
+        });
       }
     };
 
@@ -49,13 +54,14 @@ const GamesRelTable = () => {
     setShowModal(true);
 
     try {
-      // Carrega as ligações com base no gameId
       const response = await axios.get(
         `http://localhost:3001/game-options-rel/game/${id}`
       );
       setGameOptionsRel(response.data);
     } catch (error) {
-      console.error("Erro ao obter ligações da API:", error);
+      toast.error("Error fetching game associated options data from the API", {
+        className: "toast-error",
+      });
     }
   };
 
@@ -76,51 +82,59 @@ const GamesRelTable = () => {
 
   const handleAddOption = async (gameId, gameOptionId) => {
     try {
-      // Adiciona a nova ligação no servidor
       await axios.post(`http://localhost:3001/game-options-rel`, {
         GameId: gameId,
-        GameOptionsId: gameOptionId,
+        GameOptionId: gameOptionId,
       });
 
-      // Atualiza a lista de ligações no estado
+      toast.success("Game option association successfully added.", {
+        className: "toast-success",
+      });
+
       const response = await axios.get(
         `http://localhost:3001/game-options-rel/game/${gameId}`
       );
       setGameOptionsRel(response.data);
 
-      // Atualiza as opções selecionadas
       setSelectedOptions((prevOptions) => [...prevOptions, currentOption]);
       setCurrentOption("");
     } catch (error) {
-      console.error("Erro ao adicionar ligações da API:", error);
+      toast.error("Error adding game associated options data from the API", {
+        className: "toast-error",
+      });
     }
   };
 
-  const handleRemoveOption = async (optionToRemove) => {
+  const handleRemoveOption = async (optionId) => {
     try {
-      // Remove a ligação do servidor
       await axios.delete(
-        `http://localhost:3001/game-options-rel/game/${editingGame.id}/option/${optionToRemove}`
+        `http://localhost:3001/game-options-rel/game/${editingGame.id}/option/${optionId}`
       );
 
-      // Atualiza a lista de ligações no estado
+      
+      toast.success("Game option association successfully removed.", {
+        className: "toast-success",
+      });
+
       const response = await axios.get(
         `http://localhost:3001/game-options-rel/game/${editingGame.id}`
       );
       setGameOptionsRel(response.data);
 
-      // Atualiza as opções selecionadas
       setSelectedOptions((prevOptions) =>
-        prevOptions.filter((option) => option !== optionToRemove)
+        prevOptions.filter((option) => option.id !== optionId)
       );
     } catch (error) {
-      console.error("Erro ao remover ligações da API:", error);
+      toast.error("Error removing game associated options data from the API", {
+        className: "toast-error",
+      });
     }
   };
 
   return (
     <div>
-      <div className="topDivGamesRel">
+      <div className="topDiv">
+        <div></div>
         <div className="searchContainer">
           <input
             type="text"
@@ -135,7 +149,6 @@ const GamesRelTable = () => {
       <table className="gamesList">
         <thead>
           <tr>
-            <th>ID</th>
             <th>Nome</th>
             <th>Ações</th>
           </tr>
@@ -147,7 +160,6 @@ const GamesRelTable = () => {
             )
             .map((game, index) => (
               <tr key={index}>
-                <td>{game.id}</td>
                 <td>{game.name}</td>
                 <td>
                   {game.id && (
@@ -190,21 +202,23 @@ const GamesRelTable = () => {
                   ))}
                 </select>
 
-                {gameOptionsRel.map((option, index) => (
-                  <div className="options-selected-div" key={index}>
-                    <span className="option-selected">
-                      {option.GameOption.name}
-                      <button
-                        className="remove-option"
-                        onClick={() =>
-                          handleRemoveOption(option.GameOption.name)
-                        }
-                      >
-                        <FaTimes />
-                      </button>
-                    </span>
-                  </div>
-                ))}
+                <div className="selected-options">
+                  {gameOptionsRel.map((option, index) => (
+                    <div className="options-selected-div" key={index}>
+                      <span className="option-selected">
+                        {option.GameOption.name}
+                        <button
+                          className="remove-option"
+                          onClick={() =>
+                            handleRemoveOption(option.GameOption.id)
+                          }
+                        >
+                          <FaTimes />
+                        </button>
+                      </span>
+                    </div>
+                  ))}
+                </div>
               </div>
             </div>
           </div>

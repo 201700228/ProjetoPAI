@@ -1,9 +1,63 @@
 const express = require("express");
 const router = express.Router();
-const { Leaderboard } = require("../models");
+const { Leaderboard, User, Game, sequelize  } = require("../models");
+
+// Rota para obter todas as leaderboards
+router.get("/", async (req, res) => {
+  try {
+    const allLeaderboards = await Leaderboard.findAll({
+      include: [
+        {
+          model: User,
+          attributes: ["username"],
+        },
+        {
+          model: Game,
+          attributes: ["name"],
+        },
+      ],
+      attributes: ["result", "dateTime"],
+    });
+
+    res.json(allLeaderboards);
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ error: "Could not retrieve all leaderboards" });
+  }
+});
+
+// Rota para obter o número de vitórias de cada jogador em cada jogo
+router.get("/victories", async (req, res) => {
+  try {
+    const victoriesByPlayerAndGame = await Leaderboard.findAll({
+      attributes: [
+        "userId",
+        "gameId",
+        [sequelize.fn("COUNT", sequelize.literal("CASE WHEN victory = true THEN 1 END")), "victories"],
+      ],
+      include: [
+        {
+          model: User,
+          attributes: ["username"],
+        },
+        {
+          model: Game,
+          attributes: ["name"],
+        },
+      ],
+      group: ["userId", "gameId", "User.username", "Game.name"], // Adicione os campos ao grupo
+    });
+
+    res.json(victoriesByPlayerAndGame);
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ error: "Could not retrieve victories by player and game" });
+  }
+});
+
 
 // Endpoint para obter a leaderboard de um jogo específico
-router.get("/leaderboard/:gameId", async (req, res) => {
+router.get("/:gameId", async (req, res) => {
   const gameId = req.params.gameId;
   try {
     const leaderboard = await Leaderboard.getLeaderboardByGameId(gameId);
@@ -13,11 +67,10 @@ router.get("/leaderboard/:gameId", async (req, res) => {
   }
 });
 
-// Endpoint para obter a posição do utilizador na leaderboard de um jogo específico
-router.get("/leaderboard/user/:userId/:gameId", async (req, res) => {
+// Endpoint para obter as pontuções do utilizador na leaderboard de um jogo específico
+router.get("/user/:userId/:gameId", async (req, res) => {
   const { userId, gameId } = req.params;
   try {
-   
     const userPosition = await Leaderboard.getUserPositionInGame(
       userId,
       gameId
@@ -31,17 +84,20 @@ router.get("/leaderboard/user/:userId/:gameId", async (req, res) => {
 });
 
 // Endpoint para adicionar um novo registo à leaderboard
-router.post("/leaderboard/add", async (req, res) => {
+router.post("/add", async (req, res) => {
   try {
-    const { userId, gameId, result, victory, dateTime } = req.body;
+    const result = req.body.result;
+    const victory = req.body.victory;
+    const dateTime = req.body.dateTime;
+    const userId = req.body.userId;
+    const gameId = req.body.gameId;
 
-   
     const newLeaderboardEntry = await Leaderboard.create({
       result,
       victory,
       dateTime,
-      UserId: userId, 
-      GameId: gameId, 
+      userId,
+      gameId,
     });
 
     res.json(newLeaderboardEntry);

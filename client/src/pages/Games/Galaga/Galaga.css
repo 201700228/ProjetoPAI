@@ -6,13 +6,15 @@
   background-image: url("../../../assets/galaga-background.jpg");
 }
 
-.container {
+.container-galaga {
   display: flex;
   justify-content: center;
   align-items: center;
   gap: 20px;
   flex-direction: column;
   height: auto;
+  /* height: 90vh;
+  background-color: transparent !important; */
 }
 
 @media (min-width: 1615px) {

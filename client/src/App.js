@@ -15,17 +15,16 @@ import { useState, useEffect } from "react";
 import axios from "axios";
 import backgroundImage from "./assets/background.gif";
 import logoImage from "./assets/logo.png";
-import { FaSignOutAlt, FaHome, FaGamepad } from "react-icons/fa";
+import { FaSignOutAlt, FaHome, FaGamepad, FaTrophy  } from "react-icons/fa";
 import { ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
-import Chat from "./pages/Chat/chat"; 
+import Chat from "./pages/Chat/chat";
 import GameOptions from "./layout/Carousel/GameOptions/GameOptions";
 import GameTypes from "./layout/Carousel/GameTypes/GameTypes";
-import Galaga from "./pages/Games/Galaga/Game";
-import Pong from "./pages/Games/Pong/Pong";
+import HomeGame from "./pages/Games/HomeGame";
 import { Navigate } from "react-router-dom";
-import GamesTable from "./layout/Tabs/Games/Games";
-import Forum from './pages/Forum/forum';
+import TabsGames from "./layout/Tabs/Games/Games";
+import TabsLeaderboards from "./layout/Tabs/Leaderboards/Leaderboards";
 
 function App() {
   const [authState, setAuthState] = useState({
@@ -108,6 +107,12 @@ function App() {
                   </li>
 
                   <li>
+                    <NavLink to="/leaderboards" className="link">
+                      <FaTrophy size={20} />
+                    </NavLink>
+                  </li>
+
+                  <li>
                     <NavLink to="/profile" className="link-user">
                       {authState.username}
                     </NavLink>
@@ -159,27 +164,29 @@ function App() {
             <Route
               path="/games"
               element={
-                authState.status ? <GamesTable /> : <Navigate to="/login" />
+                authState.status ? <TabsGames /> : <Navigate to="/login" />
               }
             />
             <Route
-              path="/play/:gameOption"
+              path="/play/games/:gameId"
               element={
                 authState.status ? <GameTypes /> : <Navigate to="/login" />
               }
             />
             <Route
-              path="/play/galaga/single-player"
-              element={authState.status ? <Galaga authState={authState}/> : <Navigate to="/login" />}
-            />
-            <Route
-              path="/play/pong/single-player"
-              element={authState.status ? <Pong authState={authState}/> : <Navigate to="/login" />}
-            />
-            <Route
-              path="/forum"
+              path="/play/games/:gameId/:gameOptionId"
               element={
-                authState.status ? <Forum authState={authState}/> : <Navigate to="/login" />
+                authState.status ? <HomeGame /> : <Navigate to="/login" />
+              }
+            />
+            <Route
+              path="/leaderboards"
+              element={
+                authState.status ? (
+                  <TabsLeaderboards />
+                ) : (
+                  <Navigate to="/login" />
+                )
               }
             />
           </Routes>

@@ -2,12 +2,6 @@
 @import "../../../css/Colors.css";
 
 
-.topDivGamesRel {
-  display: flex;
-  justify-content: flex-end;
-  align-items: center;
-}
-
 .modal {
   position: fixed;
   top: 50%;
@@ -18,6 +12,7 @@
 
 .modal-header {
   border-bottom: none !important;
+  padding: 0;
 }
 
 .modal-content {
@@ -50,7 +45,6 @@
   padding: 10px;
   font-size: 1rem;
   border: 1px solid var(--pacman) !important;
-  border-radius: 4px;
   background-color: var(--black);
   color: var(--pacman);
   transition: border-color 0.3s ease;
@@ -79,10 +73,14 @@
 }
 
 .options-selected-div{
-  margin-top: 10px;
+  margin: 10px;
 }
 
 .option-selected{
   color: var(--lightblue);
+}
+
+.selected-options{
+  border: 1px solid var(--pacman);
 }
 

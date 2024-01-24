@@ -1,31 +1,44 @@
 .carousel {
   position: relative;
   overflow: hidden;
+  margin: auto; 
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  height: 90vh; 
+}
+
+.slides-container {
+  display: flex;
+  transition: transform 0.5s ease-in-out;
+  width: 100%;
 }
 
 .slides {
   display: flex;
-  transition: transform 0.5s ease-in-out;
-  justify-content: center;
-  align-items: center; 
-  height: 90vh; 
+  transition: transform 1s ease;
 }
 
 .slide {
-  flex: 0 0 33.33%;
+  flex: 0 0 31.3%;
   box-sizing: border-box;
   cursor: pointer;
   position: relative;
   margin: 0 10px;
+  border-radius: 10px;
+  overflow: hidden;
 }
 
+
+
 .slide img {
-  max-width: 100%; /* Limita o tamanho máximo da imagem */
+  max-width: 100%;
   height: auto;
   border: 2px solid transparent;
   transition: border-color 0.3s ease-in-out;
-  display: block; /* Remove espaço extra sob a imagem */
-  margin: 0 auto; /* Centraliza horizontalmente */
+  display: block; 
+  margin: 0 auto;
 }
 
 .slide:hover img {
@@ -46,7 +59,8 @@
   align-items: center;
   justify-content: center;
   opacity: 1;
-  text-shadow: 4px 4px 4px rgba(0, 0, 0, 0.7); /* Adiciona contorno sutil nas letras */
+  text-shadow: 4px 4px 4px rgba(0, 0, 0, 0.7);
+  border: none !important;
 }
 
 .slideText h3 {
@@ -55,6 +69,19 @@
   font-weight: bold;
   text-align: center;
   margin-bottom: 5px;
+}
+
+.slide:hover img,
+.slide:hover div {
+  border: 5px solid white;
+}
+
+.slide:not(:hover) div {
+  border: 2px solid transparent;
+}
+
+.slide:not(:hover) .slideText {
+  /* border: none;  */
 }
 
 .selected {

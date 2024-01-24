@@ -78,16 +78,26 @@ const Carousel = ({ slides }) => {
                 className={`slide ${index === currentSlide ? "selected" : ""}`}
                 onClick={() => handleSlideClick(index)}
               >
-                <img
-                  src={slide.picture}
-                  alt={slide.name}
-                  loading="eager"
-                  style={{
-                    width: "100%",
-                    height: "auto",
-                    objectFit: "cover",
-                  }}
-                />
+                {slide.picture ? (
+                  <img
+                    src={slide.picture}
+                    alt={slide.name}
+                    loading="eager"
+                    style={{
+                      width: "100%",
+                      height: "auto",
+                      objectFit: "cover",
+                    }}
+                  />
+                ) : (
+                  <div
+                    style={{
+                      width: "100%",
+                      height: "100%",
+                      backgroundColor: "black",
+                    }}
+                  ></div>
+                )}
                 <div className="slideText">
                   <h3>{slide.name}</h3>
                 </div>
@@ -112,16 +122,26 @@ const Carousel = ({ slides }) => {
                 className={`slide ${index === currentSlide ? "selected" : ""}`}
                 onClick={() => handleSlideClick(index)}
               >
-                <img
-                  src={slide.picture}
-                  alt={slide.name}
-                  loading="eager"
-                  style={{
-                    width: "100%",
-                    height: "auto",
-                    objectFit: "cover",
-                  }}
-                />
+                {slide.picture ? (
+                  <img
+                    src={slide.picture}
+                    alt={slide.name}
+                    loading="eager"
+                    style={{
+                      width: "100%",
+                      height: "auto",
+                      objectFit: "cover",
+                    }}
+                  />
+                ) : (
+                  <div
+                    style={{
+                      width: "100%",
+                      height: "100%",
+                      backgroundColor: "black",
+                    }}
+                  ></div>
+                )}
                 <div className="slideText">
                   <h3>{slide.name}</h3>
                 </div>
@@ -131,7 +151,7 @@ const Carousel = ({ slides }) => {
         )}
       </div>
 
-      {slides.length > 2 && (
+      {slides.length > 3 && (
         <>
           {currentSlide > 0 && (
             <FaChevronLeft className="navButton prev" onClick={prevSlide} />

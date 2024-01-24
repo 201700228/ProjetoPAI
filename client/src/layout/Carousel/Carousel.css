@@ -60,6 +60,7 @@
   justify-content: center;
   opacity: 1;
   text-shadow: 4px 4px 4px rgba(0, 0, 0, 0.7);
+  border: none !important;
 }
 
 .slideText h3 {
@@ -68,6 +69,19 @@
   font-weight: bold;
   text-align: center;
   margin-bottom: 5px;
+}
+
+.slide:hover img,
+.slide:hover div {
+  border: 5px solid white;
+}
+
+.slide:not(:hover) div {
+  border: 2px solid transparent;
+}
+
+.slide:not(:hover) .slideText {
+  /* border: none;  */
 }
 
 .selected {

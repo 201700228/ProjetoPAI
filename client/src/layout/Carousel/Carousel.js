@@ -6,44 +6,25 @@ import { FaChevronLeft, FaChevronRight } from "react-icons/fa";
 
 const Carousel = ({ slides }) => {
   const [currentSlide, setCurrentSlide] = useState(0);
-  const [dragStart, setDragStart] = useState(0);
-  const [isDragging, setIsDragging] = useState(false);
   const slideRef = useRef(null);
   const navigate = useNavigate();
 
-  const nextSlide = useCallback(() => {
-    setCurrentSlide((prevSlide) => (prevSlide + 1) % slides.length);
-  }, [setCurrentSlide, slides.length]);
-
   const prevSlide = () => {
-    setCurrentSlide(
-      (prevSlide) => (prevSlide - 1 + slides.length) % slides.length
-    );
-  };
-
-  const handleDragStart = (e) => {
-    setDragStart(e.clientX);
-    setIsDragging(true);
-  };
-
-  const handleDragEnd = () => {
-    setDragStart(0);
-    setIsDragging(false);
-  };
-
-  const handleDragMove = (e) => {
-    if (isDragging) {
-      const dragDistance = e.clientX - dragStart;
-      if (dragDistance > 50) {
-        prevSlide();
-        handleDragEnd();
-      } else if (dragDistance < -50) {
-        nextSlide();
-        handleDragEnd();
-      }
+    if (slides.length > 2) {
+      setCurrentSlide((prevSlide) =>
+        prevSlide > 0 ? prevSlide - 1 : slides.length - 3
+      );
     }
   };
-
+  
+  const nextSlide = useCallback(() => {
+    if (slides.length > 2) {
+      setCurrentSlide((prevSlide) =>
+        prevSlide < slides.length - 3 ? prevSlide + 1 : 0
+      );
+    }
+  }, [setCurrentSlide, slides.length]);
+  
   const handleSlideClick = (index) => {
     const route = slides[index]?.route;
     if (route) {
@@ -52,16 +33,18 @@ const Carousel = ({ slides }) => {
   };
 
   const handleKeyDown = (e) => {
-    if (e.key === "ArrowLeft") {
+    if (e.key === "ArrowLeft" && slides.length > 2) {
       prevSlide();
-    } else if (e.key === "ArrowRight") {
+    } else if (
+      e.key === "ArrowRight" &&
+      slides.length > 2
+    ) {
       nextSlide();
     }
   };
 
   useEffect(() => {
-    console.log(slides);
-    if (slides.length > 3) {
+    if (slides.length > 2) {
       const timer = setInterval(() => {
         nextSlide();
       }, 5000);
@@ -70,36 +53,94 @@ const Carousel = ({ slides }) => {
         clearInterval(timer);
       };
     }
-  }, [currentSlide, slides, nextSlide]);
+  }, [currentSlide, slides.length, nextSlide]);
 
   return (
     <div
       className="carousel"
       ref={slideRef}
-      onMouseDown={handleDragStart}
-      onMouseUp={handleDragEnd}
-      onMouseMove={handleDragMove}
       onKeyDown={handleKeyDown}
       tabIndex={0}
     >
-      <div className="slides">
-        {slides.map((slide, index) => (
+      <div className="slides-container">
+        {slides.length > 2 && (
           <div
-            key={index}
-            className={`slide ${index === currentSlide ? "selected" : ""}`}
-            onClick={() => handleSlideClick(index)}
+            className="slides"
+            style={{
+              transform: `translateX(-${(100 / Math.min(3, slides.length)) *
+                currentSlide}%)`,
+              width: `${(100 / Math.min(3, slides.length)) * slides.length}%`,
+            }}
           >
-            <img
-              src={slide.picture}
-              alt={slide.name}
-              loading="eager" // Add this line to force immediate loading
-            />
-            <div className="slideText">
-              <h3>{slide.name}</h3>
-            </div>
+            {slides.map((slide, index) => (
+              <div
+                key={index}
+                className={`slide ${index === currentSlide ? "selected" : ""}`}
+                onClick={() => handleSlideClick(index)}
+              >
+                <img
+                  src={slide.picture}
+                  alt={slide.name}
+                  loading="eager"
+                  style={{
+                    width: "100%",
+                    height: "auto",
+                    objectFit: "cover",
+                  }}
+                />
+                <div className="slideText">
+                  <h3>{slide.name}</h3>
+                </div>
+              </div>
+            ))}
           </div>
-        ))}
+        )}
+
+        {slides.length <= 2 && (
+          <div
+            className="slides"
+            style={{
+              display: 'flex',
+              justifyContent: 'center',
+              alignItems: 'center',
+              width: '100%',
+            }}
+          >
+            {slides.map((slide, index) => (
+              <div
+                key={index}
+                className={`slide ${index === currentSlide ? "selected" : ""}`}
+                onClick={() => handleSlideClick(index)}
+              >
+                <img
+                  src={slide.picture}
+                  alt={slide.name}
+                  loading="eager"
+                  style={{
+                    width: "100%",
+                    height: "auto",
+                    objectFit: "cover",
+                  }}
+                />
+                <div className="slideText">
+                  <h3>{slide.name}</h3>
+                </div>
+              </div>
+            ))}
+          </div>
+        )}
       </div>
+
+      {slides.length > 2 && (
+        <>
+          {currentSlide > 0 && (
+            <FaChevronLeft className="navButton prev" onClick={prevSlide} />
+          )}
+          {currentSlide < slides.length - 1 && (
+            <FaChevronRight className="navButton next" onClick={nextSlide} />
+          )}
+        </>
+      )}
     </div>
   );
 };

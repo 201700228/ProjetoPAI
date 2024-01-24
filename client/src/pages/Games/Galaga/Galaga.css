@@ -4,9 +4,10 @@
   background-image: url("../../../assets/galaga-background.jpg");
 }
 
-.container {
+.container-galaga {
   display: flex;
   justify-content: center;
   align-items: center;
   height: 90vh;
+  background-color: transparent !important;
 }

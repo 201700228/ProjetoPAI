@@ -8,8 +8,8 @@ const GameOptions = () => {
   const [slides, setSlides] = useState([]);
 
   const hardcodedPictureUrls = {
-    Galaga: galaga,
-    Pong: pong,
+    "Galaga": galaga,
+    "Pong": pong,
   };
 
   useEffect(() => {
@@ -23,7 +23,7 @@ const GameOptions = () => {
         try {
           let imageData;
 
-          if (hardcodedPictureUrls.hasOwnProperty(slide.name)) {
+          if (Object.keys(hardcodedPictureUrls).includes(slide.name)) {
             imageData = hardcodedPictureUrls[slide.name];
           } else if (
             slide.picture &&

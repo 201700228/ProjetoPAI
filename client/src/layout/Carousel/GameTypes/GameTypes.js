@@ -4,6 +4,7 @@ import Carousel from "../Carousel";
 import axios from "axios";
 import multiplayer from "../../../assets/carousel-tournament.jpg";
 import singleplayer from "../../../assets/carousel-singleplayer.jpg";
+import leaderboards from "../../../assets/carousel-leaderboard.jpg"; 
 
 const GameTypes = () => {
   const { gameId } = useParams(); 
@@ -12,6 +13,7 @@ const GameTypes = () => {
   const hardcodedPictureUrls = {
     "Multiplayer": multiplayer,
     "Singleplayer": singleplayer,
+    "Leaderboards": leaderboards,
   };
 
   useEffect(() => {
@@ -19,9 +21,8 @@ const GameTypes = () => {
       try {
         const response = await axios.get(`http://localhost:3001/game-options-rel/game/${gameId}`);
         const formattedOptions = response.data.map((optionRel) => {
-          console.log(optionRel);
           let imageData;
-          if (hardcodedPictureUrls.hasOwnProperty(optionRel.GameOption.name)) {
+          if (Object.keys(hardcodedPictureUrls).includes(optionRel.GameOption.name)) {
             imageData = hardcodedPictureUrls[optionRel.GameOption.name];
           }
           return {
@@ -30,6 +31,13 @@ const GameTypes = () => {
             picture: imageData || "", 
             route: `/play/games/${gameId}/${optionRel.GameOption.id}`,
           };
+        });
+
+        formattedOptions.push({
+          name: "Leaderboards",
+          description: "Check the leaderboards for this game.",
+          picture: hardcodedPictureUrls["Leaderboards"],
+          route: `/leaderboards/${gameId}`, 
         });
 
         setGameOptions(formattedOptions);

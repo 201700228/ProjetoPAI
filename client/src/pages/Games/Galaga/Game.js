@@ -19,8 +19,10 @@ import {
   updateHealthKits,
   updateHealthHitKit,
 } from "./Logic";
-
+import { useParams } from "react-router-dom";
 import axios from "axios";
+import { useContext } from "react";
+import { AuthContext } from "../../../helpers/AuthContext";
 
 const Galaga = () => {
   const canvasRef = useRef(null);
@@ -28,23 +30,25 @@ const Galaga = () => {
   const [gameStarted, setGameStarted] = useState(false);
   const [gameOver] = useState(false);
   const navigate = useNavigate();
+  const { gameId } = useParams();
+  const { authState } = useContext(AuthContext);
 
   const playShootSound = fireSound(false);
 
   const { playBackground, pauseBackground } = backgroundSound(gameOver);
 
   const sendGameResultsToAPI = async (score) => {
-    const apiUrl = "http://localhost:3001/leaderboard/add"; 
-    const accessToken = localStorage.getItem("accessToken");
+    const apiUrl = "http://localhost:3001/leaderboards/add";
+
     try {
       const response = await axios.post(apiUrl, {
-        userId: accessToken.id, 
-        gameId: "seuGameIdAqui", 
+        userId: authState.id,
+        gameId: +gameId,
         result: score,
         victory: null,
-        dateTime: new Date().toISOString(), 
+        dateTime: new Date().toISOString(),
       });
-  
+
       console.log("API call success:", response.data);
     } catch (error) {
       console.error("Error during API call:", error.message);
@@ -75,10 +79,9 @@ const Galaga = () => {
       cancelAnimationFrame(animationFrameId);
       const currentPath = window.location.pathname;
       const parentPath = currentPath.split("/").slice(0, -1).join("/");
-      console.log(score);
       navigate(parentPath);
       pauseBackground();
-      //await sendGameResultsToAPI(score);
+      await sendGameResultsToAPI(score);
     };
 
     let animationFrameId;
@@ -131,7 +134,6 @@ const Galaga = () => {
             score,
             seconds,
             () => {
-               // Mova o console.log(score) para dentro da função callback
               handleEnd(score);
             }
           );
@@ -182,11 +184,11 @@ const Galaga = () => {
     navigate,
     playBackground,
     playShootSound,
-    pauseBackground
+    pauseBackground,
   ]);
 
   return (
-    <div className="container">
+    <div className="container-galaga">
       <canvas className="canvas" ref={canvasRef} width={1000} height={600} />
     </div>
   );

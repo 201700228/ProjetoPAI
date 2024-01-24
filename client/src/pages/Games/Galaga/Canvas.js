@@ -31,15 +31,15 @@ export function drawEndScreen(ctx, canvas, finalScore, gameTime, gameOverFunc) {
     ctx.fillStyle = "#000";
     ctx.fillRect(0, 0, canvas.width, canvas.height);
 
-    ctx.font = "60px 'Star Jedi', sans-serif"; // Ajustando o tamanho do "Game Over"
-    ctx.fillStyle = "#ffcc00";
+    ctx.font = "60px 'Star Jedi', sans-serif";
+    ctx.fillStyle = "#FFFE01";
     ctx.textAlign = "center";
     ctx.fillText("GAME OVER", canvas.width / 2, canvas.height / 2 - 70);
 
     const scoreAndTimeText =
       "SCORE: " + finalScore + "  TIME: " + gameTime + " SECONDS";
-    ctx.font = "20px 'Star Jedi', sans-serif"; // Ajustando o tamanho do score e tempo
-    ctx.fillStyle = "#ffffff"; // Alterando a cor para branco
+    ctx.font = "20px 'Star Jedi', sans-serif"; 
+    ctx.fillStyle = "#FFFE01"; 
     ctx.fillText(scoreAndTimeText, canvas.width / 2, canvas.height / 2 + 10);
 
     const buttonWidth = 100;
@@ -47,10 +47,10 @@ export function drawEndScreen(ctx, canvas, finalScore, gameTime, gameOverFunc) {
     const buttonX = canvas.width / 2 - buttonWidth / 2;
     const buttonY = canvas.height / 2 + 50;
 
-    ctx.fillStyle = "#ffcc00";
+    ctx.fillStyle = "#FFFE01";
     ctx.fillRect(buttonX, buttonY, buttonWidth, buttonHeight);
 
-    ctx.font = "18px 'Star Jedi', sans-serif"; // Ajustando o tamanho do texto do botão
+    ctx.font = "18px 'Star Jedi', sans-serif"; 
     ctx.fillStyle = "#000";
     ctx.textAlign = "center";
     ctx.fillText("CLOSE", canvas.width / 2, buttonY + buttonHeight / 2 + 5);
@@ -66,7 +66,7 @@ export function handleGameOver(
   setFinalScore,
   setGameStarted,
   history,
-  gameTime // Novo parâmetro para receber o tempo decorrido
+  gameTime 
 ) {
   return (event) => {
     const rect = canvas.getBoundingClientRect();
@@ -79,7 +79,6 @@ export function handleGameOver(
       mouseY > canvas.height / 2 + 30 &&
       mouseY < canvas.height / 2 + 70
     ) {
-      // Recomeçar o jogo
       setGameOver(false);
       setFinalScore(0);
       setGameStarted(false);
@@ -89,18 +88,14 @@ export function handleGameOver(
       mouseY > canvas.height / 2 + 30 &&
       mouseY < canvas.height / 2 + 70
     ) {
-      // Sair do jogo
       history.push("/");
     }
-
-    // Você pode usar o tempo decorrido (gameTime) como quiser aqui.
-    console.log("Tempo decorrido:", gameTime);
   };
 }
 
 export function drawScoreHealth(ctx, health, score, canvas) {
   ctx.font = "20px 'Star Jedi', sans-serif";
-  ctx.fillStyle = "#ffcc00";
+  ctx.fillStyle = "#FFFE01";
   ctx.textAlign = "left";
   ctx.fillText("Health: " + health, 20, 30);
   ctx.fillText("Score: " + score, canvas.width - 120, 30);

@@ -9,6 +9,7 @@ const GamesTable = () => {
     id: null,
     name: "",
     description: "",
+    picture: null,
     isEditing: false,
     isNew: false,
   });
@@ -19,7 +20,10 @@ const GamesTable = () => {
   useEffect(() => {
     const fetchGames = async () => {
       try {
-        const response = await axios.get("http://localhost:3001/games/list", {});
+        const response = await axios.get(
+          "http://localhost:3001/games/list",
+          {}
+        );
         setGames(response.data);
         setLastId(
           response.data.length > 0
@@ -56,6 +60,7 @@ const GamesTable = () => {
         id: null,
         name: "",
         description: "",
+        picture: null,
         isEditing: false,
         isNew: false,
       });
@@ -66,11 +71,17 @@ const GamesTable = () => {
 
   const handleAdd = () => {
     const newId = lastId + 1;
-    const newGame = { id: newId, name: "", description: "", isNew: true };
+    const newGame = {
+      id: newId,
+      name: "",
+      description: "",
+      picture: "",
+      isNew: true,
+    };
     setGames([...games, newGame]);
     setLastId(newId);
     setEditMode(newId);
-    setFilter(""); 
+    setFilter("");
     setNewGame({
       ...newGame,
       isEditing: true,
@@ -84,24 +95,32 @@ const GamesTable = () => {
           "http://localhost:3001/games/add",
           newGame
         );
-        setGames([...games.slice(0, index), response.data, ...games.slice(index + 1)]);
+        setGames([
+          ...games.slice(0, index),
+          response.data,
+          ...games.slice(index + 1),
+        ]);
       } else if (newGame.id !== null && newGame.isEditing) {
         const response = await axios.put(
           `http://localhost:3001/games/update/${newGame.id}`,
           newGame
         );
-        setGames([...games.slice(0, index), response.data, ...games.slice(index + 1)]);
+        setGames([
+          ...games.slice(0, index),
+          response.data,
+          ...games.slice(index + 1),
+        ]);
       } else {
-
         console.warn("Não é possível salvar um novo jogo que não foi editado.");
       }
 
       setEditMode(null);
-      setFilter(""); 
+      setFilter("");
       setNewGame({
         id: null,
         name: "",
         description: "",
+        picture: "", // Adicione o campo picture aqui
         isEditing: false,
         isNew: false,
       });
@@ -111,6 +130,29 @@ const GamesTable = () => {
   };
 
   const isEditing = (gameId) => editMode === gameId;
+
+  const handleAddImage = () => {
+    const inputElement = document.createElement("input");
+    inputElement.type = "file";
+    inputElement.accept = "image/*";
+
+    inputElement.addEventListener("change", (e) => {
+      const file = e.target.files[0];
+      if (file) {
+        const updatedGame = {
+          ...newGame,
+          picture: file,
+        };
+        setNewGame(updatedGame);
+      }
+    });
+
+    inputElement.click();
+  };
+
+  const handleDeleteImage = () => {
+    setNewGame({ ...newGame, picture: null });
+  };
 
   return (
     <div>
@@ -140,6 +182,7 @@ const GamesTable = () => {
             <th>ID</th>
             <th>Nome</th>
             <th>Descrição</th>
+            <th>Imagem</th>
             <th>Ações</th>
           </tr>
         </thead>
@@ -194,6 +237,28 @@ const GamesTable = () => {
                         editMode === game.id ? "1px solid #FFFE01" : "none",
                     }}
                   />
+                </td>
+                <td>
+                  {isEditing(game.id) ? (
+                    <>
+                      {game.picture ? (
+                        <div>
+                          <img src={game.picture} alt="" />
+                          <button onClick={() => handleDeleteImage(game.id)}>
+                            X
+                          </button>
+                        </div>
+                      ) : (
+                        <div className="imagePreview">
+                          <button onClick={handleAddImage}>
+                            Adicionar Imagem
+                          </button>
+                        </div>
+                      )}
+                    </>
+                  ) : (
+                    game.picture && <img src={game.picture} alt="Imagem" />
+                  )}
                 </td>
                 <td>
                   {game.id && (

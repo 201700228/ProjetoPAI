@@ -9,6 +9,7 @@ const GamesOptionsTable = () => {
     id: null,
     name: "",
     description: "",
+    picture: null,
     isEditing: false,
     isNew: false,
   });
@@ -111,6 +112,29 @@ const GamesOptionsTable = () => {
 
   const isEditing = (optionId) => editMode === optionId;
 
+  const handleAddImage = () => {
+    const inputElement = document.createElement("input");
+    inputElement.type = "file";
+    inputElement.accept = "image/*";
+
+    inputElement.addEventListener("change", (e) => {
+      const file = e.target.files[0];
+      if (file) {
+        const updatedGame = {
+          ...newGameOption,
+          picture: file,
+        };
+        setNewGameOption(updatedGame);
+      }
+    });
+
+    inputElement.click();
+  };
+
+  const handleDeleteImage = () => {
+    setNewGameOption({ ...newGameOption, picture: null });
+  };
+
   return (
     <div>
       <div className="topDiv">
@@ -139,6 +163,7 @@ const GamesOptionsTable = () => {
             <th>ID</th>
             <th>Nome</th>
             <th>Descrição</th>
+            <th>Imagem</th>
             <th>Ações</th>
           </tr>
         </thead>
@@ -189,6 +214,28 @@ const GamesOptionsTable = () => {
                         editMode === option.id ? "1px solid #FFFE01" : "none",
                     }}
                   />
+                </td>
+                <td>
+                  {isEditing(option.id) ? (
+                    <>
+                      {option.picture ? (
+                        <div>
+                          <img src={option.picture} alt="" />
+                          <button onClick={() => handleDeleteImage(option.id)}>
+                            X
+                          </button>
+                        </div>
+                      ) : (
+                        <div className="imagePreview">
+                          <button onClick={handleAddImage}>
+                            Adicionar Imagem
+                          </button>
+                        </div>
+                      )}
+                    </>
+                  ) : (
+                    option.picture && <img src={option.picture} alt="Imagem" />
+                  )}
                 </td>
                 <td>
                   {option.id && (

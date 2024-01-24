@@ -25,6 +25,7 @@ import Galaga from "./pages/Games/Galaga/Game";
 import Pong from "./pages/Games/Pong/Pong";
 import { Navigate } from "react-router-dom";
 import GamesTable from "./layout/Tabs/Games/Games";
+import Forum from './pages/Forum/forum';
 
 function App() {
   const [authState, setAuthState] = useState({
@@ -169,11 +170,17 @@ function App() {
             />
             <Route
               path="/play/galaga/single-player"
-              element={authState.status ? <Galaga /> : <Navigate to="/login" />}
+              element={authState.status ? <Galaga authState={authState}/> : <Navigate to="/login" />}
             />
             <Route
               path="/play/pong/single-player"
-              element={authState.status ? <Pong /> : <Navigate to="/login" />}
+              element={authState.status ? <Pong authState={authState}/> : <Navigate to="/login" />}
+            />
+            <Route
+              path="/forum"
+              element={
+                authState.status ? <Forum authState={authState}/> : <Navigate to="/login" />
+              }
             />
           </Routes>
         </div>

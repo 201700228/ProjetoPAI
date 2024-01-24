@@ -1,6 +1,8 @@
 .canvas {
-  height: auto;
-  border-radius: 10px;
+  border-bottom-left-radius: 10px !important;
+  border-bottom-right-radius: 10px !important;
+  border-top-left-radius: 0 !important;
+  border-top-right-radius: 0 !important;
   background-image: url("../../../assets/galaga-background.jpg");
 }
 
@@ -8,5 +10,14 @@
   display: flex;
   justify-content: center;
   align-items: center;
-  height: 90vh;
+  gap: 20px;
+  flex-direction: column;
+  height: auto;
+}
+
+@media (min-width: 1615px) {
+  .container {
+    flex-direction: row;
+    height: 90vh;
+  }
 }

@@ -19,10 +19,11 @@ import {
   updateHealthKits,
   updateHealthHitKit,
 } from "./Logic";
+import Chat from "../../../pages/Chat/chat.js"
 
 import axios from "axios";
 
-const Galaga = () => {
+const Galaga = ({ authState }) => {
   const canvasRef = useRef(null);
   const [startTime, setStartTime] = useState(null);
   const [gameStarted, setGameStarted] = useState(false);
@@ -187,7 +188,18 @@ const Galaga = () => {
 
   return (
     <div className="container">
-      <canvas className="canvas" ref={canvasRef} width={1000} height={600} />
+      <div>
+        <div style={{backgroundColor: "yellow", padding: "25px", color: "black", fontSize:"40px", textAlign: "center", borderTopLeftRadius: "10px", borderTopRightRadius:"10px"}}>
+          Galaga
+        </div>
+        <canvas className="canvas" ref={canvasRef} width={1000} height={600} />
+      </div>
+      <div>
+        <div style={{backgroundColor: "yellow", padding: "25px", color: "black", fontSize:"40px", textAlign: "center", borderTopLeftRadius: "10px", borderTopRightRadius:"10px"}}>
+          Chat
+        </div>
+        <Chat authState={authState} />
+      </div>
     </div>
   );
 };

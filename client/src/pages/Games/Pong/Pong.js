@@ -1,8 +1,9 @@
 import React, { useEffect, useRef } from "react";
 import "./Pong.css";
 import "../../../css/Colors.css";
+import Chat from "../../../pages/Chat/chat.js"
 
-const Pong = () => {
+const Pong = ({ authState }) => {
   const canvasRef = useRef(null);
 
   useEffect(() => {
@@ -176,9 +177,19 @@ const Pong = () => {
   }, []);
 
   return (
-    <div>
-      <div className="colors-container" ></div>
-      <canvas className="canvas" ref={canvasRef} width={1200} height={600} />
+    <div className="container">
+      <div>
+        <div style={{backgroundColor: "yellow", padding: "25px", color: "black", fontSize:"40px", textAlign: "center", borderTopLeftRadius: "10px", borderTopRightRadius:"10px"}}>
+          Pong
+        </div>
+        <canvas className="canvas" ref={canvasRef} width={1000} height={600} />
+      </div>
+      <div>
+        <div style={{backgroundColor: "yellow", padding: "25px", color: "black", fontSize:"40px", textAlign: "center", borderTopLeftRadius: "10px", borderTopRightRadius:"10px"}}>
+          Chat
+        </div>
+        <Chat authState={authState} />
+      </div>
     </div>
   );
 };

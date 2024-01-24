@@ -105,16 +105,43 @@ const Chat = ({ authState }) => {
 
     setPickerVisible(false); // Close the Emoji Picker after selection
   };
+
+  const handleOnClickOutsidePicker = () => {
+    if (isPickerVisible) {
+      setPickerVisible(false)
+    }
+  }
+
+  useEffect(() => {
+    const handleEscapeKey = (e) => {
+      if (e.key === "Escape") {
+        setPickerVisible(false);
+      }
+    };
+
+    // Add an event listener for the "Escape" key
+    document.addEventListener("keydown", handleEscapeKey);
+
+    // Remove the event listener when the component unmounts
+    return () => {
+      document.removeEventListener("keydown", handleEscapeKey);
+    };
+  }, []);  // Empty dependency array to run the effect only once
+
+
   return (
     <>
       <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js" integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo" crossOrigin="anonymous"></script>
       <script src="https://cdn.jsdelivr.net/npm/popper.js@1.14.3/dist/umd/popper.min.js" integrity="sha384-ZMP7rVo3mIykV+2+9J3UJ46jBk0WLaUAdn689aCwoqbBJiSnjAK/l8WvCWPIPm49" crossOrigin="anonymous"></script>
       <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.1.3/dist/js/bootstrap.min.js" integrity="sha384-ChfqqxuZUCnJSK3+MXmPNIyE6ZbWh2IMqE241rYiqJxyMiZ6OW/JmZQ5stwEULTy" crossOrigin="anonymous"></script>
-      <div style={{ width: "550px", border: "5px solid white", padding: "20px", backgroundColor: "black" }}>
+      <div style={{ minWidth: "550px", height: "605px", padding: "20px", backgroundColor: "black", borderBottomRightRadius: "10px", borderBottomLeftRadius:"10px" }}>
         <div
-          style={{ height: "200px", width: "500px", overflowY: "auto", marginBottom: "10px" }}
+          style={{ height: "auto", width: "auto", maxHeight: "500px", maxWidth: "1000px", overflowY: "auto", marginBottom: "10px" }}
           ref={messagesContainerRef}
         >
+          <div className={isPickerVisible ? 'd-block' : 'd-none'} style={{ position: "absolute", marginTop: "65px", marginLeft: "145px" }}>
+            <Picker data={emojiData} previewPosition="none" onEmojiSelect={handleEmojiSelect} onClickOutside={handleOnClickOutsidePicker} />
+          </div>
           {messages.map((message, index) => {
             return (() => {
               if (message.sender === authState.username) {
@@ -139,7 +166,6 @@ const Chat = ({ authState }) => {
                 return (
                   <div key={index} style={{ color: "black", padding: "5px", textAlign: "left" }}>
                     <div style={{ marginBottom: "10px" }}>
-
                       {message.profilePicture && (
                         <img
                           src={`data:image/png;base64,${message.profilePicture}`}
@@ -158,6 +184,7 @@ const Chat = ({ authState }) => {
             })();
           })}
         </div>
+
         <div className="row">
           <input
             id="messageInput"
@@ -169,6 +196,7 @@ const Chat = ({ authState }) => {
             onKeyDown={handleKeyDown}
           >
           </input>
+
           <button type="button" className="btn col-auto ms-2" style={{ backgroundColor: "var(--pacman)", borderRadius: "50%", width: "41px" }} onClick={() => setPickerVisible(!isPickerVisible)} >
             <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" className="bi bi-emoji-smile" viewBox="0 0 16 16">
               <path d="M8 15A7 7 0 1 1 8 1a7 7 0 0 1 0 14m0 1A8 8 0 1 0 8 0a8 8 0 0 0 0 16" />
@@ -181,9 +209,6 @@ const Chat = ({ authState }) => {
             </svg>
           </button>
         </div>
-      </div>
-      <div className={isPickerVisible ? 'd-block' : 'd-none'}>
-        <Picker data={emojiData} previewPosition="none" onEmojiSelect={handleEmojiSelect} />
       </div>
     </>
   );

@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react";
 import axios from "axios";
 import { FaEdit, FaTrash, FaSave, FaPlus, FaTimes } from "react-icons/fa";
 import "./Games.css";
+import { toast } from "react-toastify";
 
 const GamesTable = () => {
   const [games, setGames] = useState([]);
@@ -31,14 +32,15 @@ const GamesTable = () => {
             : 0
         );
       } catch (error) {
-        console.error("Erro ao obter dados da API:", error);
+        toast.error("Error fetching data from the API", {
+          className: "toast-error",
+        });
       }
     };
     fetchGames();
   }, []);
 
   const handleEdit = (id) => {
-    console.log(`Editar jogo com ID ${id}`);
     setEditMode(id);
     setNewGame({
       ...games.find((game) => game.id === id),
@@ -64,8 +66,13 @@ const GamesTable = () => {
         isEditing: false,
         isNew: false,
       });
+      toast.success("Game successfully removed.", {
+        className: "toast-success",
+      });
     } catch (error) {
-      console.error("Erro ao excluir o jogo:", error);
+      toast.error("Error deleting the game.", {
+        className: "toast-error",
+      });
     }
   };
 
@@ -75,7 +82,7 @@ const GamesTable = () => {
       id: newId,
       name: "",
       description: "",
-      picture: "",
+      picture: null,
       isNew: true,
     };
     setGames([...games, newGame]);
@@ -94,6 +101,7 @@ const GamesTable = () => {
       const formData = new FormData();
       formData.append("name", newGame.name);
       formData.append("description", newGame.description);
+
       formData.append("picture", newGame.picture);
 
       if (newGame.isNew) {
@@ -106,6 +114,10 @@ const GamesTable = () => {
             },
           }
         );
+        toast.success("Game successfully created.", {
+          className: "toast-success",
+        });
+
         savedGame = response.data;
       } else if (newGame.id !== null && newGame.isEditing) {
         const response = await axios.put(
@@ -117,9 +129,17 @@ const GamesTable = () => {
             },
           }
         );
+
+        toast.success("Game successfully updated.", {
+          className: "toast-success",
+        });
+
         savedGame = response.data;
       } else {
-        console.warn("Cannot save a new game that hasn't been edited.");
+        toast.error("Cannot save a new game that hasn't been edited.", {
+          className: "toast-error",
+        });
+
         return;
       }
 
@@ -140,7 +160,9 @@ const GamesTable = () => {
         isNew: false,
       });
     } catch (error) {
-      console.error("Error saving the game:", error);
+      toast.error("Error saving the game.", {
+        className: "toast-error",
+      });
     }
   };
 
@@ -289,10 +311,16 @@ const GamesTable = () => {
                         </button>
                       ) : (
                         <>
-                          <button onClick={() => handleEdit(game.id)}  style={{ marginTop: "5px" }}>
+                          <button
+                            onClick={() => handleEdit(game.id)}
+                            style={{ marginTop: "5px" }}
+                          >
                             <FaEdit />
                           </button>
-                          <button onClick={() => handleDelete(game.id)} style={{ marginTop: "5px" }}>
+                          <button
+                            onClick={() => handleDelete(game.id)}
+                            style={{ marginTop: "5px" }}
+                          >
                             <FaTrash />
                           </button>
                         </>

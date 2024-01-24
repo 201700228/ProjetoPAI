@@ -20,7 +20,6 @@ router.post("/add", upload.single("picture"), async (req, res) => {
       newGame.picture = req.file.buffer;
     }
 
-    console.log(newGame);
     const gameCreated = await Game.create(newGame);
     res.status(201).json(gameCreated);
   } catch (error) {
@@ -73,12 +72,9 @@ router.delete("/game/:gameId", async (req, res) => {
 // Endpoint para atualizar um jogo específico por ID
 router.put("/update/:gameId", upload.single("picture"), async (req, res) => {
   const gameId = req.params.gameId;
-  const { name, description } = req.body;
+  const { name, description, picture } = req.body;
 
   try {
-    console.log(req.body);
-    console.log(req.file);
-
     const game = await Game.findByPk(gameId);
 
     if (game) {
@@ -87,11 +83,11 @@ router.put("/update/:gameId", upload.single("picture"), async (req, res) => {
 
       if (req.file) {
         game.picture = req.file.buffer;
-      } else {
+      } else if (!picture) {
         game.picture = null;
       }
 
-      await game.save(); 
+      await game.save();
 
       res.json(game);
     } else {

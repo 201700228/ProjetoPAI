@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react";
 import axios from "axios";
 import { FaEdit, FaTimes } from "react-icons/fa";
 import "./GamesRel.css";
+import { toast } from "react-toastify";
 
 const GamesRelTable = () => {
   const [games, setGames] = useState([]);
@@ -23,7 +24,9 @@ const GamesRelTable = () => {
         );
         setGames(response.data);
       } catch (error) {
-        console.error("Erro ao obter dados da API:", error);
+        toast.error("Error fetching game data from the API", {
+          className: "toast-error",
+        });
       }
     };
 
@@ -34,7 +37,9 @@ const GamesRelTable = () => {
         );
         setAllGameOptions(response.data);
       } catch (error) {
-        console.error("Erro ao obter dados da API:", error);
+        toast.error("Error fetching game options data from the API", {
+          className: "toast-error",
+        });
       }
     };
 
@@ -54,7 +59,9 @@ const GamesRelTable = () => {
       );
       setGameOptionsRel(response.data);
     } catch (error) {
-      console.error("Erro ao obter ligações da API:", error);
+      toast.error("Error fetching game associated options data from the API", {
+        className: "toast-error",
+      });
     }
   };
 
@@ -80,6 +87,10 @@ const GamesRelTable = () => {
         GameOptionId: gameOptionId,
       });
 
+      toast.success("Game option association successfully added.", {
+        className: "toast-success",
+      });
+
       const response = await axios.get(
         `http://localhost:3001/game-options-rel/game/${gameId}`
       );
@@ -88,7 +99,9 @@ const GamesRelTable = () => {
       setSelectedOptions((prevOptions) => [...prevOptions, currentOption]);
       setCurrentOption("");
     } catch (error) {
-      console.error("Erro ao adicionar ligações da API:", error);
+      toast.error("Error adding game associated options data from the API", {
+        className: "toast-error",
+      });
     }
   };
 
@@ -97,6 +110,11 @@ const GamesRelTable = () => {
       await axios.delete(
         `http://localhost:3001/game-options-rel/game/${editingGame.id}/option/${optionId}`
       );
+
+      
+      toast.success("Game option association successfully removed.", {
+        className: "toast-success",
+      });
 
       const response = await axios.get(
         `http://localhost:3001/game-options-rel/game/${editingGame.id}`
@@ -107,7 +125,9 @@ const GamesRelTable = () => {
         prevOptions.filter((option) => option.id !== optionId)
       );
     } catch (error) {
-      console.error("Erro ao remover ligações da API:", error);
+      toast.error("Error removing game associated options data from the API", {
+        className: "toast-error",
+      });
     }
   };
 
@@ -129,7 +149,6 @@ const GamesRelTable = () => {
       <table className="gamesList">
         <thead>
           <tr>
-            <th>ID</th>
             <th>Nome</th>
             <th>Ações</th>
           </tr>
@@ -141,7 +160,6 @@ const GamesRelTable = () => {
             )
             .map((game, index) => (
               <tr key={index}>
-                <td>{game.id}</td>
                 <td>{game.name}</td>
                 <td>
                   {game.id && (

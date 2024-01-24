@@ -38,7 +38,6 @@ function Profile() {
     axios
       .get(`http://localhost:3001/auth/basicinfo/${userId}`)
       .then((response) => {
-        console.log(response);
         const imageArray = response.data.profilePicture.data;
         const imageData = new Uint8Array(imageArray);
         const imageBase64 = btoa(String.fromCharCode.apply(null, imageData));
@@ -57,7 +56,6 @@ function Profile() {
           const canvas = document.getElementById("imageCanvas");
           const ctx = canvas.getContext("2d");
           const img = new Image();
-          console.log(imageUrl);
           img.onload = function () {
             canvas.width = img.width;
             canvas.height = img.height;

@@ -13,12 +13,10 @@
   gap: 20px;
   flex-direction: column;
   height: auto;
-  /* height: 90vh;
-  background-color: transparent !important; */
 }
 
 @media (min-width: 1615px) {
-  .container {
+  .container-galaga {
     flex-direction: row;
     height: 90vh;
   }

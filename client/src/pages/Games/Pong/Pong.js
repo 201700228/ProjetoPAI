@@ -177,7 +177,7 @@ const Pong = ({ authState }) => {
   }, []);
 
   return (
-    <div className="container">
+    <div className="container-pong">
       <div>
         <div style={{backgroundColor: "yellow", padding: "25px", color: "black", fontSize:"40px", textAlign: "center", borderTopLeftRadius: "10px", borderTopRightRadius:"10px"}}>
           Pong

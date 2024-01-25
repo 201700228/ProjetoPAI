@@ -25,6 +25,7 @@ import HomeGame from "./pages/Games/HomeGame";
 import { Navigate } from "react-router-dom";
 import TabsGames from "./layout/Tabs/Games/Games";
 import TabsLeaderboards from "./layout/Tabs/Leaderboards/Leaderboards";
+import Forum from './pages/Forum/forum';
 
 function App() {
   const [authState, setAuthState] = useState({
@@ -176,7 +177,7 @@ function App() {
             <Route
               path="/play/games/:gameId/:gameOptionId"
               element={
-                authState.status ? <HomeGame /> : <Navigate to="/login" />
+                authState.status ? <HomeGame authState={authState} /> : <Navigate to="/login" />
               }
             />
             <Route
@@ -187,6 +188,12 @@ function App() {
                 ) : (
                   <Navigate to="/login" />
                 )
+              }
+            />
+            <Route
+              path="/forum"
+              element={
+                authState.status ? <Forum authState={authState}/> : <Navigate to="/login" />
               }
             />
           </Routes>

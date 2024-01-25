@@ -5,7 +5,7 @@ import Pong from "../Games/Pong/Pong";
 import axios from "axios";
 import { toast } from "react-toastify";
 
-const HomeGame = () => {
+const HomeGame = ({authState}) => {
   const { gameId, gameOptionId } = useParams();
   const navigate = useNavigate();
   const [gameName, setGameName] = useState(null);
@@ -43,9 +43,9 @@ const HomeGame = () => {
 
   switch (gameName) {
     case "Galaga":
-      return <Galaga />;
+      return <Galaga authState={authState}/>;
     case "Pong":
-      return <Pong />;
+      return <Pong authState={authState} />;
     default:
       return null; 
   }

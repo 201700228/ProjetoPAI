@@ -1,4 +1,4 @@
-  .canvas {
+ .canvas {
     border-bottom-left-radius: 10px !important;
     border-bottom-right-radius: 10px !important;
     border-top-left-radius: 0 !important;
@@ -6,7 +6,7 @@
     background-image: url("../../../assets/galaga-background.jpg");
   }
 
-  .container {
+  .container-pong {
     display: flex;
     justify-content: center;
     align-items: center;
@@ -15,7 +15,7 @@
   }
 
   @media (min-width: 1615px) {
-    .container {
+    .container-pong {
       flex-direction: row;
       height: 90vh;
     }

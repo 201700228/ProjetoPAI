@@ -189,7 +189,7 @@ const Galaga = ({ authState: propAuthState }) => {
   ]);
 
   return (
-    <div className="container">
+    <div className="container-galaga">
       <div>
         <div style={{backgroundColor: "yellow", padding: "25px", color: "black", fontSize:"40px", textAlign: "center", borderTopLeftRadius: "10px", borderTopRightRadius:"10px"}}>
           Galaga

@@ -4,6 +4,7 @@ import "../../../../css/Colors.css";
 import Chat from "../../../Chat/chat.js";
 import { useParams } from "react-router-dom";
 import axios from "axios";
+import { useNavigate } from "react-router-dom";
 
 const PONG_CONSTANTS = {
   MAX_SCORE: 1,
@@ -17,6 +18,7 @@ const PONG_CONSTANTS = {
 const PongSP = ({ authState }) => {
   const canvasRef = useRef(null);
   const [gameOver, setGameOver] = useState(false);
+  const navigate = useNavigate();
 
   const { gameId } = useParams();
 
@@ -182,32 +184,40 @@ const PongSP = ({ authState }) => {
 
     const drawGameOverScreen = (winner) => {
       ctx.clearRect(0, 0, canvas.width, canvas.height);
-
+    
       ctx.font = "50px Arial";
       ctx.fillStyle = colors.white;
-
+    
       ctx.textAlign = "center";
       ctx.textBaseline = "middle";
-
+    
       const buttonWidth = 100;
       const buttonHeight = 40;
       const buttonX = canvas.width / 2 - buttonWidth / 2;
       const buttonY = canvas.height / 2 + 50;
-
+    
       ctx.fillText(`${winner} GANHOU!`, canvas.width / 2, canvas.height / 2);
       ctx.fillStyle = "#FFF";
       ctx.fillRect(buttonX, buttonY, buttonWidth, buttonHeight);
-
+    
       ctx.font = "18px 'Star Jedi', sans-serif";
       ctx.fillStyle = "#000";
       ctx.textAlign = "center";
       ctx.fillText("CLOSE", canvas.width / 2, buttonY + buttonHeight / 2 + 5);
-
-      canvas.addEventListener("click", handleGameClose(winner));
+    
+      const handleButtonClick = () => {
+        handleGameClose(winner);
+        canvas.removeEventListener("click", handleButtonClick);
+      };
+    
+      canvas.addEventListener("click", handleButtonClick);
     };
 
-    const handleGameClose = (winner) => {
-      sendGameResultsToAPI();
+    const handleGameClose =  async (winner) => {
+      const currentPath = window.location.pathname;
+      const parentPath = currentPath.split("/").slice(0, -1).join("/");
+      navigate(parentPath);
+      sendGameResultsToAPI(winner);
     };
 
     const draw = () => {

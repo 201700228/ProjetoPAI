@@ -1,6 +1,7 @@
 const express = require("express");
 const router = express.Router();
 const { Leaderboard, User, Game, sequelize  } = require("../models");
+const { Op } = require("sequelize");
 
 // Rota para obter todas as leaderboards
 router.get("/", async (req, res) => {
@@ -17,6 +18,11 @@ router.get("/", async (req, res) => {
         },
       ],
       attributes: ["result", "dateTime"],
+      where: {
+        result: {
+          [Op.gt]: 0, 
+        },
+      },
     });
 
     res.json(allLeaderboards);

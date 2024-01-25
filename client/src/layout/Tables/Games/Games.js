@@ -213,6 +213,7 @@ const GamesTable = () => {
         </div>
       </div>
 
+      <div className="tableContainer">
       <table className="gamesList">
         <thead>
           <tr>
@@ -332,6 +333,7 @@ const GamesTable = () => {
             ))}
         </tbody>
       </table>
+      </div>
     </div>
   );
 };

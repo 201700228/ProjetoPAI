@@ -1,0 +1,24 @@
+ .canvas-pong {
+    border-bottom-left-radius: 10px !important;
+    border-bottom-right-radius: 10px !important;
+    border-top-left-radius: 0 !important;
+    border-top-right-radius: 0 !important;
+    background-image: url("../../../../assets/pong-background.jpg") !important;
+    background-repeat: no-repeat; 
+    background-size: cover;
+  }
+
+  .container-pong {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 20px;
+    flex-direction: column;
+  }
+
+  @media (min-width: 1615px) {
+    .container-pong {
+      flex-direction: row;
+      height: 90vh;
+    }
+  }

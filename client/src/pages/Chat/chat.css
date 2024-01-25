@@ -1,0 +1,22 @@
+.container-chat {
+  height: auto;
+  width: auto;
+  max-height: 500px;
+  max-width: 1000px;
+  overflow-y: auto;
+  margin-bottom: 10px;
+}
+
+.container-chat::-webkit-scrollbar {
+  width: 12px;
+}
+
+.container-chat::-webkit-scrollbar-track {
+  background: var(--black);
+}
+
+.container-chat::-webkit-scrollbar-thumb {
+  background-color: var(--lightblue);
+  border-radius: 6px;
+  border: 3px solid var(--black);
+}

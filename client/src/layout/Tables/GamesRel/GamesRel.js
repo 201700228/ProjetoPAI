@@ -146,6 +146,7 @@ const GamesRelTable = () => {
         </div>
       </div>
 
+      <div className="tableContainer">
       <table className="gamesList">
         <thead>
           <tr>
@@ -174,6 +175,7 @@ const GamesRelTable = () => {
             ))}
         </tbody>
       </table>
+      </div>
 
       {showModal && (
         <div

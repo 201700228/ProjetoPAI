@@ -3,6 +3,7 @@ import io from "socket.io-client";
 import axios from "axios";
 import Picker from '@emoji-mart/react';
 import emojiData from '@emoji-mart/data';
+import "./chat.css"
 
 const Chat = ({ authState }) => {
   const [messages, setMessages] = useState([]);
@@ -136,7 +137,7 @@ const Chat = ({ authState }) => {
       <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.1.3/dist/js/bootstrap.min.js" integrity="sha384-ChfqqxuZUCnJSK3+MXmPNIyE6ZbWh2IMqE241rYiqJxyMiZ6OW/JmZQ5stwEULTy" crossOrigin="anonymous"></script>
       <div style={{ minWidth: "550px", height: "605px", padding: "20px", backgroundColor: "black", borderBottomRightRadius: "10px", borderBottomLeftRadius:"10px" }}>
         <div
-          style={{ height: "auto", width: "auto", maxHeight: "500px", maxWidth: "1000px", overflowY: "auto", marginBottom: "10px" }}
+          className="container-chat"
           ref={messagesContainerRef}
         >
           <div className={isPickerVisible ? 'd-block' : 'd-none'} style={{ position: "absolute", marginTop: "65px", marginLeft: "145px" }}>

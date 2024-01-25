@@ -19,7 +19,7 @@ import {
   updateHealthKits,
   updateHealthHitKit,
 } from "./Logic";
-import Chat from "../../../pages/Chat/chat.js"
+import Chat from "../../../pages/Chat/chat.js";
 import { useParams } from "react-router-dom";
 import axios from "axios";
 import { useContext } from "react";
@@ -191,15 +191,9 @@ const Galaga = ({ authState: propAuthState }) => {
   return (
     <div className="container-galaga">
       <div>
-        <div style={{backgroundColor: "yellow", padding: "25px", color: "black", fontSize:"40px", textAlign: "center", borderTopLeftRadius: "10px", borderTopRightRadius:"10px"}}>
-          Galaga
-        </div>
         <canvas className="canvas" ref={canvasRef} width={1000} height={600} />
       </div>
       <div>
-        <div style={{backgroundColor: "yellow", padding: "25px", color: "black", fontSize:"40px", textAlign: "center", borderTopLeftRadius: "10px", borderTopRightRadius:"10px"}}>
-          Chat
-        </div>
         <Chat authState={authState} />
       </div>
     </div>

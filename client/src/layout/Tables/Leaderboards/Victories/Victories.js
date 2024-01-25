@@ -12,7 +12,9 @@ const LeaderboardVTable = () => {
   useEffect(() => {
     const fetchLeaderboard = async () => {
       try {
-        const response = await axios.get("http://localhost:3001/leaderboards/victories");
+        const response = await axios.get(
+          "http://localhost:3001/leaderboards/victories"
+        );
         setLeaderboard(response.data);
       } catch (error) {
         toast.error("Error fetching data from the API", {
@@ -28,7 +30,9 @@ const LeaderboardVTable = () => {
     const username = entry.User.username.toLowerCase();
     const filterLowercase = filter.toLowerCase();
 
-    return gameName.includes(filterLowercase) || username.includes(filterLowercase);
+    return (
+      gameName.includes(filterLowercase) || username.includes(filterLowercase)
+    );
   });
 
   const handleSort = (column) => {
@@ -75,34 +79,30 @@ const LeaderboardVTable = () => {
         </div>
       </div>
 
-      <table className="gamesList">
-        <thead>
-          <tr>
-            <th>
-              Jogo
-            </th>
-            <th >
-              Jogador
-            </th>
-            <th onClick={() => handleSort("victories")}>
-              Vitórias{getSortIndicator("victories")}
-            </th>
-           
-          </tr>
-        </thead>
-        <tbody>
-          {sortedLeaderboard.map((entry, index) => (
-            <tr key={index}>
-              <td>{entry.Game.name}</td>
-              <td>{entry.User.username}</td>
-              <td>{entry.victories}</td>
+      <div className="tableContainer">
+        <table className="gamesList">
+          <thead>
+            <tr>
+              <th>Jogo</th>
+              <th>Jogador</th>
+              <th onClick={() => handleSort("victories")}>
+                Vitórias{getSortIndicator("victories")}
+              </th>
             </tr>
-          ))}
-        </tbody>
-      </table>
+          </thead>
+          <tbody>
+            {sortedLeaderboard.map((entry, index) => (
+              <tr key={index}>
+                <td>{entry.Game.name}</td>
+                <td>{entry.User.username}</td>
+                <td>{entry.victories}</td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
     </div>
   );
 };
 
 export default LeaderboardVTable;
-

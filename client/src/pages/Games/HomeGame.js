@@ -1,7 +1,8 @@
 import React, { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import Galaga from "../Games/Galaga/Game";
-import Pong from "../Games/Pong/Pong"; 
+import PongMP from "../Games/Pong/MultiPlayer/Pong"; 
+import PongSP from "../Games/Pong/SinglePlayer/Pong"; 
 import axios from "axios";
 import { toast } from "react-toastify";
 
@@ -43,11 +44,16 @@ const HomeGame = ({authState}) => {
 
   switch (gameName) {
     case "Galaga":
-      return <Galaga authState={authState}/>;
+      return <Galaga authState={authState} />;
     case "Pong":
-      return <Pong authState={authState} />;
+      const isMultiplayer = allGameOptions.some(option => option.name.toLowerCase().includes("Multiplayer"));
+      if (isMultiplayer) {
+        return <PongMP authState={authState} />;
+      } else {
+        return <PongSP authState={authState} />;
+      }
     default:
-      return null; 
+      return null;
   }
 };
 

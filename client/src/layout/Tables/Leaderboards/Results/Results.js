@@ -81,6 +81,7 @@ const LeaderboardNTable = () => {
         </div>
       </div>
 
+      <div className="tableContainer">
       <table className="gamesList">
         <thead>
           <tr>
@@ -109,6 +110,7 @@ const LeaderboardNTable = () => {
           ))}
         </tbody>
       </table>
+    </div>
     </div>
   );
 };

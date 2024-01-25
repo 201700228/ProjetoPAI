@@ -6,11 +6,10 @@ import PongSP from "../Games/Pong/SinglePlayer/Pong";
 import axios from "axios";
 import { toast } from "react-toastify";
 
-const HomeGame = ({authState}) => {
+const HomeGame = ({ authState }) => {
   const { gameId, gameOptionId } = useParams();
   const navigate = useNavigate();
-  const [gameName, setGameName] = useState(null);
-  const [games, setGames] = useState([]);
+  const [game, setGame] = useState(null);
   const [allGameOptions, setAllGameOptions] = useState([]);
 
   useEffect(() => {
@@ -21,8 +20,11 @@ const HomeGame = ({authState}) => {
           axios.get("http://localhost:3001/game-options/list")
         ]);
 
-        setGames(gamesResponse.data);
-        setAllGameOptions(optionsResponse.data);
+        const gamesData = gamesResponse.data;
+        const optionsData = optionsResponse.data;
+
+        setGame(gamesData.find(g => g.id === parseInt(gameId)));
+        setAllGameOptions(optionsData);
       } catch (error) {
         toast.error("Error fetching game data or game options data from the API", {
           className: "toast-error",
@@ -31,27 +33,20 @@ const HomeGame = ({authState}) => {
     };
 
     fetchGamesAndOptions();
-  }, []);
+  }, [gameId]);
 
-  useEffect(() => {
-    const mappedGameName = games.length > 0 && games.find(game => game.id === parseInt(gameId))?.name;
-    const gameOption = allGameOptions.length > 0 && allGameOptions.find(option => option.id === parseInt(gameOptionId))?.name;
+  if (!game) {
+    return null;
+  }
 
-    if (mappedGameName && gameOption) {
-      setGameName(mappedGameName);
-    } 
-  }, [gameId, gameOptionId, navigate, games, allGameOptions]);
+  const selectedOption = allGameOptions.find(option => option.id === parseInt(gameOptionId));
+  const isMultiplayer = selectedOption && selectedOption.name.toLowerCase().includes("multiplayer");
 
-  switch (gameName) {
+  switch (game.name) {
     case "Galaga":
       return <Galaga authState={authState} />;
     case "Pong":
-      const isMultiplayer = allGameOptions.some(option => option.name.toLowerCase().includes("Multiplayer"));
-      if (isMultiplayer) {
-        return <PongMP authState={authState} />;
-      } else {
-        return <PongSP authState={authState} />;
-      }
+      return isMultiplayer ? <PongMP authState={authState} /> : <PongSP authState={authState} />;
     default:
       return null;
   }

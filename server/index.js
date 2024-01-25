@@ -32,7 +32,7 @@ const commentTopicRouter = require("./routes/CommentTopic");
 const userTournamentRouter = require("./routes/UserTournament");
 const messageRouter = require("./routes/Message");
 const gameOptionsRouter = require("./routes/GameOptions");
-const gameOptionsRelRouter = require("./routes/GameOptionsRel")
+const gameOptionsRelRouter = require("./routes/GameOptionsRel");
 
 app.use("/comments", commentRouter);
 app.use("/auth", userRouter);
@@ -47,20 +47,34 @@ app.use("/messages", messageRouter);
 app.use("/game-options", gameOptionsRouter);
 app.use("/game-options-rel", gameOptionsRelRouter);
 
+// Variáveis do jogo
+const paddles = {
+  left: { y: 0, height: 100 },
+  right: { y: 0, height: 100 },
+};
+
+const ball = {
+  x: 0,
+  y: 0,
+  radius: 10,
+  speedX: 5,
+  speedY: 5,
+};
+
+let leftScore = 0;
+let rightScore = 0;
 
 app.get("/users/:id", async (req, res) => {
   try {
     const user = await db.User.findByPk(req.params.id);
 
     if (!user) {
-      // If user is not found, send a 404 Not Found response
       res.status(404).json({ error: "User not found" });
       return;
     }
 
-    // Check if user.profilePicture is not null before converting to base64
     if (user.profilePicture) {
-      user.profilePicture = user.profilePicture.toString('base64');
+      user.profilePicture = user.profilePicture.toString("base64");
     }
 
     res.json(user);
@@ -70,20 +84,93 @@ app.get("/users/:id", async (req, res) => {
   }
 });
 
-// WebSocket logic
+const rooms = {};
+
 io.on("connection", (socket) => {
+  console.log("User connected:", socket.id);
+
+  socket.on("joinGameRoom", ({ userId }) => {
+    let room;
+    for (const r in rooms) {
+      if (rooms[r].length < 2) {
+        room = r;
+        break;
+      }
+    }
+    if (!room) {
+      room = socket.id;
+      rooms[room] = [];
+    }
+
+    const playerIndex = rooms[room].findIndex(
+      (player) => player.userId === userId
+    );
+    if (playerIndex === -1) {
+      socket.join(room);
+      rooms[room].push({ userId, socketId: socket.id });
+
+      io.to(room).emit(
+        "playersInRoom",
+        rooms[room].map((player) => player.userId)
+      );
+
+      if (rooms[room].length === 2) {
+        const ball = {
+          x: 0,
+          y: 0,
+          speedX: 5,
+          speedY: 5,
+        };
+        const paddles = {
+          left: { y: 0 },
+          right: { y: 0 },
+        };
+        io.to(room).emit("gameInit", {
+          ball,
+          paddles,
+          scores: { left: 0, right: 0 },
+        });
+      }
+    }
+
+    socket.on("playerMove", (data) => {
+      io.to(room).emit("gameUpdate", {
+        /*...*/
+      });
+    });
+
+    socket.on("disconnect", () => {
+      console.log("User disconnected:", socket.id);
+      const index = rooms[room].findIndex(
+        (player) => player.socketId === socket.id
+      );
+      if (index !== -1) {
+        rooms[room].splice(index, 1);
+
+        io.to(room).emit(
+          "playersInRoom",
+          rooms[room].map((player) => player.userId)
+        );
+
+        if (rooms[room].length === 0) {
+          delete rooms[room];
+        }
+      }
+    });
+  });
+
   socket.on("message", async (data) => {
-    // Save the message to the database
     try {
       const newMessage = await db.Message.create({
         text: data.text,
         UserId: data.user.id,
       });
 
-      // Fetch the associated user data (username and profilePicture)
       const sender = await db.User.findByPk(data.user.id);
       if (sender) {
-        const profilePictureBase64 = sender.profilePicture ? sender.profilePicture.toString('base64') : null;
+        const profilePictureBase64 = sender.profilePicture
+          ? sender.profilePicture.toString("base64")
+          : null;
         io.emit("message", {
           text: newMessage.text,
           sender: sender.username,

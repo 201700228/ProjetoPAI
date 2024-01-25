@@ -230,4 +230,21 @@ router.put("/:id", upload.single("profilePicture"), async (req, res) => {
   }
 });
 
+router.get("/all", async (req, res) => {
+  try {
+    const allUsers = await User.findAll({
+      attributes: { exclude: ["password"] },
+    });
+
+    if (!allUsers || allUsers.length === 0) {
+      return res.status(404).json({ error: "No users found" });
+    }
+
+    return res.json(allUsers);
+  } catch (error) {
+    console.error("Error fetching all users:", error);
+    return res.status(500).json({ error: "Error fetching all users" });
+  }
+});
+
 module.exports = router;

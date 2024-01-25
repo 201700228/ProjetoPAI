@@ -84,12 +84,22 @@ app.get("/users/:id", async (req, res) => {
   }
 });
 
+async function getUsernameById(userId) {
+  try {
+    const user = await db.User.findByPk(userId);
+    return user ? user.username : null;
+  } catch (error) {
+    console.error("Error fetching username:", error);
+    return null;
+  }
+}
+
 const rooms = {};
 
 io.on("connection", (socket) => {
   console.log("User connected:", socket.id);
 
-  socket.on("joinGameRoom", ({ userId }) => {
+  socket.on("joinGameRoom", async ({ userId }) => {
     let room;
     for (const r in rooms) {
       if (rooms[r].length < 2) {
@@ -125,10 +135,27 @@ io.on("connection", (socket) => {
           left: { y: 0 },
           right: { y: 0 },
         };
-        io.to(room).emit("gameInit", {
+        const playersInfo = rooms[room].map(async (player) => {
+          const username = await getUsernameById(player.userId);
+          return { ...player, username };
+        });
+
+        const [player1, player2] = await Promise.all(playersInfo);
+
+        io.to(player1.socketId).emit("gameInit", {
           ball,
           paddles,
           scores: { left: 0, right: 0 },
+          opponentUsername: player2.username,
+          username: player1.username,
+        });
+
+        io.to(player2.socketId).emit("gameInit", {
+          ball,
+          paddles,
+          scores: { left: 0, right: 0 },
+          opponentUsername: player1.username,
+          username: player2.username,
         });
       }
     }

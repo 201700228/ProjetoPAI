@@ -1,5 +1,7 @@
 import React, { useEffect, useState, useRef } from "react";
 import { io } from "socket.io-client";
+import Chat from "../../../Chat/chat.js";
+import "./Pong.css";
 
 class Player {
   constructor(x, y, width, height, color) {
@@ -22,7 +24,7 @@ class Player {
       30
     );
 
-    ctx.fillRect(this.x < 400 ? 790 : 0, 0, 10, 500);
+    ctx.fillRect(this.x < 400 ? 790 : 0, 0, 10, 600);
   }
 }
 
@@ -41,8 +43,7 @@ class Ball {
     ctx.fill();
   }
 }
-
-function PongMP() {
+const PongMP = ({ authState }) => {
   const [player1, setPlayer1] = useState(null);
   const [player2, setPlayer2] = useState(null);
   const [ball, setBall] = useState(null);
@@ -87,7 +88,7 @@ function PongMP() {
       }
     };
 
-    startBtn.current.addEventListener("click", startGame);
+    startBtn.current && startBtn.current.addEventListener("click", startGame);
 
     const setMessage = (msg) => {
       const message = document.getElementById("message");
@@ -95,7 +96,6 @@ function PongMP() {
     };
 
     const handleKeyDown = (event) => {
-      console.log("Key pressed:", event.key);
       if (isGameStarted) {
         if (event.key === "ArrowUp") {
           console.log("UP");
@@ -118,7 +118,7 @@ function PongMP() {
     const draw = () => {
       const ctx = getCanvasContext();
       if (getPlayer1() && getPlayer2() && getBall()) {
-        ctx.clearRect(0, 0, 800, 500);
+        ctx.clearRect(0, 0, 1000, 600);
 
         if (getPlayer1() !== null) {
           getPlayer1().draw(ctx);
@@ -204,7 +204,7 @@ function PongMP() {
 
       setTimeout(() => {
         const ctx = getCanvasContext();
-        ctx.clearRect(0, 0, 800, 500);
+        ctx.clearRect(0, 0, 1000, 600);
         startBtn.current.style.display = "block";
       }, 2000);
     });
@@ -219,24 +219,26 @@ function PongMP() {
       socket.current.off("updateGame");
       socket.current.off("endGame");
       window.removeEventListener("keydown", handleKeyDown);
-      startBtn.current.removeEventListener("click", startGame);
+      startBtn.current && startBtn.current.removeEventListener("click", startGame);
     };
   }, [player1, player2, ball, isGameStarted, playerNo, roomID]);
 
   return (
-    <div className="container">
-      <h1 id="heading">PING PONG (ONLINE GAME)</h1>
-      <div className="game">
+    <div className="container-pong">
+      <div >
         <canvas
           id="canvas"
-          width="800"
-          height="500"
-          style={{ background: "#000" }}
+          className="canvas-pong"
+          width={1000} height={600}
         ></canvas>
         <p id="message"></p>
         <button ref={startBtn} id="startBtn">
           START GAME
         </button>
+      </div>
+
+      <div>
+        <Chat authState={authState} />
       </div>
     </div>
   );

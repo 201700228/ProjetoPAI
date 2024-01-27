@@ -18,11 +18,11 @@ class Player {
     ctx.fillRect(this.x, this.y, this.width, this.height);
 
     const scoreX =
-      this.x < 400 ? 370 - (this.score.toString().length - 1) * 12 : 520;
+      this.x < 400 ? 280 - (this.score.toString().length - 1) * 12 : 520;
 
     ctx.fillText(this.score, scoreX, 50);
 
-    ctx.fillRect(this.x < 400 ? 790 : 0, 0, 10, 650);
+    //ctx.fillRect(this.x < 400 ? 790 : 0, 0, 10, 650);
   }
 }
 
@@ -282,8 +282,8 @@ const PongMP = ({ authState }) => {
         <canvas
           id="canvas"
           className="canvas-pong"
-          width={1000}
-          height={600}
+          width={800}
+          height={500}
           ref={canvasRef}
         ></canvas>
       </div>

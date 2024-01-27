@@ -1,22 +1,6 @@
- .canvas {
-    border-bottom-left-radius: 10px !important;
-    border-bottom-right-radius: 10px !important;
-    border-top-left-radius: 0 !important;
-    border-top-right-radius: 0 !important;
-    /* background-image: url("../../../assets/galaga-background.jpg"); */
-  }
-
-  .container-pong {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    gap: 20px;
-    flex-direction: column;
-  }
-
-  @media (min-width: 1615px) {
-    .container-pong {
-      flex-direction: row;
-      height: 90vh;
-    }
+.container-pong-mp {
+    background-image: url("../../../../assets/pong-background.jpg");
+    background-size: cover; /* Adjust as needed */
+    background-repeat: no-repeat;
+    background-position: center center;
   }

@@ -1,148 +1,245 @@
-import React, { useEffect, useRef, useState } from "react";
-import "./Pong.css";
-import Chat from "../../../Chat/chat.js";
-import io from "socket.io-client";
-import axios from "axios";
+import React, { useEffect, useState, useRef } from "react";
+import { io } from "socket.io-client";
 
-const PONG_CONSTANTS = {
-  MAX_SCORE: 7,
-  INITIAL_BALL_SPEED_X: 3,
-  INITIAL_BALL_SPEED_Y: 3,
-  BALL_SPEED_INCREMENT: 0.5,
-  INITIAL_RIGHT_PADDLE_SPEED: 5,
-};
+class Player {
+  constructor(x, y, width, height, color) {
+    this.x = x;
+    this.y = y;
+    this.width = width;
+    this.height = height;
+    this.color = color;
+    this.score = 0;
+  }
 
-const PongMP = ({ authState }) => {
-  const canvasRef = useRef(null);
-  const socketRef = useRef();
-  const [paddles, setPaddles] = useState({ left: { y: 0 }, right: { y: 0 } });
-  const [ball, setBall] = useState({ x: 0, y: 0, speedX: 0, speedY: 0 });
+  draw(ctx) {
+    ctx.fillStyle = this.color;
+    ctx.fillRect(this.x, this.y, this.width, this.height);
+
+    ctx.font = "20px Arial";
+    ctx.fillText(
+      this.score,
+      this.x < 400 ? 370 - (this.score.toString().length - 1) * 12 : 420,
+      30
+    );
+
+    ctx.fillRect(this.x < 400 ? 790 : 0, 0, 10, 500);
+  }
+}
+
+class Ball {
+  constructor(x, y, radius, color) {
+    this.x = x;
+    this.y = y;
+    this.radius = radius;
+    this.color = color;
+  }
+
+  draw(ctx) {
+    ctx.fillStyle = this.color;
+    ctx.beginPath();
+    ctx.arc(this.x, this.y, this.radius, 0, 2 * Math.PI);
+    ctx.fill();
+  }
+}
+
+function PongMP() {
+  const [player1, setPlayer1] = useState(null);
+  const [player2, setPlayer2] = useState(null);
+  const [ball, setBall] = useState(null);
   const [isGameStarted, setIsGameStarted] = useState(false);
-  const [leftScore, setLeftScore] = useState(0);
-  const [rightScore, setRightScore] = useState(0);
-  const [opponentUsername, setOpponentUsername] = useState("");
+  const [playerNo, setPlayerNo] = useState(0);
+  const [roomID, setRoomID] = useState(null);
 
-  const fetchUserById = async (userId) => {
-    try {
-      const response = await axios.get(`/users/basicinfo/${userId}`);
-      return response.data;
-    } catch (error) {
-      console.error("Error fetching user by ID:", error);
-      return null;
-    }
+  const getCanvasContext = () => {
+    const canvas = document.getElementById("canvas");
+    return canvas.getContext("2d");
   };
+
+  const getPlayer1 = () => {
+    return player1;
+  };
+
+  const getPlayer2 = () => {
+    return player2;
+  };
+
+  const getBall = () => {
+    return ball;
+  };
+
+  const socket = useRef(
+    io("http://localhost:3001", {
+      transports: ["websocket"],
+    })
+  );
+
+  const startBtn = useRef(null);
 
   useEffect(() => {
-    const canvas = canvasRef.current;
-    const ctx = canvas.getContext("2d");
+    const startGame = () => {
+      startBtn.current.style.display = "none";
 
-    socketRef.current = io("http://localhost:3001");
+      if (socket.current.connected) {
+        socket.current.emit("join");
+        setMessage("Waiting for other player...");
+      } else {
+        setMessage("Refresh the page and try again...");
+      }
+    };
 
-    socketRef.current.on("connect", () => {
-      console.log("Connected to server");
-      socketRef.current.emit("joinGameRoom", { userId: authState.id });
+    startBtn.current.addEventListener("click", startGame);
+
+    const setMessage = (msg) => {
+      const message = document.getElementById("message");
+      message.innerText = msg;
+    };
+
+    const handleKeyDown = (event) => {
+      console.log("Key pressed:", event.key);
+      if (isGameStarted) {
+        if (event.key === "ArrowUp") {
+          console.log("UP");
+          socket.current.emit("move", {
+            roomID: roomID,
+            playerNo: playerNo,
+            direction: "up",
+          });
+        } else if (event.key === "ArrowDown") {
+          console.log("UP");
+          socket.current.emit("move", {
+            roomID: roomID,
+            playerNo: playerNo,
+            direction: "down",
+          });
+        }
+      }
+    };
+
+    const draw = () => {
+      const ctx = getCanvasContext();
+      if (getPlayer1() && getPlayer2() && getBall()) {
+        ctx.clearRect(0, 0, 800, 500);
+
+        if (getPlayer1() !== null) {
+          getPlayer1().draw(ctx);
+        }
+
+        if (getPlayer2() !== null) {
+          getPlayer2().draw(ctx);
+        }
+
+        if (getBall() !== null) {
+          getBall().draw(ctx);
+        }
+
+        // center line
+        ctx.strokeStyle = "white";
+        ctx.beginPath();
+        ctx.setLineDash([10, 10]);
+        ctx.moveTo(400, 5);
+        ctx.lineTo(400, 495);
+        ctx.stroke();
+      }
+    };
+
+    socket.current.on("playerNo", (newPlayerNo) => {
+      setPlayerNo(newPlayerNo);
     });
 
-    socketRef.current.on("gameInit", async (gameState) => {
-      console.log(gameState);
-      setPaddles(gameState.paddles);
-      setBall(gameState.ball);
-      setLeftScore(gameState.scores.left);
-      setRightScore(gameState.scores.right);
-      console.log(gameState.opponentUsername);
-      setOpponentUsername(gameState.opponentUsername);
+    socket.current.on("startingGame", () => {
       setIsGameStarted(true);
-      requestAnimationFrame(draw);
+      setMessage("We are going to start the game...");
     });
 
-    socketRef.current.on("gameUpdate", (gameState) => {
-      setPaddles(gameState.paddles);
-      setBall(gameState.ball);
-      setLeftScore(gameState.scores.left);
-      setRightScore(gameState.scores.right);
+    socket.current.on("startedGame", (room) => {
+      setRoomID(room.id);
+      setMessage("");
+
+      setPlayer1(
+        new Player(room.players[0].x, room.players[0].y, 20, 60, "red")
+      );
+      setPlayer2(
+        new Player(room.players[1].x, room.players[1].y, 20, 60, "blue")
+      );
+
+      const player1Instance = getPlayer1();
+      const player2Instance = getPlayer2();
+
+      if (player1Instance !== null && room.players[0].score !== undefined) {
+        player1Instance.score = room.players[0].score;
+      }
+
+      if (player2Instance !== null && room.players[1].score !== undefined) {
+        player2Instance.score = room.players[1].score;
+      }
+      setBall(new Ball(room.ball.x, room.ball.y, 10, "white"));
     });
 
-    socketRef.current.on("disconnect", () => {
-      console.log("Disconnected from server");
+    socket.current.on("updateGame", (room) => {
+      if (getPlayer1() && getPlayer2() && getBall()) {
+        getPlayer1().y = room.players[0].y;
+        getPlayer2().y = room.players[1].y;
+
+        if (getPlayer1() !== null && room.players[0].score !== undefined) {
+          getPlayer1().score = room.players[0].score;
+        }
+
+        if (getPlayer2() !== null && room.players[1].score !== undefined) {
+          getPlayer2().score = room.players[1].score;
+        }
+
+        getBall().x = room.ball.x;
+        getBall().y = room.ball.y;
+
+        draw();
+      }
+    });
+
+    socket.current.on("endGame", (room) => {
       setIsGameStarted(false);
+      setMessage(
+        `${room.winner === playerNo ? "You are Winner!" : "You are Loser!"}`
+      );
+      socket.current.emit("leave", roomID);
+
+      setTimeout(() => {
+        const ctx = getCanvasContext();
+        ctx.clearRect(0, 0, 800, 500);
+        startBtn.current.style.display = "block";
+      }, 2000);
     });
+
+    window.addEventListener("keydown", handleKeyDown);
+    draw();
 
     return () => {
-      document.removeEventListener("keydown", handleKeyDown);
-      document.removeEventListener("keyup", handleKeyUp);
-      socketRef.current.disconnect();
+      socket.current.off("playerNo");
+      socket.current.off("startingGame");
+      socket.current.off("startedGame");
+      socket.current.off("updateGame");
+      socket.current.off("endGame");
+      window.removeEventListener("keydown", handleKeyDown);
+      startBtn.current.removeEventListener("click", startGame);
     };
-  }, [authState.id, opponentUsername]);
-
-  const handleKeyDown = (event) => {
-    const canvas = canvasRef.current;
-    if (!canvas || !paddles.left || !paddles.right) return;
-
-    if (event.key === "ArrowUp" && paddles.right.y > 0) {
-      paddles.right.y -= PONG_CONSTANTS.INITIAL_RIGHT_PADDLE_SPEED;
-      socketRef.current.emit("playerMove", { direction: "up" });
-    } else if (
-      event.key === "ArrowDown" &&
-      paddles.right.y + paddles.right.height < canvas.height
-    ) {
-      paddles.right.y += PONG_CONSTANTS.INITIAL_RIGHT_PADDLE_SPEED;
-      socketRef.current.emit("playerMove", { direction: "down" });
-    }
-  };
-
-  const handleKeyUp = () => {
-    // You can add logic here if needed
-  };
-
-  document.addEventListener("keydown", handleKeyDown);
-  document.addEventListener("keyup", handleKeyUp);
-
-  const draw = () => {
-    const canvas = canvasRef.current;
-    if (!canvas || !paddles.left || !paddles.right) return;
-
-    const ctx = canvas.getContext("2d");
-    ctx.clearRect(0, 0, canvas.width, canvas.height);
-
-    // Draw paddles
-    ctx.fillStyle = "white";
-    if (paddles.left.y !== undefined) {
-      ctx.fillRect(0, paddles.left.y, 10, 100); // Left paddle
-    }
-    if (paddles.right.y !== undefined) {
-      ctx.fillRect(canvas.width - 10, paddles.right.y, 10, 100); // Right paddle
-    }
-
-    // Draw ball
-    ctx.beginPath();
-    if (ball.x !== undefined && ball.y !== undefined) {
-      ctx.arc(ball.x, ball.y, 10, 0, Math.PI * 2);
-      ctx.fillStyle = "white";
-      ctx.fill();
-      ctx.closePath();
-    }
-
-    // Display scores
-    ctx.font = "20px Arial";
-    ctx.fillText(`${authState.username}: ${leftScore}`, 20, 30);
-    ctx.fillText(`${opponentUsername}: ${rightScore}`, canvas.width - 150, 30);
-
-    requestAnimationFrame(draw);
-  };
+  }, [player1, player2, ball, isGameStarted, playerNo, roomID]);
 
   return (
-    <div className="container-pong">
-      <div>
+    <div className="container">
+      <h1 id="heading">PING PONG (ONLINE GAME)</h1>
+      <div className="game">
         <canvas
-          className="canvas-pong"
-          ref={canvasRef}
-          width={1000}
-          height={600}
-        />
+          id="canvas"
+          width="800"
+          height="500"
+          style={{ background: "#000" }}
+        ></canvas>
+        <p id="message"></p>
+        <button ref={startBtn} id="startBtn">
+          START GAME
+        </button>
       </div>
-      <div>{isGameStarted ? <Chat authState={authState} /> : <p></p>}</div>
     </div>
   );
-};
+}
 
 export default PongMP;

@@ -2,7 +2,7 @@ import React, { useEffect, useState, useRef } from "react";
 import { io } from "socket.io-client";
 import Chat from "../../../Chat/chat.js";
 import "./Pong.css";
-
+import pongLogo from "../../../../assets/pong-logo.png";
 class Player {
   constructor(x, y, width, height, color) {
     this.x = x;
@@ -17,14 +17,12 @@ class Player {
     ctx.fillStyle = this.color;
     ctx.fillRect(this.x, this.y, this.width, this.height);
 
-    ctx.font = "20px Arial";
-    ctx.fillText(
-      this.score,
-      this.x < 400 ? 370 - (this.score.toString().length - 1) * 12 : 420,
-      30
-    );
+    const scoreX =
+      this.x < 400 ? 370 - (this.score.toString().length - 1) * 12 : 520;
 
-    ctx.fillRect(this.x < 400 ? 790 : 0, 0, 10, 600);
+    ctx.fillText(this.score, scoreX, 50);
+
+    ctx.fillRect(this.x < 400 ? 790 : 0, 0, 10, 650);
   }
 }
 
@@ -49,10 +47,12 @@ const PongMP = ({ authState }) => {
   const [ball, setBall] = useState(null);
   const [isGameStarted, setIsGameStarted] = useState(false);
   const [playerNo, setPlayerNo] = useState(0);
+  const [showStartScreen, setShowStartScreen] = useState(true);
   const [roomID, setRoomID] = useState(null);
+  const canvasRef = useRef(null);
 
   const getCanvasContext = () => {
-    const canvas = document.getElementById("canvas");
+    const canvas = canvasRef.current;
     return canvas.getContext("2d");
   };
 
@@ -78,34 +78,85 @@ const PongMP = ({ authState }) => {
 
   useEffect(() => {
     const startGame = () => {
-      startBtn.current.style.display = "none";
+      canvasRef.current.style.cursor = "default";
 
       if (socket.current.connected) {
         socket.current.emit("join");
-        setMessage("Waiting for other player...");
+        setShowStartScreen(false);
+        drawScreen("WAITING FOR ANOTHER PLAYER ...");
       } else {
-        setMessage("Refresh the page and try again...");
+        drawScreen("REFRESH THE PAGE AND TRY AGAIN ...");
       }
     };
 
-    startBtn.current && startBtn.current.addEventListener("click", startGame);
+    const drawScreen = (text) => {
+      const ctx = getCanvasContext();
 
-    const setMessage = (msg) => {
-      const message = document.getElementById("message");
-      message.innerText = msg;
+      ctx.clearRect(0, 0, canvasRef.current.width, canvasRef.current.height);
+
+      ctx.font = "25px 'Press Start 2P', cursive";
+      ctx.fillStyle = "#ffffff";
+      ctx.textAlign = "center";
+      ctx.fillText(
+        text,
+        canvasRef.current.width / 2,
+        canvasRef.current.height / 2
+      );
+
+      canvasRef.current.style.cursor = "pointer";
+      canvasRef.current.removeEventListener("click", startGame);
     };
+
+    const drawStartScreen = () => {
+      const backgroundImage = new Image();
+      const ctx = getCanvasContext();
+      backgroundImage.src = pongLogo;
+
+      const newSizeMultiplier = 0.3;
+      const offsetYAdjustment = -30;
+
+      backgroundImage.onload = function () {
+        const aspectRatio = backgroundImage.width / backgroundImage.height;
+
+        let newWidth = canvasRef.current.width * newSizeMultiplier;
+        let newHeight = newWidth / aspectRatio;
+
+        if (newHeight > canvasRef.current.height) {
+          newHeight = canvasRef.current.height * newSizeMultiplier;
+          newWidth = newHeight * aspectRatio;
+        }
+
+        const offsetX = (canvasRef.current.width - newWidth) / 2;
+        const offsetY =
+          (canvasRef.current.height - newHeight) / 2 + offsetYAdjustment;
+
+        ctx.drawImage(backgroundImage, offsetX, offsetY, newWidth, newHeight);
+
+        ctx.font = "25px 'Press Start 2P', cursive";
+        ctx.fillStyle = "#ffffff";
+        ctx.textAlign = "center";
+        ctx.fillText(
+          "PRESS START",
+          canvasRef.current.width / 2,
+          canvasRef.current.height / 2 + 70
+        );
+
+        canvasRef.current.style.cursor = "pointer";
+        canvasRef.current.addEventListener("click", startGame);
+      };
+    };
+
+    if (showStartScreen) drawStartScreen();
 
     const handleKeyDown = (event) => {
       if (isGameStarted) {
         if (event.key === "ArrowUp") {
-          console.log("UP");
           socket.current.emit("move", {
             roomID: roomID,
             playerNo: playerNo,
             direction: "up",
           });
         } else if (event.key === "ArrowDown") {
-          console.log("UP");
           socket.current.emit("move", {
             roomID: roomID,
             playerNo: playerNo,
@@ -132,12 +183,14 @@ const PongMP = ({ authState }) => {
           getBall().draw(ctx);
         }
 
-        // center line
         ctx.strokeStyle = "white";
         ctx.beginPath();
         ctx.setLineDash([10, 10]);
-        ctx.moveTo(400, 5);
-        ctx.lineTo(400, 495);
+
+        const meioHorizontal = canvasRef.current.width / 2;
+
+        ctx.moveTo(meioHorizontal, 0);
+        ctx.lineTo(meioHorizontal, canvasRef.current.height);
         ctx.stroke();
       }
     };
@@ -148,12 +201,11 @@ const PongMP = ({ authState }) => {
 
     socket.current.on("startingGame", () => {
       setIsGameStarted(true);
-      setMessage("We are going to start the game...");
+      drawScreen("WE ARE GOING TO START THE GAME...");
     });
 
     socket.current.on("startedGame", (room) => {
       setRoomID(room.id);
-      setMessage("");
 
       setPlayer1(
         new Player(room.players[0].x, room.players[0].y, 20, 60, "red")
@@ -197,16 +249,16 @@ const PongMP = ({ authState }) => {
 
     socket.current.on("endGame", (room) => {
       setIsGameStarted(false);
-      setMessage(
+      drawScreen(
         `${room.winner === playerNo ? "You are Winner!" : "You are Loser!"}`
       );
       socket.current.emit("leave", roomID);
 
       setTimeout(() => {
         const ctx = getCanvasContext();
-        ctx.clearRect(0, 0, 1000, 600);
-        startBtn.current.style.display = "block";
-      }, 2000);
+        //ctx.clearRect(0, 0, 1000, 600);
+        // startBtn.current.style.display = "block";
+      }, 10000);
     });
 
     window.addEventListener("keydown", handleKeyDown);
@@ -219,22 +271,21 @@ const PongMP = ({ authState }) => {
       socket.current.off("updateGame");
       socket.current.off("endGame");
       window.removeEventListener("keydown", handleKeyDown);
-      startBtn.current && startBtn.current.removeEventListener("click", startGame);
+      startBtn.current &&
+        startBtn.current.removeEventListener("click", startGame);
     };
   }, [player1, player2, ball, isGameStarted, playerNo, roomID]);
 
   return (
     <div className="container-pong">
-      <div >
+      <div>
         <canvas
           id="canvas"
           className="canvas-pong"
-          width={1000} height={600}
+          width={1000}
+          height={600}
+          ref={canvasRef}
         ></canvas>
-        <p id="message"></p>
-        <button ref={startBtn} id="startBtn">
-          START GAME
-        </button>
       </div>
 
       <div>
@@ -242,6 +293,6 @@ const PongMP = ({ authState }) => {
       </div>
     </div>
   );
-}
+};
 
 export default PongMP;

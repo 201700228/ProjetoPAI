@@ -262,7 +262,7 @@ const PongSP = ({ authState }) => {
         <canvas className="canvas-pong" ref={canvasRef} width={1000} height={600} />
       </div>
       <div>
-        <Chat authState={authState} />
+        <Chat authState={authState} defaultTopic="Pong"/>
       </div>
     </div>
   );

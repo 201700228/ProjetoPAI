@@ -78,7 +78,7 @@ const PongMP = ({ authState }) => {
       </div>
       <div>
         {isGameStarted ? (
-          <Chat authState={authState} />
+          <Chat authState={authState} defaultTopic="Pong" />
         ) : (
           <p>Aguardando por outro jogador...</p>
         )}

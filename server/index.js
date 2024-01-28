@@ -87,8 +87,6 @@ app.get("/users/:id", async (req, res) => {
 const rooms = {};
 
 io.on("connection", (socket) => {
-  console.log("User connected:", socket.id);
-
   socket.on("joinGameRoom", ({ userId }) => {
     let room;
     for (const r in rooms) {
@@ -138,7 +136,7 @@ io.on("connection", (socket) => {
         /*...*/
       });
     });
-
+    
     socket.on("disconnect", () => {
       console.log("User disconnected:", socket.id);
       const index = rooms[room].findIndex(
@@ -164,6 +162,7 @@ io.on("connection", (socket) => {
       const newMessage = await db.Message.create({
         text: data.text,
         UserId: data.user.id,
+        topic: data.topic || "General",
       });
 
       const sender = await db.User.findByPk(data.user.id);
@@ -171,16 +170,23 @@ io.on("connection", (socket) => {
         const profilePictureBase64 = sender.profilePicture
           ? sender.profilePicture.toString("base64")
           : null;
+
         io.emit("message", {
           text: newMessage.text,
           sender: sender.username,
           profilePicture: profilePictureBase64,
+          topic: data.topic
         });
       }
     } catch (error) {
       console.error("Error saving message to the database:", error);
     }
   });
+
+  socket.on("connect_error", (error) => {
+    console.error("Connection error:", error);
+  });
+
 });
 
 db.sequelize.sync().then(() => {

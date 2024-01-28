@@ -4,7 +4,11 @@ const { Message } = require("../models");
 
 router.get("/", async (req, res) => {
     try {
-        const messages = await Message.findAll();
+        const messages = await Message.findAll({
+            where: {
+                topic: req.query.topic || "General",
+            }
+        });
         res.json(messages);
     } catch (error) {
         console.error("Error fetching messages:", error);
@@ -14,7 +18,14 @@ router.get("/", async (req, res) => {
 
 router.get("/all", async (req, res) => {
     try {
-        const messages = await Message.findAll();
+        const topic = req.query.topic || "General";
+
+        const messages = await Message.findAll({
+          where: {
+            topic: topic,
+          },
+        });
+    
         res.json(messages);
     } catch (error) {
         console.error("Error fetching messages:", error);

@@ -5,12 +5,15 @@ import Picker from '@emoji-mart/react';
 import emojiData from '@emoji-mart/data';
 import "./chat.css"
 
-const Chat = ({ authState }) => {
+const socket = io("http://localhost:3001");
+
+const Chat = ({ authState, defaultTopic }) => {
   const [messages, setMessages] = useState([]);
   const [messageInput, setMessageInput] = useState("");
   const [isPickerVisible, setPickerVisible] = useState(false);
-  const socket = io("http://localhost:3001");
+  const [selectedTopic, setSelectedTopic] = useState(defaultTopic || "General");
   const messagesContainerRef = useRef(null);
+
 
   useEffect(() => {
     const handleReceiveMessage = (message) => {
@@ -27,7 +30,7 @@ const Chat = ({ authState }) => {
   useEffect(() => {
     const fetchPreviousMessages = async () => {
       try {
-        const response = await axios.get("http://localhost:3001/messages/all");
+        const response = await axios.get(`http://localhost:3001/messages/all?topic=${selectedTopic}`);
         const messagesWithSenderInfo = [];
 
         for (const message of response.data) {
@@ -41,6 +44,7 @@ const Chat = ({ authState }) => {
                   text: message.text,
                   sender: sender.username,
                   profilePicture: sender.profilePicture,
+                  topic: message.topic
                 });
               } else {
                 messagesWithSenderInfo.push({
@@ -54,14 +58,18 @@ const Chat = ({ authState }) => {
             }
           }
         }
-        setMessages(messagesWithSenderInfo);
+
+        // Update messages only if the topic is still the same
+        if (selectedTopic === response.data[0]?.topic) {
+          setMessages(messagesWithSenderInfo);
+        }
       } catch (error) {
         console.error("Error fetching previous messages:", error);
       }
     };
 
     fetchPreviousMessages();
-  }, []);
+  }, [selectedTopic]);
 
   // This useEffect will scroll the messages container to the bottom whenever new content is added
   useEffect(() => {
@@ -71,16 +79,20 @@ const Chat = ({ authState }) => {
   }, [messages]);
 
   const sendMessage = () => {
-    if (messageInput.trim() !== "") {
+    if (socket.connected && messageInput.trim() !== "") {
       const message = {
         text: messageInput,
-        user: authState
+        user: authState,
+        topic: selectedTopic,
       };
 
       socket.emit("message", message);
+
+      // Clear the message input
       setMessageInput("");
     }
   };
+
 
   const handleKeyDown = (e) => {
     if (e.key === 'Enter') {
@@ -129,13 +141,41 @@ const Chat = ({ authState }) => {
     };
   }, []);  // Empty dependency array to run the effect only once
 
+  useEffect(() => {
+    const handleMessagesUpdate = (updatedMessages) => {
+      setMessages(updatedMessages);
+    };
+
+    socket.on("messagesUpdate", handleMessagesUpdate);
+
+    return () => {
+      socket.off("messagesUpdate", handleMessagesUpdate);
+    };
+  }, [messages]);
 
   return (
     <>
       <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js" integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo" crossOrigin="anonymous"></script>
       <script src="https://cdn.jsdelivr.net/npm/popper.js@1.14.3/dist/umd/popper.min.js" integrity="sha384-ZMP7rVo3mIykV+2+9J3UJ46jBk0WLaUAdn689aCwoqbBJiSnjAK/l8WvCWPIPm49" crossOrigin="anonymous"></script>
       <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.1.3/dist/js/bootstrap.min.js" integrity="sha384-ChfqqxuZUCnJSK3+MXmPNIyE6ZbWh2IMqE241rYiqJxyMiZ6OW/JmZQ5stwEULTy" crossOrigin="anonymous"></script>
-      <div style={{ minWidth: "550px", height: "605px", padding: "20px", backgroundColor: "black", borderBottomRightRadius: "10px", borderBottomLeftRadius:"10px" }}>
+
+
+      {defaultTopic === undefined ? (
+        <div className="row mb-3">
+          <strong className="col-auto" style={{ color: "var(--pacman)", fontSize: "20px" }}>Topic:</strong>
+          <div className="col-3">
+            <select className="form-select" style={{ backgroundColor: "var(--pacman)", borderColor: "var(--pacman)" }} value={selectedTopic} onChange={(e) => setSelectedTopic(e.target.value)}>
+              <option value="General">General</option>
+              <option value="Pong">Pong</option>
+              <option value="Galaga">Galaga</option>
+            </select>
+          </div>
+        </div>
+
+      ) : (
+        <></>
+      )}
+      <div style={{ minWidth: "550px", height: "605px", padding: "20px", backgroundColor: "black", borderBottomRightRadius: "10px", borderBottomLeftRadius: "10px" }}>
         <div
           className="container-chat"
           ref={messagesContainerRef}
@@ -143,47 +183,49 @@ const Chat = ({ authState }) => {
           <div className={isPickerVisible ? 'd-block' : 'd-none'} style={{ position: "absolute", marginTop: "65px", marginLeft: "145px" }}>
             <Picker data={emojiData} previewPosition="none" onEmojiSelect={handleEmojiSelect} onClickOutside={handleOnClickOutsidePicker} />
           </div>
-          {messages.map((message, index) => {
-            return (() => {
-              if (message.sender === authState.username) {
-                return (
-                  <div key={index} style={{ color: "black", padding: "5px", textAlign: "right" }}>
-                    <div style={{ marginBottom: "10px" }}>
-                      <strong style={{ color: "var(--pacman)", verticalAlign: "middle" }}>{message.sender} </strong>
-                      {message.profilePicture && (
-                        <img
-                          src={`data:image/png;base64,${message.profilePicture}`}
-                          alt={`${message.sender}'s profile`}
-                          style={{ width: "20px", marginLeft: "5px", borderRadius: "50%" }}
-                        />
-                      )}
+          {messages
+            .filter((message) => message.topic === selectedTopic)
+            .map((message, index) => {
+              return (() => {
+                if (message.sender === authState.username) {
+                  return (
+                    <div key={index} style={{ color: "black", padding: "5px", textAlign: "right" }}>
+                      <div style={{ marginBottom: "10px" }}>
+                        <strong style={{ color: "var(--pacman)", verticalAlign: "middle" }}>{message.sender} </strong>
+                        {message.profilePicture && (
+                          <img
+                            src={`data:image/png;base64,${message.profilePicture}`}
+                            alt={`${message.sender}'s profile`}
+                            style={{ width: "20px", marginLeft: "5px", borderRadius: "50%" }}
+                          />
+                        )}
+                      </div>
+                      <div>
+                        <span style={{ backgroundColor: "yellow", padding: "5px", marginTop: "5px", marginBottom: "10px", marginTop: "10px", borderRadius: "10px 2px 10px 10px" }}>{message.text}</span>
+                      </div>
                     </div>
-                    <div>
-                      <span style={{ backgroundColor: "yellow", padding: "5px", marginTop: "5px", marginBottom: "10px", marginTop: "10px", borderRadius: "10px 2px 10px 10px" }}>{message.text}</span>
+                  );
+                } else {
+                  return (
+                    <div key={index} style={{ color: "black", padding: "5px", textAlign: "left" }}>
+                      <div style={{ marginBottom: "10px" }}>
+                        {message.profilePicture && (
+                          <img
+                            src={`data:image/png;base64,${message.profilePicture}`}
+                            alt={`${message.sender}'s profile`}
+                            style={{ width: "20px", marginRight: "5px", borderRadius: "50%" }}
+                          />
+                        )}
+                        <strong style={{ color: "var(--pacman)", verticalAlign: "middle" }}>{message.sender} </strong>
+                      </div>
+                      <div>
+                        <span style={{ backgroundColor: "yellow", padding: "5px", marginTop: "5px", marginBottom: "10px", marginTop: "10px", borderRadius: "2px 10px 10px 10px" }}>{message.text}</span>
+                      </div>
                     </div>
-                  </div>
-                );
-              } else {
-                return (
-                  <div key={index} style={{ color: "black", padding: "5px", textAlign: "left" }}>
-                    <div style={{ marginBottom: "10px" }}>
-                      {message.profilePicture && (
-                        <img
-                          src={`data:image/png;base64,${message.profilePicture}`}
-                          alt={`${message.sender}'s profile`}
-                          style={{ width: "20px", marginRight: "5px", borderRadius: "50%" }}
-                        />
-                      )}
-                      <strong style={{ color: "var(--pacman)", verticalAlign: "middle" }}>{message.sender} </strong>
-                    </div>
-                    <div>
-                      <span style={{ backgroundColor: "yellow", padding: "5px", marginTop: "5px", marginBottom: "10px", marginTop: "10px", borderRadius: "2px 10px 10px 10px" }}>{message.text}</span>
-                    </div>
-                  </div>
-                );
-              }
-            })();
-          })}
+                  );
+                }
+              })();
+            })}
         </div>
 
         <div className="row">

@@ -194,7 +194,7 @@ const Galaga = ({ authState: propAuthState }) => {
         <canvas className="canvas" ref={canvasRef} width={1000} height={600} />
       </div>
       <div>
-        <Chat authState={authState} />
+        <Chat authState={authState} defaultTopic="Galaga" />
       </div>
     </div>
   );

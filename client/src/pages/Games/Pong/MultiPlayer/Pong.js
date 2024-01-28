@@ -22,7 +22,6 @@ class Player {
 
     ctx.fillText(this.score, scoreX, 50);
 
-    //ctx.fillRect(this.x < 400 ? 790 : 0, 0, 10, 650);
   }
 }
 
@@ -256,8 +255,6 @@ const PongMP = ({ authState }) => {
 
       setTimeout(() => {
         const ctx = getCanvasContext();
-        //ctx.clearRect(0, 0, 1000, 600);
-        // startBtn.current.style.display = "block";
       }, 10000);
     });
 

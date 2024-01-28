@@ -47,23 +47,6 @@ app.use("/messages", messageRouter);
 app.use("/game-options", gameOptionsRouter);
 app.use("/game-options-rel", gameOptionsRelRouter);
 
-// Variáveis do jogo
-const paddles = {
-  left: { y: 0, height: 100 },
-  right: { y: 0, height: 100 },
-};
-
-const ball = {
-  x: 0,
-  y: 0,
-  radius: 10,
-  speedX: 5,
-  speedY: 5,
-};
-
-let leftScore = 0;
-let rightScore = 0;
-
 app.get("/users/:id", async (req, res) => {
   try {
     const user = await db.User.findByPk(req.params.id);
@@ -102,7 +85,6 @@ io.on("connection", (socket) => {
   socket.on("join", () => {
     console.log(rooms);
 
-    // get room
     let room;
     if (rooms.length > 0 && rooms[rooms.length - 1].players.length === 1) {
       room = rooms[rooms.length - 1];
@@ -282,14 +264,14 @@ function startGame(room) {
       room.ball.dy = 0;
     }
 
-    if (room.players[0].score === 10) {
+    if (room.players[0].score === 1) {
       room.winner = 1;
       rooms = rooms.filter((r) => r.id !== room.id);
       io.to(room.id).emit("endGame", room);
       clearInterval(interval);
     }
 
-    if (room.players[1].score === 10) {
+    if (room.players[1].score === 1) {
       room.winner = 2;
       rooms = rooms.filter((r) => r.id !== room.id);
       io.to(room.id).emit("endGame", room);

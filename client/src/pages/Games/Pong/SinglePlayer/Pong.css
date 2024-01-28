@@ -16,7 +16,7 @@
     flex-direction: column;
   }
 
-  @media (min-width: 1615px) {
+  @media (min-width: 1200px) {
     .container-pong {
       flex-direction: row;
       height: 90vh;

@@ -104,7 +104,7 @@ io.on("connection", (socket) => {
       });
 
       // send message to room
-      io.to(room.id).emit("startingGame");
+      io.to(room.id).emit("startingGame", room);
 
       setTimeout(() => {
         io.to(room.id).emit("startedGame", room);

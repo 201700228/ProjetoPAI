@@ -116,20 +116,31 @@ const PongMP = ({ authState }) => {
       sendGameResultsToAPI(victory);
     };
 
-    const drawScreen = (text) => {
+    const drawScreen = (mainText, additionalText = "") => {
       const ctx = getCanvasContext();
-
+    
       ctx.clearRect(0, 0, canvasRef.current.width, canvasRef.current.height);
-
+    
       ctx.font = "25px 'Press Start 2P', cursive";
       ctx.fillStyle = "#ffffff";
       ctx.textAlign = "center";
       ctx.fillText(
-        text,
+        mainText,
         canvasRef.current.width / 2,
-        canvasRef.current.height / 2
+        canvasRef.current.height / 2 - 20
       );
-
+    
+      if (additionalText) {
+        ctx.font = "20px 'Press Start 2P', cursive";
+        ctx.fillStyle = "#ffffff";
+        ctx.textAlign = "center";
+        ctx.fillText(
+          additionalText,
+          canvasRef.current.width / 2,
+          canvasRef.current.height / 2 + 20
+        );
+      }
+    
       canvasRef.current.style.cursor = "pointer";
       canvasRef.current.removeEventListener("click", startGame);
     };
@@ -226,9 +237,10 @@ const PongMP = ({ authState }) => {
       setPlayerNo(newPlayerNo);
     });
 
-    socket.current.on("startingGame", () => {
+    socket.current.on("startingGame", (room) => {
       setIsGameStarted(true);
-      drawScreen("WE ARE GOING TO START THE GAME...");
+      let color = room.players[0].playerNo === playerNo ? "RED" : "BLUE";
+      drawScreen("WE ARE GOING TO START THE GAME...", `YOU'RE THE ${color} PLAYER!`);
     });
 
     socket.current.on("startedGame", (room) => {

@@ -3,6 +3,10 @@ import { io } from "socket.io-client";
 import Chat from "../../../Chat/chat.js";
 import "./Pong.css";
 import pongLogo from "../../../../assets/pong-logo.png";
+import { useNavigate } from "react-router-dom";
+import axios from "axios";
+import { useParams } from "react-router-dom";
+
 class Player {
   constructor(x, y, width, height, color) {
     this.x = x;
@@ -21,7 +25,6 @@ class Player {
       this.x < 400 ? 280 - (this.score.toString().length - 1) * 12 : 520;
 
     ctx.fillText(this.score, scoreX, 50);
-
   }
 }
 
@@ -49,6 +52,8 @@ const PongMP = ({ authState }) => {
   const [showStartScreen, setShowStartScreen] = useState(true);
   const [roomID, setRoomID] = useState(null);
   const canvasRef = useRef(null);
+  const navigate = useNavigate();
+  const { gameId } = useParams();
 
   const getCanvasContext = () => {
     const canvas = canvasRef.current;
@@ -73,7 +78,23 @@ const PongMP = ({ authState }) => {
     })
   );
 
-  const startBtn = useRef(null);
+  const sendGameResultsToAPI = async (victory) => {
+    const apiUrl = "http://localhost:3001/leaderboards/add";
+
+    try {
+      const response = await axios.post(apiUrl, {
+        userId: authState.id,
+        gameId: +gameId,
+        result: 0,
+        victory: victory ? 1 : 0,
+        dateTime: new Date().toISOString(),
+      });
+
+      console.log("API call success:", response.data);
+    } catch (error) {
+      console.error("Error during API call:", error.message);
+    }
+  };
 
   useEffect(() => {
     const startGame = () => {
@@ -86,6 +107,13 @@ const PongMP = ({ authState }) => {
       } else {
         drawScreen("REFRESH THE PAGE AND TRY AGAIN ...");
       }
+    };
+
+    const handleEnd = (victory) => {
+      const currentPath = window.location.pathname;
+      const parentPath = currentPath.split("/").slice(0, -1).join("/");
+      navigate(parentPath);
+      sendGameResultsToAPI(victory);
     };
 
     const drawScreen = (text) => {
@@ -248,14 +276,19 @@ const PongMP = ({ authState }) => {
 
     socket.current.on("endGame", (room) => {
       setIsGameStarted(false);
-      drawScreen(
-        `${room.winner === playerNo ? "You are Winner!" : "You are Loser!"}`
-      );
+
       socket.current.emit("leave", roomID);
 
       setTimeout(() => {
-        const ctx = getCanvasContext();
-      }, 10000);
+        drawScreen(
+          `${room.winner === playerNo ? "You Won!" : "You Lost!"}`
+        );
+
+        setTimeout(() => {
+          canvasRef.current.style.cursor = "pointer";
+          canvasRef.current.addEventListener("click", handleEnd(room.winner === playerNo));
+        }, 10000); 
+      }, 1);
     });
 
     window.addEventListener("keydown", handleKeyDown);
@@ -268,8 +301,6 @@ const PongMP = ({ authState }) => {
       socket.current.off("updateGame");
       socket.current.off("endGame");
       window.removeEventListener("keydown", handleKeyDown);
-      startBtn.current &&
-        startBtn.current.removeEventListener("click", startGame);
     };
   }, [player1, player2, ball, isGameStarted, playerNo, roomID]);
 

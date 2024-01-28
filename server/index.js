@@ -264,14 +264,14 @@ function startGame(room) {
       room.ball.dy = 0;
     }
 
-    if (room.players[0].score === 1) {
+    if (room.players[0].score === 7) {
       room.winner = 1;
       rooms = rooms.filter((r) => r.id !== room.id);
       io.to(room.id).emit("endGame", room);
       clearInterval(interval);
     }
 
-    if (room.players[1].score === 1) {
+    if (room.players[1].score === 7) {
       room.winner = 2;
       rooms = rooms.filter((r) => r.id !== room.id);
       io.to(room.id).emit("endGame", room);

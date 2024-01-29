@@ -107,7 +107,7 @@ const LoginForm = () => {
         </Formik>
         <p className="form-link">
           <span className="info">Ainda não tem conta?</span>{" "}
-          <a href="/register">Registar</a>
+          <a href="/registration">Registar</a>
         </p>
       </div>
     </div>

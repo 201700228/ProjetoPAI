@@ -67,16 +67,6 @@ app.get("/users/:id", async (req, res) => {
   }
 });
 
-async function getUsernameById(userId) {
-  try {
-    const user = await db.User.findByPk(userId);
-    return user ? user.username : null;
-  } catch (error) {
-    console.error("Error fetching username:", error);
-    return null;
-  }
-}
-
 let rooms = [];
 
 io.on("connection", (socket) => {
@@ -84,8 +74,6 @@ io.on("connection", (socket) => {
 
   socket.on("join", () => {
     console.log(rooms);
-
-  socket.on("joinGameRoom", ({ userId }) => {
     let room;
     if (rooms.length > 0 && rooms[rooms.length - 1].players.length === 1) {
       room = rooms[rooms.length - 1];
@@ -298,7 +286,7 @@ function startGame(room) {
 
     io.to(room.id).emit("updateGame", room);
   }, 1000 / 60);
-}});
+};
 
 db.sequelize.sync().then(() => {
   server.listen(3001, () => {

@@ -5,6 +5,7 @@ import Chat from "../../../Chat/chat.js";
 import { useParams } from "react-router-dom";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
+import pongLogo from "../../../../assets/pong-logo.png";
 
 const PONG_CONSTANTS = {
   MAX_SCORE: 1,
@@ -19,7 +20,7 @@ const PongSP = ({ authState }) => {
   const canvasRef = useRef(null);
   const [gameOver, setGameOver] = useState(false);
   const navigate = useNavigate();
-
+  const [showStartScreen, setShowStartScreen] = useState(true);
   const { gameId } = useParams();
 
   const sendGameResultsToAPI = async (winner) => {
@@ -44,40 +45,28 @@ const PongSP = ({ authState }) => {
     const canvas = canvasRef.current;
     const ctx = canvas.getContext("2d");
 
-    const hiddenElement = document.createElement("div");
-    hiddenElement.classList.add("colors-container");
-    document.body.appendChild(hiddenElement);
-
-    const computedStyles = getComputedStyle(hiddenElement);
-
-    const colors = {
-      pacman: computedStyles.getPropertyValue("--pacman").trim(),
-      ghostBlue: computedStyles.getPropertyValue("--ghost-blue").trim(),
-      ghostRed: computedStyles.getPropertyValue("--ghost-red").trim(),
-      ghostOrange: computedStyles.getPropertyValue("--ghost-orange").trim(),
-      white: "#FFF"
-    };
-
     const maxScore = 7;
 
     const paddles = {
       left: {
-        y: canvas.height / 2 - 50,
-        height: 100,
-        width: 10,
+        x: 90,
+        y: 200,
+        height: 60,
+        width: 20,
         speed: 5,
       },
       right: {
-        y: canvas.height / 2 - 50,
-        height: 100,
-        width: 10,
+        x: 690,
+        y: 200,
+        height: 60,
+        width: 20,
         speed: 50,
       },
     };
 
     const ball = {
-      x: canvas.width / 2,
-      y: canvas.height / 2,
+      x: 395,
+      y: 245,
       radius: 10,
       speedX: PONG_CONSTANTS.INITIAL_BALL_SPEED_X,
       speedY: PONG_CONSTANTS.INITIAL_BALL_SPEED_Y,
@@ -89,16 +78,27 @@ const PongSP = ({ authState }) => {
     const drawBall = () => {
       ctx.beginPath();
       ctx.arc(ball.x, ball.y, ball.radius, 0, Math.PI * 2);
-      ctx.fillStyle = colors.white;
+      ctx.fillStyle = "white";
       ctx.fill();
       ctx.closePath();
     };
 
     const drawPaddles = () => {
-      ctx.fillStyle = colors.white;
-      ctx.fillRect(0, paddles.left.y, paddles.left.width, paddles.left.height);
+      ctx.fillStyle = "blue";
+
       ctx.fillRect(
-        canvas.width - paddles.right.width,
+        paddles.left.x,
+        paddles.left.y,
+        paddles.left.width,
+        paddles.left.height
+      );
+
+      if (paddles.right) {
+        ctx.fillStyle = "red";
+      }
+
+      ctx.fillRect(
+        paddles.right.x,
         paddles.right.y,
         paddles.right.width,
         paddles.right.height
@@ -106,17 +106,36 @@ const PongSP = ({ authState }) => {
     };
 
     const drawScore = () => {
-      const margin = canvas.width * 0.02;
       ctx.font = `${canvas.width * 0.03}px Arial`;
-      ctx.fillText("CPU: " + leftScore, margin, canvas.width * 0.06);
-      const usernameScoreText = `${authState.username}: ${rightScore}`;
-      const usernameScoreWidth = ctx.measureText(usernameScoreText).width;
 
-      ctx.fillText(
-        usernameScoreText,
-        canvas.width - margin - usernameScoreWidth,
-        canvas.width * 0.06
-      );
+      // Score do lado esquerdo (azul)
+      ctx.fillStyle = "blue";
+      const scoreLeft =
+        paddles.left.x < 400
+          ? 280 - (leftScore.toString().length - 1) * 12
+          : 520;
+
+      ctx.fillText(leftScore, scoreLeft, 50);
+
+      // Score do lado direito (vermelho)
+      ctx.fillStyle = "red";
+      const scoreRight =
+        paddles.right.x < 400
+          ? 280 - (rightScore.toString().length - 1) * 12
+          : 520;
+
+      ctx.fillText(rightScore, scoreRight, 50);
+
+      // Desenhar a linha divisória
+      ctx.strokeStyle = "white";
+      ctx.beginPath();
+      ctx.setLineDash([10, 10]);
+
+      const meioHorizontal = canvas.width / 2;
+
+      ctx.moveTo(meioHorizontal, 0);
+      ctx.lineTo(meioHorizontal, canvas.height);
+      ctx.stroke();
     };
 
     const moveLeftPaddle = () => {
@@ -182,38 +201,78 @@ const PongSP = ({ authState }) => {
       moveLeftPaddle();
     };
 
-    const drawGameOverScreen = (winner) => {
-      ctx.clearRect(0, 0, canvas.width, canvas.height);
-    
-      ctx.font = "50px Arial";
-      ctx.fillStyle = colors.white;
-    
-      ctx.textAlign = "center";
-      ctx.textBaseline = "middle";
-    
-      const buttonWidth = 100;
-      const buttonHeight = 40;
-      const buttonX = canvas.width / 2 - buttonWidth / 2;
-      const buttonY = canvas.height / 2 + 50;
-    
-      ctx.fillText(`${winner} GANHOU!`, canvas.width / 2, canvas.height / 2);
-      ctx.fillStyle = "#FFF";
-      ctx.fillRect(buttonX, buttonY, buttonWidth, buttonHeight);
-    
-      ctx.font = "18px 'Star Jedi', sans-serif";
-      ctx.fillStyle = "#000";
-      ctx.textAlign = "center";
-      ctx.fillText("CLOSE", canvas.width / 2, buttonY + buttonHeight / 2 + 5);
-    
-      const handleButtonClick = () => {
-        handleGameClose(winner);
-        canvas.removeEventListener("click", handleButtonClick);
+    const drawStartScreen = () => {
+      const backgroundImage = new Image();
+      backgroundImage.src = pongLogo;
+
+      const newSizeMultiplier = 0.3;
+      const offsetYAdjustment = -30;
+
+      backgroundImage.onload = function () {
+        const aspectRatio = backgroundImage.width / backgroundImage.height;
+
+        let newWidth = canvas.width * newSizeMultiplier;
+        let newHeight = newWidth / aspectRatio;
+
+        if (newHeight > canvas.height) {
+          newHeight = canvas.height * newSizeMultiplier;
+          newWidth = newHeight * aspectRatio;
+        }
+
+        const offsetX = (canvas.width - newWidth) / 2;
+        const offsetY =
+          (canvas.height - newHeight) / 2 + offsetYAdjustment;
+
+        ctx.drawImage(backgroundImage, offsetX, offsetY, newWidth, newHeight);
+
+        ctx.font = "25px 'Press Start 2P', cursive";
+        ctx.fillStyle = "#ffffff";
+        ctx.textAlign = "center";
+        ctx.fillText(
+          "PRESS START",
+          canvas.width / 2,
+          canvas.height / 2 + 70
+        );
+
+        canvas.style.cursor = "pointer";
+        canvas.addEventListener("click", startGame);
       };
-    
-      canvas.addEventListener("click", handleButtonClick);
     };
 
-    const handleGameClose =  async (winner) => {
+    drawStartScreen();
+
+    const startGame = () => {
+      setShowStartScreen(false);
+      draw();
+    };
+
+    const drawScreen = (mainText, additionalText = "") => {
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+      ctx.font = "25px 'Press Start 2P', cursive";
+      ctx.fillStyle = "#ffffff";
+      ctx.textAlign = "center";
+      ctx.fillText(
+        mainText,
+        canvas.width / 2,
+        canvas.height / 2 - 20
+      );
+
+      if (additionalText) {
+        ctx.font = "20px 'Press Start 2P', cursive";
+        ctx.fillStyle = "#ffffff";
+        ctx.textAlign = "center";
+        ctx.fillText(
+          additionalText,
+          canvas.width / 2,
+          canvas.height / 2 + 20
+        );
+      }
+      canvas.style.cursor = "pointer";
+      canvas.removeEventListener("click", startGame);
+    };
+
+    const handleGameClose = async (winner) => {
       const currentPath = window.location.pathname;
       const parentPath = currentPath.split("/").slice(0, -1).join("/");
       navigate(parentPath);
@@ -229,14 +288,15 @@ const PongSP = ({ authState }) => {
 
       if (leftScore === maxScore || rightScore === maxScore) {
         let winner;
-        winner = leftScore === maxScore ? "CPU" : authState.username;
+        winner = rightScore === maxScore ? "YOU WON!" : "YOU LOST!";
         setGameOver(true);
-        drawGameOverScreen(winner);
+        drawScreen(winner);
         return;
       } else {
         requestAnimationFrame(draw);
       }
     };
+
     const handleKeyDown = (event) => {
       if (event.key === "ArrowUp" && paddles.right.y > 0) {
         paddles.right.y -= PONG_CONSTANTS.INCREASED_RIGHT_PADDLE_SPEED;
@@ -249,7 +309,6 @@ const PongSP = ({ authState }) => {
     };
 
     document.addEventListener("keydown", handleKeyDown);
-    draw();
 
     return () => {
       document.removeEventListener("keydown", handleKeyDown);
@@ -259,7 +318,12 @@ const PongSP = ({ authState }) => {
   return (
     <div className="container-pong">
       <div>
-        <canvas className="canvas-pong" ref={canvasRef} width={1000} height={600} />
+        <canvas
+          className="canvas-pong"
+          ref={canvasRef}
+          width={800}
+          height={500}
+        />
       </div>
       <div>
         <Chat authState={authState} />

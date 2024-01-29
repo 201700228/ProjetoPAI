@@ -293,7 +293,7 @@ const PongMP = ({ authState }) => {
 
       setTimeout(() => {
         drawScreen(
-          `${room.winner === playerNo ? "You Won!" : "You Lost!"}`
+          `${room.winner === playerNo ? "YOU WON!" : "YOU LOST!"}`
         );
 
         setTimeout(() => {

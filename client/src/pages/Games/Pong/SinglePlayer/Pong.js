@@ -8,9 +8,9 @@ import { useNavigate } from "react-router-dom";
 import pongLogo from "../../../../assets/pong-logo.png";
 
 const PONG_CONSTANTS = {
-  MAX_SCORE: 7,
-  INITIAL_BALL_SPEED_X: 3,
-  INITIAL_BALL_SPEED_Y: 3,
+  MAX_SCORE: 1,
+  INITIAL_BALL_SPEED_X: 5,
+  INITIAL_BALL_SPEED_Y: 5,
   INITIAL_RIGHT_PADDLE_SPEED: 8,
   INCREASED_RIGHT_PADDLE_SPEED: 10,
 };
@@ -241,7 +241,7 @@ const PongSP = ({ authState }) => {
       }, 2000);
     };
 
-    const drawScreen = (mainText, additionalText = "") => {
+    const drawScreen = (mainText, additionalText = "", showButton) => {
       ctx.clearRect(0, 0, canvas.width, canvas.height);
 
       ctx.font = "25px 'Press Start 2P', cursive";
@@ -254,6 +254,21 @@ const PongSP = ({ authState }) => {
         ctx.fillStyle = "#ffffff";
         ctx.textAlign = "center";
         ctx.fillText(additionalText, canvas.width / 2, canvas.height / 2 + 20);
+      }
+
+      if (showButton) {
+        const buttonWidth = 150;
+        const buttonHeight = 50;
+        const buttonX = (canvas.width - buttonWidth) / 2;
+        const buttonY = canvas.height / 2 + 20;
+
+        ctx.fillStyle = "#ffffff"; 
+        ctx.fillRect(buttonX, buttonY, buttonWidth, buttonHeight);
+    
+        ctx.font = "18px 'Press Start 2P', cursive";
+        ctx.fillStyle = "black"; 
+        ctx.textAlign = "center";
+        ctx.fillText("SAIR", canvas.width / 2, buttonY + buttonHeight / 2 + 5);
       }
       canvas.style.cursor = "pointer";
       canvas.removeEventListener("click", startGame);
@@ -272,19 +287,16 @@ const PongSP = ({ authState }) => {
       drawPaddles();
       drawScore();
       update();
-
+    
       if (leftScore === maxScore || rightScore === maxScore) {
         let winner;
         winner = rightScore === maxScore ? "YOU WON!" : "YOU LOST!";
         setGameOver(true);
-        drawScreen(winner);
+        drawScreen(winner, "", true);
         setTimeout(() => {
           canvas.style.cursor = "pointer";
-          canvas.addEventListener(
-            "click",
-            handleEnd((winner = rightScore === maxScore))
-          );
-        }, 5000);
+          canvas.addEventListener("click", () => handleEnd(winner));
+        }, 1000);
         return;
       } else {
         requestAnimationFrame(draw);

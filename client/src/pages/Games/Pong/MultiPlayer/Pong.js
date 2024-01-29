@@ -112,7 +112,7 @@ const PongMP = ({ authState }) => {
       sendGameResultsToAPI(victory);
     };
 
-    const drawScreen = (mainText, additionalText = "") => {
+    const drawScreen = (mainText, additionalText = "", showButton) => {
       const ctx = getCanvasContext();
 
       ctx.clearRect(0, 0, canvasRef.current.width, canvasRef.current.height);
@@ -135,6 +135,21 @@ const PongMP = ({ authState }) => {
           canvasRef.current.width / 2,
           canvasRef.current.height / 2 + 20
         );
+      }
+
+      if (showButton) {
+        const buttonWidth = 150;
+        const buttonHeight = 50;
+        const buttonX = (canvasRef.current.width - buttonWidth) / 2;
+        const buttonY = canvasRef.current.height / 2 + 20;
+
+        ctx.fillStyle = "#ffffff"; 
+        ctx.fillRect(buttonX, buttonY, buttonWidth, buttonHeight);
+    
+        ctx.font = "18px 'Press Start 2P', cursive";
+        ctx.fillStyle = "black"; 
+        ctx.textAlign = "center";
+        ctx.fillText("SAIR", canvasRef.current.width / 2, buttonY + buttonHeight / 2 + 5);
       }
 
       canvasRef.current.style.cursor = "pointer";
@@ -291,15 +306,12 @@ const PongMP = ({ authState }) => {
       socket.current.emit("leave", roomID);
 
       setTimeout(() => {
-        drawScreen(`${room.winner === playerNo ? "YOU WON!" : "YOU LOST!"}`);
+        drawScreen(`${room.winner === playerNo ? "YOU WON!" : "YOU LOST!"}`, "", true);
 
         setTimeout(() => {
           canvasRef.current.style.cursor = "pointer";
-          canvasRef.current.addEventListener(
-            "click",
-            handleEnd(room.winner === playerNo)
-          );
-        }, 5000);
+          canvasRef.current.addEventListener("click", () => handleEnd(room.winner === playerNo));
+        }, 1000);
       }, 1);
     });
 

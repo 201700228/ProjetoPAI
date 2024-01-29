@@ -74,6 +74,7 @@ io.on("connection", (socket) => {
 
   socket.on("join", () => {
     console.log(rooms);
+
     let room;
     if (rooms.length > 0 && rooms[rooms.length - 1].players.length === 1) {
       room = rooms[rooms.length - 1];
@@ -94,15 +95,6 @@ io.on("connection", (socket) => {
 
       // send message to room
       io.to(room.id).emit("startingGame", room);
-    }});
-    
-    socket.on("disconnect", () => {
-      console.log("User disconnected:", socket.id);
-      const index = rooms[room].findIndex(
-        (player) => player.socketId === socket.id
-      );
-      if (index !== -1) {
-        rooms[room].splice(index, 1);
 
       setTimeout(() => {
         io.to(room.id).emit("startedGame", room);

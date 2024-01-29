@@ -82,7 +82,7 @@ const PongMP = ({ authState }) => {
     const apiUrl = "http://localhost:3001/leaderboards/add";
 
     try {
-      const response = await axios.post(apiUrl, {
+      await axios.post(apiUrl, {
         userId: authState.id,
         gameId: +gameId,
         result: 0,
@@ -90,9 +90,7 @@ const PongMP = ({ authState }) => {
         dateTime: new Date().toISOString(),
       });
 
-      console.log("API call success:", response.data);
     } catch (error) {
-      console.error("Error during API call:", error.message);
     }
   };
 
@@ -299,7 +297,7 @@ const PongMP = ({ authState }) => {
         setTimeout(() => {
           canvasRef.current.style.cursor = "pointer";
           canvasRef.current.addEventListener("click", handleEnd(room.winner === playerNo));
-        }, 10000); 
+        }, 5000); 
       }, 1);
     });
 

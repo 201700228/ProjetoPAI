@@ -8,26 +8,24 @@ import { useNavigate } from "react-router-dom";
 import pongLogo from "../../../../assets/pong-logo.png";
 
 const PONG_CONSTANTS = {
-  MAX_SCORE: 1,
-  INITIAL_BALL_SPEED_X: 3,
+  MAX_SCORE: 7,
+  INITIAL_BALL_SPEED_X: 3, 
   INITIAL_BALL_SPEED_Y: 3,
-  BALL_SPEED_INCREMENT: 0.5,
-  INITIAL_RIGHT_PADDLE_SPEED: 5,
-  INCREASED_RIGHT_PADDLE_SPEED: 8,
+  INITIAL_RIGHT_PADDLE_SPEED: 8,
+  INCREASED_RIGHT_PADDLE_SPEED: 10,
 };
 
 const PongSP = ({ authState }) => {
   const canvasRef = useRef(null);
   const [gameOver, setGameOver] = useState(false);
   const navigate = useNavigate();
-  const [showStartScreen, setShowStartScreen] = useState(true);
   const { gameId } = useParams();
 
   const sendGameResultsToAPI = async (winner) => {
     const apiUrl = "http://localhost:3001/leaderboards/add";
 
     try {
-      const response = await axios.post(apiUrl, {
+      await axios.post(apiUrl, {
         userId: authState.id,
         gameId: +gameId,
         result: 0,
@@ -35,9 +33,7 @@ const PongSP = ({ authState }) => {
         dateTime: new Date().toISOString(),
       });
 
-      console.log("API call success:", response.data);
     } catch (error) {
-      console.error("Error during API call:", error.message);
     }
   };
 
@@ -45,7 +41,7 @@ const PongSP = ({ authState }) => {
     const canvas = canvasRef.current;
     const ctx = canvas.getContext("2d");
 
-    const maxScore = 7;
+    const maxScore = PONG_CONSTANTS.MAX_SCORE;
 
     const paddles = {
       left: {
@@ -108,7 +104,6 @@ const PongSP = ({ authState }) => {
     const drawScore = () => {
       ctx.font = `${canvas.width * 0.03}px Arial`;
 
-      // Score do lado esquerdo (azul)
       ctx.fillStyle = "blue";
       const scoreLeft =
         paddles.left.x < 400
@@ -117,7 +112,6 @@ const PongSP = ({ authState }) => {
 
       ctx.fillText(leftScore, scoreLeft, 50);
 
-      // Score do lado direito (vermelho)
       ctx.fillStyle = "red";
       const scoreRight =
         paddles.right.x < 400
@@ -126,7 +120,6 @@ const PongSP = ({ authState }) => {
 
       ctx.fillText(rightScore, scoreRight, 50);
 
-      // Desenhar a linha divisória
       ctx.strokeStyle = "white";
       ctx.beginPath();
       ctx.setLineDash([10, 10]);
@@ -140,27 +133,26 @@ const PongSP = ({ authState }) => {
 
     const moveLeftPaddle = () => {
       const paddleCenter = paddles.left.y + paddles.left.height / 2;
-
-      if (ball.y > paddleCenter) {
-        paddles.left.y += paddles.left.speed;
-      } else {
-        paddles.left.y -= paddles.left.speed;
+    
+      if (ball.x < canvas.width / 2) {
+        const randomOffset = (Math.random() - 2.0) * 20;
+        const targetY = ball.y + randomOffset;
+    
+        if (targetY > paddleCenter) {
+          paddles.left.y += paddles.left.speed;
+        } else {
+          paddles.left.y -= paddles.left.speed;
+        }
       }
     };
 
-    function resetBall() {
+    const resetBall = (loser) => {
       ball.x = canvas.width / 2;
       ball.y = canvas.height / 2;
-      ball.speedX = PONG_CONSTANTS.INITIAL_BALL_SPEED_X;
-      ball.speedY = PONG_CONSTANTS.INITIAL_BALL_SPEED_Y;
-    }
 
-    function increaseBallSpeed() {
-      ball.speedX +=
-        PONG_CONSTANTS.BALL_SPEED_INCREMENT * (ball.speedX > 0 ? 1 : -1);
-      ball.speedY +=
-        PONG_CONSTANTS.BALL_SPEED_INCREMENT * (ball.speedY > 0 ? 1 : -1);
-    }
+      ball.speedX = loser === 'left' ? PONG_CONSTANTS.INITIAL_BALL_SPEED_X : -PONG_CONSTANTS.INITIAL_BALL_SPEED_X;
+      ball.speedY = PONG_CONSTANTS.INITIAL_BALL_SPEED_Y;
+    };
 
     const update = () => {
       if (gameOver) {
@@ -168,35 +160,40 @@ const PongSP = ({ authState }) => {
       }
       ball.x += ball.speedX;
       ball.y += ball.speedY;
-
+    
       if (ball.y + ball.radius >= canvas.height || ball.y - ball.radius <= 0) {
         ball.speedY = -ball.speedY;
       }
+    
+      // Verificar colisão com a paleta esquerda (paddle left)
       if (
-        ball.x - ball.radius <= paddles.left.width &&
+        ball.x - ball.radius <= paddles.left.x + paddles.left.width &&
+        ball.x + ball.radius >= paddles.left.x &&
         ball.y >= paddles.left.y &&
         ball.y <= paddles.left.y + paddles.left.height
       ) {
-        ball.speedX = -ball.speedX;
-        increaseBallSpeed();
+        ball.speedX = Math.abs(ball.speedX); // Definir a velocidade X como positiva
       }
-
-      if (ball.x + ball.radius >= canvas.width - paddles.right.width) {
-        if (
-          ball.y >= paddles.right.y &&
-          ball.y <= paddles.right.y + paddles.right.height
-        ) {
-          ball.speedX = -ball.speedX;
-          increaseBallSpeed();
-        } else {
-          leftScore++;
-          resetBall();
-        }
+    
+      // Verificar colisão com a paleta direita (paddle right)
+      if (
+        ball.x + ball.radius >= paddles.right.x &&
+        ball.x - ball.radius <= paddles.right.x + paddles.right.width &&
+        ball.y >= paddles.right.y &&
+        ball.y <= paddles.right.y + paddles.right.height
+      ) {
+        ball.speedX = -Math.abs(ball.speedX); // Definir a velocidade X como negativa
       }
-
+    
+      // Verificar ponto (ajuste necessário para incluir o canto)
+      if (ball.x + ball.radius >= canvas.width) {
+        leftScore++;
+        resetBall('left');
+      }
+    
       if (ball.x - ball.radius <= 0) {
         rightScore++;
-        resetBall();
+        resetBall('right');
       }
       moveLeftPaddle();
     };
@@ -242,7 +239,6 @@ const PongSP = ({ authState }) => {
     drawStartScreen();
 
     const startGame = () => {
-      setShowStartScreen(false);
       draw();
     };
 
@@ -272,11 +268,11 @@ const PongSP = ({ authState }) => {
       canvas.removeEventListener("click", startGame);
     };
 
-    const handleGameClose = async (winner) => {
+    const handleEnd = async (victory) => {
       const currentPath = window.location.pathname;
       const parentPath = currentPath.split("/").slice(0, -1).join("/");
       navigate(parentPath);
-      sendGameResultsToAPI(winner);
+      sendGameResultsToAPI(victory);
     };
 
     const draw = () => {
@@ -291,6 +287,10 @@ const PongSP = ({ authState }) => {
         winner = rightScore === maxScore ? "YOU WON!" : "YOU LOST!";
         setGameOver(true);
         drawScreen(winner);
+        setTimeout(() => {
+          canvasRef.current.style.cursor = "pointer";
+          canvasRef.current.addEventListener("click", handleEnd(winner = rightScore === maxScore));
+        }, 5000); 
         return;
       } else {
         requestAnimationFrame(draw);

@@ -9,7 +9,7 @@ import pongLogo from "../../../../assets/pong-logo.png";
 
 const PONG_CONSTANTS = {
   MAX_SCORE: 7,
-  INITIAL_BALL_SPEED_X: 3, 
+  INITIAL_BALL_SPEED_X: 3,
   INITIAL_BALL_SPEED_Y: 3,
   INITIAL_RIGHT_PADDLE_SPEED: 8,
   INCREASED_RIGHT_PADDLE_SPEED: 10,
@@ -32,9 +32,7 @@ const PongSP = ({ authState }) => {
         victory: winner === authState.username ? 1 : 0,
         dateTime: new Date().toISOString(),
       });
-
-    } catch (error) {
-    }
+    } catch (error) {}
   };
 
   useEffect(() => {
@@ -133,11 +131,11 @@ const PongSP = ({ authState }) => {
 
     const moveLeftPaddle = () => {
       const paddleCenter = paddles.left.y + paddles.left.height / 2;
-    
+
       if (ball.x < canvas.width / 2) {
         const randomOffset = (Math.random() - 2.0) * 20;
         const targetY = ball.y + randomOffset;
-    
+
         if (targetY > paddleCenter) {
           paddles.left.y += paddles.left.speed;
         } else {
@@ -150,7 +148,10 @@ const PongSP = ({ authState }) => {
       ball.x = canvas.width / 2;
       ball.y = canvas.height / 2;
 
-      ball.speedX = loser === 'left' ? PONG_CONSTANTS.INITIAL_BALL_SPEED_X : -PONG_CONSTANTS.INITIAL_BALL_SPEED_X;
+      ball.speedX =
+        loser === "left"
+          ? PONG_CONSTANTS.INITIAL_BALL_SPEED_X
+          : -PONG_CONSTANTS.INITIAL_BALL_SPEED_X;
       ball.speedY = PONG_CONSTANTS.INITIAL_BALL_SPEED_Y;
     };
 
@@ -160,11 +161,11 @@ const PongSP = ({ authState }) => {
       }
       ball.x += ball.speedX;
       ball.y += ball.speedY;
-    
+
       if (ball.y + ball.radius >= canvas.height || ball.y - ball.radius <= 0) {
         ball.speedY = -ball.speedY;
       }
-    
+
       // Verificar colisão com a paleta esquerda (paddle left)
       if (
         ball.x - ball.radius <= paddles.left.x + paddles.left.width &&
@@ -174,7 +175,7 @@ const PongSP = ({ authState }) => {
       ) {
         ball.speedX = Math.abs(ball.speedX); // Definir a velocidade X como positiva
       }
-    
+
       // Verificar colisão com a paleta direita (paddle right)
       if (
         ball.x + ball.radius >= paddles.right.x &&
@@ -184,16 +185,16 @@ const PongSP = ({ authState }) => {
       ) {
         ball.speedX = -Math.abs(ball.speedX); // Definir a velocidade X como negativa
       }
-    
+
       // Verificar ponto (ajuste necessário para incluir o canto)
       if (ball.x + ball.radius >= canvas.width) {
         leftScore++;
-        resetBall('left');
+        resetBall("left");
       }
-    
+
       if (ball.x - ball.radius <= 0) {
         rightScore++;
-        resetBall('right');
+        resetBall("right");
       }
       moveLeftPaddle();
     };
@@ -217,19 +218,14 @@ const PongSP = ({ authState }) => {
         }
 
         const offsetX = (canvas.width - newWidth) / 2;
-        const offsetY =
-          (canvas.height - newHeight) / 2 + offsetYAdjustment;
+        const offsetY = (canvas.height - newHeight) / 2 + offsetYAdjustment;
 
         ctx.drawImage(backgroundImage, offsetX, offsetY, newWidth, newHeight);
 
         ctx.font = "25px 'Press Start 2P', cursive";
         ctx.fillStyle = "#ffffff";
         ctx.textAlign = "center";
-        ctx.fillText(
-          "PRESS START",
-          canvas.width / 2,
-          canvas.height / 2 + 70
-        );
+        ctx.fillText("PRESS START", canvas.width / 2, canvas.height / 2 + 70);
 
         canvas.style.cursor = "pointer";
         canvas.addEventListener("click", startGame);
@@ -239,7 +235,10 @@ const PongSP = ({ authState }) => {
     drawStartScreen();
 
     const startGame = () => {
-      draw();
+      drawScreen("WE ARE GOING TO START THE GAME...", `YOU'RE THE RED PLAYER!`);
+      setTimeout(() => {
+        draw();
+      }, 2000);
     };
 
     const drawScreen = (mainText, additionalText = "") => {
@@ -248,21 +247,13 @@ const PongSP = ({ authState }) => {
       ctx.font = "25px 'Press Start 2P', cursive";
       ctx.fillStyle = "#ffffff";
       ctx.textAlign = "center";
-      ctx.fillText(
-        mainText,
-        canvas.width / 2,
-        canvas.height / 2 - 20
-      );
+      ctx.fillText(mainText, canvas.width / 2, canvas.height / 2 - 20);
 
       if (additionalText) {
         ctx.font = "20px 'Press Start 2P', cursive";
         ctx.fillStyle = "#ffffff";
         ctx.textAlign = "center";
-        ctx.fillText(
-          additionalText,
-          canvas.width / 2,
-          canvas.height / 2 + 20
-        );
+        ctx.fillText(additionalText, canvas.width / 2, canvas.height / 2 + 20);
       }
       canvas.style.cursor = "pointer";
       canvas.removeEventListener("click", startGame);
@@ -288,9 +279,12 @@ const PongSP = ({ authState }) => {
         setGameOver(true);
         drawScreen(winner);
         setTimeout(() => {
-          canvasRef.current.style.cursor = "pointer";
-          canvasRef.current.addEventListener("click", handleEnd(winner = rightScore === maxScore));
-        }, 5000); 
+          canvas.style.cursor = "pointer";
+          canvas.addEventListener(
+            "click",
+            handleEnd((winner = rightScore === maxScore))
+          );
+        }, 5000);
         return;
       } else {
         requestAnimationFrame(draw);

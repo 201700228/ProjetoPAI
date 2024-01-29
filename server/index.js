@@ -85,6 +85,7 @@ io.on("connection", (socket) => {
   socket.on("join", () => {
     console.log(rooms);
 
+  socket.on("joinGameRoom", ({ userId }) => {
     let room;
     if (rooms.length > 0 && rooms[rooms.length - 1].players.length === 1) {
       room = rooms[rooms.length - 1];
@@ -105,6 +106,15 @@ io.on("connection", (socket) => {
 
       // send message to room
       io.to(room.id).emit("startingGame", room);
+    }});
+    
+    socket.on("disconnect", () => {
+      console.log("User disconnected:", socket.id);
+      const index = rooms[room].findIndex(
+        (player) => player.socketId === socket.id
+      );
+      if (index !== -1) {
+        rooms[room].splice(index, 1);
 
       setTimeout(() => {
         io.to(room.id).emit("startedGame", room);
@@ -182,6 +192,7 @@ io.on("connection", (socket) => {
       const newMessage = await db.Message.create({
         text: data.text,
         UserId: data.user.id,
+        topic: data.topic || "General",
       });
 
       const sender = await db.User.findByPk(data.user.id);
@@ -189,16 +200,23 @@ io.on("connection", (socket) => {
         const profilePictureBase64 = sender.profilePicture
           ? sender.profilePicture.toString("base64")
           : null;
+
         io.emit("message", {
           text: newMessage.text,
           sender: sender.username,
           profilePicture: profilePictureBase64,
+          topic: data.topic
         });
       }
     } catch (error) {
       console.error("Error saving message to the database:", error);
     }
   });
+
+  socket.on("connect_error", (error) => {
+    console.error("Connection error:", error);
+  });
+
 });
 
 function startGame(room) {
@@ -280,7 +298,7 @@ function startGame(room) {
 
     io.to(room.id).emit("updateGame", room);
   }, 1000 / 60);
-}
+}});
 
 db.sequelize.sync().then(() => {
   server.listen(3001, () => {

@@ -320,7 +320,7 @@ const PongSP = ({ authState }) => {
         />
       </div>
       <div>
-        <Chat authState={authState} />
+        <Chat authState={authState} defaultTopic="Pong"/>
       </div>
     </div>
   );

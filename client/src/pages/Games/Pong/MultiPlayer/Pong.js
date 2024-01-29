@@ -89,9 +89,7 @@ const PongMP = ({ authState }) => {
         victory: victory ? 1 : 0,
         dateTime: new Date().toISOString(),
       });
-
-    } catch (error) {
-    }
+    } catch (error) {}
   };
 
   useEffect(() => {
@@ -116,9 +114,9 @@ const PongMP = ({ authState }) => {
 
     const drawScreen = (mainText, additionalText = "") => {
       const ctx = getCanvasContext();
-    
+
       ctx.clearRect(0, 0, canvasRef.current.width, canvasRef.current.height);
-    
+
       ctx.font = "25px 'Press Start 2P', cursive";
       ctx.fillStyle = "#ffffff";
       ctx.textAlign = "center";
@@ -127,7 +125,7 @@ const PongMP = ({ authState }) => {
         canvasRef.current.width / 2,
         canvasRef.current.height / 2 - 20
       );
-    
+
       if (additionalText) {
         ctx.font = "20px 'Press Start 2P', cursive";
         ctx.fillStyle = "#ffffff";
@@ -138,7 +136,7 @@ const PongMP = ({ authState }) => {
           canvasRef.current.height / 2 + 20
         );
       }
-    
+
       canvasRef.current.style.cursor = "pointer";
       canvasRef.current.removeEventListener("click", startGame);
     };
@@ -238,7 +236,10 @@ const PongMP = ({ authState }) => {
     socket.current.on("startingGame", (room) => {
       setIsGameStarted(true);
       let color = room.players[0].playerNo === playerNo ? "RED" : "BLUE";
-      drawScreen("WE ARE GOING TO START THE GAME...", `YOU'RE THE ${color} PLAYER!`);
+      drawScreen(
+        "WE ARE GOING TO START THE GAME...",
+        `YOU'RE THE ${color} PLAYER!`
+      );
     });
 
     socket.current.on("startedGame", (room) => {
@@ -290,14 +291,15 @@ const PongMP = ({ authState }) => {
       socket.current.emit("leave", roomID);
 
       setTimeout(() => {
-        drawScreen(
-          `${room.winner === playerNo ? "YOU WON!" : "YOU LOST!"}`
-        );
+        drawScreen(`${room.winner === playerNo ? "YOU WON!" : "YOU LOST!"}`);
 
         setTimeout(() => {
           canvasRef.current.style.cursor = "pointer";
-          canvasRef.current.addEventListener("click", handleEnd(room.winner === playerNo));
-        }, 5000); 
+          canvasRef.current.addEventListener(
+            "click",
+            handleEnd(room.winner === playerNo)
+          );
+        }, 5000);
       }, 1);
     });
 
@@ -327,7 +329,7 @@ const PongMP = ({ authState }) => {
       </div>
 
       <div>
-        <Chat authState={authState} />
+        <Chat authState={authState} defaultTopic="Pong" />
       </div>
     </div>
   );

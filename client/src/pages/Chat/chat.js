@@ -154,12 +154,11 @@ const Chat = ({ authState, defaultTopic }) => {
 
       {defaultTopic === undefined ? (
         <div className="row mb-3">
-          <strong className="col-auto" style={{ color: "var(--pacman)", fontSize: "20px" }}>Topic:</strong>
           <div className="col-3">
-            <select className="form-select" style={{ backgroundColor: "var(--pacman)", borderColor: "var(--pacman)" }} value={selectedTopic} onChange={(e) => setSelectedTopic(e.target.value)}>
-              <option value="General">General</option>
-              <option value="Pong">Pong</option>
-              <option value="Galaga">Galaga</option>
+            <select className="form-select" style={{ fontWeight: "bold", backgroundColor: "var(--pacman)", borderColor: "var(--pacman)" }} value={selectedTopic} onChange={(e) => setSelectedTopic(e.target.value)}>
+              <option style={{fontWeight: "bold"}} value="General">General</option>
+              <option style={{fontWeight: "bold"}}value="Pong">Pong</option>
+              <option style={{fontWeight: "bold"}} value="Galaga">Galaga</option>
             </select>
           </div>
         </div>
@@ -177,7 +176,6 @@ const Chat = ({ authState, defaultTopic }) => {
           {messages
             .filter((message) => message.topic === selectedTopic)
             .map((message, index) => {
-              console.log(message);
               return (() => {
                 if (message.sender === authState.username) {
                   return (

@@ -28,7 +28,6 @@ import { AuthContext } from "../../../helpers/AuthContext";
 const Galaga = ({ authState: propAuthState }) => {
   const { authState } = useContext(AuthContext);
   const canvasRef = useRef(null);
-  const [startTime, setStartTime] = useState(null);
   const [gameStarted, setGameStarted] = useState(false);
   const [gameOver] = useState(false);
   const navigate = useNavigate();
@@ -88,7 +87,6 @@ const Galaga = ({ authState: propAuthState }) => {
     let animationFrameId;
 
     const startGame = () => {
-      setStartTime(performance.now());
 
       playBackground();
 
@@ -117,7 +115,7 @@ const Galaga = ({ authState: propAuthState }) => {
       }, 20000);
 
       const handleMouseMove = (event) => {
-        mouse.x = Math.max(0, Math.min(event.clientX, 950));
+        mouse.x = Math.max(0, Math.min(event.clientX, 750));
       };
 
       const animate = () => {
@@ -127,13 +125,10 @@ const Galaga = ({ authState: propAuthState }) => {
           document.removeEventListener("mousemove", handleMouseMove);
           document.removeEventListener("keydown", handleSpacebarPress);
 
-          const milliseconds = performance.now() - startTime;
-          const seconds = Math.ceil(milliseconds / 1000);
           const drawEndButton = drawEndScreen(
             ctx,
             canvas,
             score,
-            seconds,
             () => {
               handleEnd(score);
             }
@@ -181,7 +176,6 @@ const Galaga = ({ authState: propAuthState }) => {
   }, [
     gameStarted,
     gameOver,
-    startTime,
     navigate,
     playBackground,
     playShootSound,
@@ -191,7 +185,7 @@ const Galaga = ({ authState: propAuthState }) => {
   return (
     <div className="container-galaga">
       <div>
-        <canvas className="canvas" ref={canvasRef} width={1000} height={600} />
+        <canvas className="canvas" ref={canvasRef} width={800} height={500} />
       </div>
       <div>
         <Chat authState={authState} defaultTopic="Galaga" />

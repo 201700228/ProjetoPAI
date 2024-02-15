@@ -4,7 +4,7 @@ export function drawStartScreen(ctx, canvas, handleStart, imageSrc) {
     backgroundImage.src = imageSrc;
 
     const newSizeMultiplier = 1.2;
-    const offsetYAdjustment = -80;
+    const offsetYAdjustment = -50;
 
     backgroundImage.onload = function () {
       const newWidth = backgroundImage.width * newSizeMultiplier;
@@ -18,7 +18,7 @@ export function drawStartScreen(ctx, canvas, handleStart, imageSrc) {
       ctx.font = "25px 'Press Start 2P', cursive";
       ctx.fillStyle = "#ffffff";
       ctx.textAlign = "center";
-      ctx.fillText("PRESS START", canvas.width / 2, canvas.height / 2 + 70);
+      ctx.fillText("PRESS START", canvas.width / 2, canvas.height / 2 + 100);
 
       canvas.style.cursor = "pointer";
       canvas.addEventListener("click", handleStart);
@@ -26,7 +26,7 @@ export function drawStartScreen(ctx, canvas, handleStart, imageSrc) {
   };
 }
 
-export function drawEndScreen(ctx, canvas, finalScore, gameTime, gameOverFunc) {
+export function drawEndScreen(ctx, canvas, finalScore, gameOverFunc) {
   return () => {
     ctx.fillStyle = "#000";
     ctx.fillRect(0, 0, canvas.width, canvas.height);
@@ -36,10 +36,9 @@ export function drawEndScreen(ctx, canvas, finalScore, gameTime, gameOverFunc) {
     ctx.textAlign = "center";
     ctx.fillText("GAME OVER", canvas.width / 2, canvas.height / 2 - 70);
 
-    const scoreAndTimeText =
-      "SCORE: " + finalScore + "  TIME: " + gameTime + " SECONDS";
-    ctx.font = "20px 'Star Jedi', sans-serif"; 
-    ctx.fillStyle = "#FFFE01"; 
+    const scoreAndTimeText = "SCORE: " + finalScore;
+    ctx.font = "20px 'Star Jedi', sans-serif";
+    ctx.fillStyle = "#FFFE01";
     ctx.fillText(scoreAndTimeText, canvas.width / 2, canvas.height / 2 + 10);
 
     const buttonWidth = 100;
@@ -50,11 +49,10 @@ export function drawEndScreen(ctx, canvas, finalScore, gameTime, gameOverFunc) {
     ctx.fillStyle = "#FFFE01";
     ctx.fillRect(buttonX, buttonY, buttonWidth, buttonHeight);
 
-    ctx.font = "18px 'Star Jedi', sans-serif"; 
+    ctx.font = "18px 'Star Jedi', sans-serif";
     ctx.fillStyle = "#000";
     ctx.textAlign = "center";
     ctx.fillText("CLOSE", canvas.width / 2, buttonY + buttonHeight / 2 + 5);
-
 
     canvas.addEventListener("click", gameOverFunc);
   };
@@ -66,7 +64,7 @@ export function handleGameOver(
   setFinalScore,
   setGameStarted,
   history,
-  gameTime 
+  gameTime
 ) {
   return (event) => {
     const rect = canvas.getBoundingClientRect();

@@ -21,28 +21,17 @@ const db = require("./models");
 db.User = require("./models/User")(db.sequelize, db.Sequelize);
 db.Message = require("./models/Message")(db.sequelize, db.Sequelize);
 
-const commentRouter = require("./routes/Comment");
+
 const userRouter = require("./routes/User");
 const leaderboardRouter = require("./routes/Leaderboard");
-const tournamentRouter = require("./routes/Tournament");
-const forumRouter = require("./routes/Forum");
-const topicRouter = require("./routes/Topic");
 const gameRouter = require("./routes/Game");
-const commentTopicRouter = require("./routes/CommentTopic");
-const userTournamentRouter = require("./routes/UserTournament");
 const messageRouter = require("./routes/Message");
 const gameOptionsRouter = require("./routes/GameOptions");
 const gameOptionsRelRouter = require("./routes/GameOptionsRel");
 
-app.use("/comments", commentRouter);
 app.use("/auth", userRouter);
 app.use("/leaderboards", leaderboardRouter);
-app.use("/tournaments", tournamentRouter);
-app.use("/forums", forumRouter);
-app.use("/topics", topicRouter);
 app.use("/games", gameRouter);
-app.use("/comment-topics", commentTopicRouter);
-app.use("/user-tournaments", userTournamentRouter);
 app.use("/messages", messageRouter);
 app.use("/game-options", gameOptionsRouter);
 app.use("/game-options-rel", gameOptionsRelRouter);

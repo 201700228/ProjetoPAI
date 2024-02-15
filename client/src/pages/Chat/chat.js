@@ -193,8 +193,8 @@ const Chat = ({ authState, defaultTopic }) => {
                         
                       </div>
                       <div>
+                      <strong style={{ marginRight:"10px", fontSize: "12px", color: "var(--lightblue)", verticalAlign: "middle" }}>{message.date} </strong>
                         <span style={{ backgroundColor: "yellow", padding: "5px", marginTop: "5px", marginBottom: "10px", borderRadius: "10px 2px 10px 10px" }}>{message.text}</span>
-                        <strong style={{ marginLeft:"10px", fontSize: "12px", color: "var(--lightblue)", verticalAlign: "middle" }}>{message.date} </strong>
                       </div>
                     </div>
                   );

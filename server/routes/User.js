@@ -8,9 +8,9 @@ const multer = require("multer");
 const storage = multer.memoryStorage();
 const upload = multer({ storage: storage });
 const { Op } = require("sequelize");
-
 const { validationResult } = require("express-validator");
 
+// Endpoint para adicionar um novo utilizador
 router.post("/", upload.single("imageFile"), async (req, res) => {
   try {
     const { username, password, email, firstName, lastName, birthDate } =
@@ -84,6 +84,7 @@ router.post("/", upload.single("imageFile"), async (req, res) => {
   }
 });
 
+// Endpoint para fazer login
 router.post("/login", async (req, res) => {
   try {
     const { email, password } = req.body;
@@ -139,6 +140,7 @@ router.get("/basicinfo/:id", async (req, res) => {
   }
 });
 
+// Endpoint para mudar a password
 router.put("/changepassword", validateToken, async (req, res) => {
   const { oldPassword, newPassword } = req.body;
   const user = await User.findOne({ where: { username: req.user.username } });
@@ -156,6 +158,7 @@ router.put("/changepassword", validateToken, async (req, res) => {
   });
 });
 
+// Endpoint para atualizar perfil do utilizador
 router.put("/:id", upload.single("profilePicture"), async (req, res) => {
   const userId = req.params.id;
   const { username, email, firstName, lastName, birthDate } = req.body;
@@ -230,6 +233,7 @@ router.put("/:id", upload.single("profilePicture"), async (req, res) => {
   }
 });
 
+// Endpoint para obter todos os utilizadores (sem fornecer password)
 router.get("/all", async (req, res) => {
   try {
     const allUsers = await User.findAll({

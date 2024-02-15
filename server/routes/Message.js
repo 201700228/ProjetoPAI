@@ -33,7 +33,4 @@ router.get("/all", async (req, res) => {
     }
 });
 
-
-// Add more routes as needed, e.g., route to get messages for a specific user, etc.
-
 module.exports = router;

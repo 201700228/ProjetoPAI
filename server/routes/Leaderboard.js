@@ -3,7 +3,7 @@ const router = express.Router();
 const { Leaderboard, User, Game, sequelize  } = require("../models");
 const { Op } = require("sequelize");
 
-// Rota para obter todas as leaderboards
+// Endpoint para obter todas as leaderboards
 router.get("/", async (req, res) => {
   try {
     const allLeaderboards = await Leaderboard.findAll({
@@ -32,7 +32,7 @@ router.get("/", async (req, res) => {
   }
 });
 
-// Rota para obter o número de vitórias de cada jogador em cada jogo
+// Endpoint para obter o número de vitórias de cada jogador em cada jogo
 router.get("/victories", async (req, res) => {
   try {
     const victoriesByPlayerAndGame = await Leaderboard.findAll({

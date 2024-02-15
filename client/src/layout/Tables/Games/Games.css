@@ -37,7 +37,14 @@ h1 {
   font-weight: bold;
   border: none;
   border-radius: 4px;
+  display: flex;
+  align-items: center;
 }
+
+.gamesListButton span {
+  margin-left: 5px;
+}
+
 
 .searchContainer {
   display: flex;
@@ -89,13 +96,14 @@ h1 {
   margin-right: 5px;
 }
 
-.gamesList input[type="text"] {
-  padding: 10px;
+.gamesList .buttonImage {
+  cursor: pointer;
+  padding: 8px;
+  background-color: var(--lightblue);
+  color: var(--black);
+  border: none;
   border-radius: 4px;
-  margin: 2px;
-  width: 100%;
-  color: var(--pacman);
-  background-color: var(--black);
+  margin-right: 5px;
 }
 
 @media (max-width: 600px) {

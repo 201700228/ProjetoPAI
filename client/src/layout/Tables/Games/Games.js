@@ -1,6 +1,13 @@
 import React, { useState, useEffect } from "react";
 import axios from "axios";
-import { FaEdit, FaTrash, FaSave, FaPlus, FaTimes } from "react-icons/fa";
+import {
+  FaEdit,
+  FaSave,
+  FaPlus,
+  FaCamera,
+  FaTrashAlt,
+  FaBan,
+} from "react-icons/fa";
 import "./Games.css";
 import { toast } from "react-toastify";
 
@@ -101,7 +108,6 @@ const GamesTable = () => {
       const formData = new FormData();
       formData.append("name", newGame.name);
       formData.append("description", newGame.description);
-
       formData.append("picture", newGame.picture);
 
       if (newGame.isNew) {
@@ -142,6 +148,8 @@ const GamesTable = () => {
 
         return;
       }
+
+      savedGame.picture = newGame.picture;
 
       setGames((prevGames) => [
         ...prevGames.slice(0, index),
@@ -199,13 +207,13 @@ const GamesTable = () => {
           onClick={handleAdd}
           disabled={editMode !== null}
         >
-          <FaPlus /> Adicionar
+          <FaPlus /> <span>Game</span>
         </button>
 
         <div className="searchContainer">
           <input
             type="text"
-            placeholder="Filtrar por nome..."
+            placeholder="Filter by name ..."
             value={filter}
             onChange={(e) => setFilter(e.target.value)}
             className="searchInput"
@@ -214,125 +222,120 @@ const GamesTable = () => {
       </div>
 
       <div className="tableContainer">
-      <table className="gamesList">
-        <thead>
-          <tr>
-            <th>Nome</th>
-            <th>Descrição</th>
-            <th>Imagem</th>
-            <th>Ações</th>
-          </tr>
-        </thead>
-        <tbody>
-          {games
-            .filter((game) =>
-              game.name.toLowerCase().includes(filter.toLowerCase())
-            )
-            .map((game, index) => (
-              <tr key={index}>
-                <td>
-                  <input
-                    type="text"
-                    value={isEditing(game.id) ? newGame.name : game.name}
-                    onChange={(e) => {
-                      const updatedGame = {
-                        ...newGame,
-                        name: e.target.value,
-                      };
-                      setNewGame(updatedGame);
-                    }}
-                    readOnly={editMode !== game.id}
-                    style={{
-                      backgroundColor: editMode === game.id ? "white" : "black",
-                      color: editMode === game.id ? "black" : "#FFFE01",
-                      border:
-                        editMode === game.id ? "1px solid #FFFE01" : "none",
-                    }}
-                  />
-                </td>
-                <td>
-                  <input
-                    type="text"
-                    value={
-                      isEditing(game.id)
-                        ? newGame.description
-                        : game.description
-                    }
-                    onChange={(e) => {
-                      const updatedGame = {
-                        ...newGame,
-                        description: e.target.value,
-                      };
-                      setNewGame(updatedGame);
-                    }}
-                    readOnly={editMode !== game.id}
-                    style={{
-                      backgroundColor: editMode === game.id ? "white" : "black",
-                      color: editMode === game.id ? "black" : "#FFFE01",
-                      border:
-                        editMode === game.id ? "1px solid #FFFE01" : "none",
-                    }}
-                  />
-                </td>
-                <td>
-                  {isEditing(game.id) ? (
-                    <>
-                      <div
-                        className={`imagePreview ${
-                          newGame.picture ? "added-image" : ""
-                        }`}
-                      >
-                        {newGame.picture ? (
+        <table className="gamesList">
+          <thead>
+            <tr>
+              <th>Name</th>
+              <th>Description</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+            {games
+              .filter((game) =>
+                game.name.toLowerCase().includes(filter.toLowerCase())
+              )
+              .map((game, index) => (
+                <tr key={index}>
+                  <td>
+                    <input
+                      type="text"
+                      value={isEditing(game.id) ? newGame.name : game.name}
+                      onChange={(e) => {
+                        const updatedGame = {
+                          ...newGame,
+                          name: e.target.value,
+                        };
+                        setNewGame(updatedGame);
+                      }}
+                      readOnly={editMode !== game.id}
+                      style={{
+                        backgroundColor:
+                          editMode === game.id ? "white" : "black",
+                        color: editMode === game.id ? "black" : "#FFFE01",
+                        border:
+                          editMode === game.id ? "1px solid #FFFE01" : "none",
+                      }}
+                    />
+                  </td>
+                  <td>
+                    <input
+                      type="text"
+                      value={
+                        isEditing(game.id)
+                          ? newGame.description
+                          : game.description
+                      }
+                      onChange={(e) => {
+                        const updatedGame = {
+                          ...newGame,
+                          description: e.target.value,
+                        };
+                        setNewGame(updatedGame);
+                      }}
+                      readOnly={editMode !== game.id}
+                      style={{
+                        backgroundColor:
+                          editMode === game.id ? "white" : "black",
+                        color: editMode === game.id ? "black" : "#FFFE01",
+                        border:
+                          editMode === game.id ? "1px solid #FFFE01" : "none",
+                      }}
+                    />
+                  </td>
+
+                  <td>
+                    {game.id && (
+                      <>
+                        {isEditing(game.id) ? (
                           <>
-                            <img src={game.picture} alt="Imagem" />
-                            <button
-                              style={{ marginLeft: "10px" }}
-                              onClick={() => handleDeleteImage(newGame.id)}
-                            >
-                              <FaTimes />
+                            {newGame.picture === null && (
+                              <button
+                                title="Add Image"
+                                className="buttonImage"
+                                onClick={handleAddImage}
+                              >
+                                <FaCamera />
+                              </button>
+                            )}
+                            {newGame.picture !== null && (
+                              <button
+                                title="Remove Image"
+                                className="buttonImage"
+                                onClick={handleDeleteImage}
+                              >
+                                <FaBan />
+                              </button>
+                            )}
+                            <button title="Save" onClick={() => handleSave(index)}>
+                              <FaSave />
                             </button>
                           </>
                         ) : (
-                          <button onClick={handleAddImage}>
-                            <FaPlus />
-                          </button>
+                          <>
+                            <button
+                              title="Edit"
+                              onClick={() => handleEdit(game.id)}
+                              style={{ marginTop: "5px" }}
+                            >
+                              <FaEdit />
+                            </button>
+                            <button
+                              title="Remove"
+                              onClick={() => handleDelete(game.id)}
+                              style={{ marginTop: "5px" }}
+                            >
+                              <FaTrashAlt />
+                            </button>
+                          </>
                         )}
-                      </div>
-                    </>
-                  ) : (
-                    game.picture && <img src={game.picture} alt="Imagem" />
-                  )}
-                </td>
-                <td>
-                  {game.id && (
-                    <>
-                      {isEditing(game.id) ? (
-                        <button onClick={() => handleSave(index)}>
-                          <FaSave />
-                        </button>
-                      ) : (
-                        <>
-                          <button
-                            onClick={() => handleEdit(game.id)}
-                            style={{ marginTop: "5px" }}
-                          >
-                            <FaEdit />
-                          </button>
-                          <button
-                            onClick={() => handleDelete(game.id)}
-                            style={{ marginTop: "5px" }}
-                          >
-                            <FaTrash />
-                          </button>
-                        </>
-                      )}
-                    </>
-                  )}
-                </td>
-              </tr>
-            ))}
-        </tbody>
-      </table>
+                      </>
+                    )}
+                  </td>
+                </tr>
+              ))}
+          </tbody>
+        </table>
       </div>
     </div>
   );

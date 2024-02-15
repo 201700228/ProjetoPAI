@@ -1,6 +1,13 @@
 import React, { useState, useEffect } from "react";
 import axios from "axios";
-import { FaEdit, FaTrash, FaSave, FaPlus, FaTimes } from "react-icons/fa";
+import {
+  FaEdit,
+  FaSave,
+  FaPlus,
+  FaCamera,
+  FaTrashAlt,
+  FaBan,
+} from "react-icons/fa";
 import "./GamesOptions.css";
 import { toast } from "react-toastify";
 
@@ -197,13 +204,13 @@ const GamesOptionsTable = () => {
           onClick={handleAdd}
           disabled={editMode !== null}
         >
-          <FaPlus /> Adicionar
+          <FaPlus /> <span>Game Option</span>
         </button>
 
         <div className="searchContainer">
           <input
             type="text"
-            placeholder="Filtrar por nome..."
+            placeholder="Filter by name ..."
             value={filter}
             onChange={(e) => setFilter(e.target.value)}
             className="searchInput"
@@ -212,125 +219,126 @@ const GamesOptionsTable = () => {
       </div>
 
       <div className="tableContainer">
-      <table className="gamesList">
-        <thead>
-          <tr>
-            <th>Nome</th>
-            <th>Descrição</th>
-            <th>Imagem</th>
-            <th>Ações</th>
-          </tr>
-        </thead>
-        <tbody>
-          {gameOptions
-            .filter((option) =>
-              option.name.toLowerCase().includes(filter.toLowerCase())
-            )
-            .map((option, index) => (
-              <tr key={index}>
-                <td>
-                  <input
-                    type="text"
-                    value={
-                      isEditing(option.id) ? newGameOption.name : option.name
-                    }
-                    onChange={(e) => {
-                      const updatedGameOption = {
-                        ...newGameOption,
-                        name: e.target.value,
-                      };
-                      setNewGameOption(updatedGameOption);
-                    }}
-                    readOnly={editMode !== option.id}
-                    style={{
-                      border:
-                        editMode === option.id ? "1px solid #FFFE01" : "none",
-                    }}
-                  />
-                </td>
-                <td>
-                  <input
-                    type="text"
-                    value={
-                      isEditing(option.id)
-                        ? newGameOption.description
-                        : option.description
-                    }
-                    onChange={(e) => {
-                      const updatedGameOption = {
-                        ...newGameOption,
-                        description: e.target.value,
-                      };
-                      setNewGameOption(updatedGameOption);
-                    }}
-                    readOnly={editMode !== option.id}
-                    style={{
-                      border:
-                        editMode === option.id ? "1px solid #FFFE01" : "none",
-                    }}
-                  />
-                </td>
-                <td>
-                  {isEditing(option.id) ? (
-                    <>
-                      <div
-                        className={`imagePreview ${
-                          newGameOption.picture ? "added-image" : ""
-                        }`}
-                      >
-                        {newGameOption.picture ? (
+        <table className="gamesList">
+          <thead>
+            <tr>
+              <th>Name</th>
+              <th>Description</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+            {gameOptions
+              .filter((option) =>
+                option.name.toLowerCase().includes(filter.toLowerCase())
+              )
+              .map((option, index) => (
+                <tr key={index}>
+                  <td>
+                    <input
+                      type="text"
+                      value={
+                        isEditing(option.id) ? newGameOption.name : option.name
+                      }
+                      onChange={(e) => {
+                        const updatedGameOption = {
+                          ...newGameOption,
+                          name: e.target.value,
+                        };
+                        setNewGameOption(updatedGameOption);
+                      }}
+                      readOnly={editMode !== option.id}
+                      style={{
+                        backgroundColor:
+                          editMode === option.id ? "white" : "black",
+                        color: editMode === option.id ? "black" : "#FFFE01",
+                        border:
+                          editMode === option.id ? "1px solid #FFFE01" : "none",
+                      }}
+                    />
+                  </td>
+                  <td>
+                    <input
+                      type="text"
+                      value={
+                        isEditing(option.id)
+                          ? newGameOption.description
+                          : option.description
+                      }
+                      onChange={(e) => {
+                        const updatedGameOption = {
+                          ...newGameOption,
+                          description: e.target.value,
+                        };
+                        setNewGameOption(updatedGameOption);
+                      }}
+                      readOnly={editMode !== option.id}
+                      style={{
+                        backgroundColor:
+                          editMode === option.id ? "white" : "black",
+                        color: editMode === option.id ? "black" : "#FFFE01",
+                        border:
+                          editMode === option.id ? "1px solid #FFFE01" : "none",
+                      }}
+                    />
+                  </td>
+
+                  <td>
+                    {option.id && (
+                      <>
+                        {isEditing(option.id) ? (
                           <>
-                            <img src={option.picture} alt="Imagem" />
+                            {newGameOption.picture === null && (
+                              <button
+                                title="Add Image"
+                                className="buttonImage"
+                                onClick={handleAddImage}
+                              >
+                                <FaCamera />
+                              </button>
+                            )}
+                            {newGameOption.picture !== null && (
+                              <button
+                                title="Remove Image"
+                                className="buttonImage"
+                                onClick={handleDeleteImage}
+                              >
+                                <FaBan />
+                              </button>
+                            )}
+
                             <button
-                              style={{ marginLeft: "10px" }}
-                              onClick={() =>
-                                handleDeleteImage(newGameOption.id)
-                              }
+                              title="Save"
+                              onClick={() => handleSave(index)}
                             >
-                              <FaTimes />
+                              <FaSave />
                             </button>
                           </>
                         ) : (
-                          <button onClick={handleAddImage}>
-                            <FaPlus />
-                          </button>
+                          <>
+                            <button
+                              title="Edit"
+                              onClick={() => handleEdit(option.id)}
+                              style={{ marginTop: "5px" }}
+                            >
+                              <FaEdit />
+                            </button>
+                            <button
+                              title="Remove"
+                              onClick={() => handleDelete(option.id)}
+                              style={{ marginTop: "5px" }}
+                            >
+                              <FaTrashAlt />
+                            </button>
+                          </>
                         )}
-                      </div>
-                    </>
-                  ) : (
-                    option.picture && <img src={option.picture} alt="Imagem" />
-                  )}
-                </td>
-                <td>
-                  {option.id && (
-                    <>
-                      {isEditing(option.id) ? (
-                        <button onClick={() => handleSave(index)}>
-                          <FaSave />
-                        </button>
-                      ) : (
-                        <>
-                          <button
-                            onClick={() => handleEdit(option.id)}
-                            style={{ marginTop: "5px" }}
-                          >
-                            <FaEdit />
-                          </button>
-                          <button
-                            onClick={() => handleDelete(option.id)}
-                            style={{ marginTop: "5px" }}
-                          >
-                            <FaTrash />
-                          </button>
-                        </>
-                      )}
-                    </>
-                  )}
-                </td>
-              </tr>
-            ))}
-        </tbody>
-      </table>
+                      </>
+                    )}
+                  </td>
+                </tr>
+              ))}
+          </tbody>
+        </table>
       </div>
     </div>
   );

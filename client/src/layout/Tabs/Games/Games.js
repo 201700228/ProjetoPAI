@@ -18,19 +18,19 @@ const TabsGames = () => {
           className={`tabs-button ${activeTab === "games" ? "active" : ""}`}
           onClick={() => handleTabChange("games")}
         >
-          Jogos
+          Games
         </button>
         <button
           className={`tabs-button ${activeTab === "gameOptions" ? "active" : ""}`}
           onClick={() => handleTabChange("gameOptions")}
         >
-          Tipos de Jogos
+          Game Options
         </button>
         <button
           className={`tabs-button ${activeTab === "gamesrel" ? "active" : ""}`}
           onClick={() => handleTabChange("gamesrel")}
         >
-          Associar
+          Associate
         </button>
       </div>
 

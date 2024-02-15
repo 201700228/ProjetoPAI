@@ -138,7 +138,7 @@ const GamesRelTable = () => {
         <div className="searchContainer">
           <input
             type="text"
-            placeholder="Filtrar por nome..."
+            placeholder="Filter by name ..."
             value={filter}
             onChange={(e) => setFilter(e.target.value)}
             className="searchInput"
@@ -150,8 +150,8 @@ const GamesRelTable = () => {
       <table className="gamesList">
         <thead>
           <tr>
-            <th>Nome</th>
-            <th>Ações</th>
+            <th>Name</th>
+            <th>Actions</th>
           </tr>
         </thead>
         <tbody>
@@ -165,7 +165,7 @@ const GamesRelTable = () => {
                 <td>
                   {game.id && (
                     <>
-                      <button onClick={() => handleEdit(game.id)}>
+                      <button title="Edit" onClick={() => handleEdit(game.id)}>
                         <FaEdit />
                       </button>
                     </>
@@ -184,8 +184,8 @@ const GamesRelTable = () => {
         >
           <div className="modal-content">
             <div className="modal-header">
-              <h2>Editar</h2>
-              <span className="close" onClick={() => setShowModal(false)}>
+              <h2>Edit</h2>
+              <span title="Close" className="close" onClick={() => setShowModal(false)}>
                 &times;
               </span>
             </div>
@@ -196,7 +196,7 @@ const GamesRelTable = () => {
                   value={currentOption}
                   onChange={handleSelectChange}
                 >
-                  <option value="">Selecione uma opção...</option>
+                  <option value="">Select an option ...</option>
                   {allGameOptions.map((option) => (
                     <option key={option.id} value={option.name}>
                       {option.name}

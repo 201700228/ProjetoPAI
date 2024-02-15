@@ -190,7 +190,7 @@ function Profile() {
     <div className="main">
       <div className="container">
         <div className="header">
-          <h2>Perfil</h2>
+          <h2>Profile</h2>
         </div>
 
         <div className="form">
@@ -215,7 +215,7 @@ function Profile() {
                     applyFilter("Sepia");
                   }}
                 >
-                  Sépia
+                  Sepia
                 </p>
                 <p
                   onClick={(e) => {
@@ -223,7 +223,7 @@ function Profile() {
                     applyFilter("Invert");
                   }}
                 >
-                  Inverter
+                  Invert
                 </p>
                 <p
                   onClick={(e) => {
@@ -231,7 +231,7 @@ function Profile() {
                     applyFilter("GrayScale");
                   }}
                 >
-                  Preto e Branco
+                   GrayScale
                 </p>
               </div>
             </div>

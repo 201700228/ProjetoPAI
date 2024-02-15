@@ -18,6 +18,8 @@ router.post("/add", upload.single("picture"), async (req, res) => {
 
     if (req.file) {
       newGameOption.picture = req.file.buffer;
+    }else{
+      newGameOption.picture = null;
     }
 
     const gameOptionCreated = await GameOptions.create(newGameOption);
@@ -80,7 +82,7 @@ router.put("/update/:optionId", upload.single("picture"), async (req, res) => {
 
       if (req.file) {
         gameOption.picture = req.file.buffer;
-      } else if (!picture) {
+      } else{
         gameOption.picture = null;
       }
 

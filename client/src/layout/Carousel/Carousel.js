@@ -1,14 +1,14 @@
-// Carousel.js
 import React, { useState, useRef, useEffect, useCallback } from "react";
-import "./Carousel.css";
-import { useNavigate } from "react-router-dom";
-import { FaChevronLeft, FaChevronRight } from "react-icons/fa";
+import "./Carousel.css"; 
+import { useNavigate } from "react-router-dom"; 
+import { FaChevronLeft, FaChevronRight } from "react-icons/fa"; 
 
 const Carousel = ({ slides }) => {
   const [currentSlide, setCurrentSlide] = useState(0);
   const slideRef = useRef(null);
   const navigate = useNavigate();
 
+  // Função para ir para o slide anterior
   const prevSlide = () => {
     if (slides.length > 2) {
       setCurrentSlide((prevSlide) =>
@@ -17,6 +17,7 @@ const Carousel = ({ slides }) => {
     }
   };
   
+  // Função para ir para o próximo slide
   const nextSlide = useCallback(() => {
     if (slides.length > 2) {
       setCurrentSlide((prevSlide) =>
@@ -25,13 +26,15 @@ const Carousel = ({ slides }) => {
     }
   }, [setCurrentSlide, slides.length]);
   
+  // Função para lidar com o clique no slide
   const handleSlideClick = (index) => {
     const route = slides[index]?.route;
     if (route) {
-      navigate(route);
+      navigate(route); // Navega para a rota do slide
     }
   };
 
+  // Função para lidar com as teclas
   const handleKeyDown = (e) => {
     if (e.key === "ArrowLeft" && slides.length > 2) {
       prevSlide();
@@ -43,6 +46,7 @@ const Carousel = ({ slides }) => {
     }
   };
 
+  // Avançar automaticamente os slides
   useEffect(() => {
     if (slides.length > 2) {
       const timer = setInterval(() => {
@@ -50,7 +54,7 @@ const Carousel = ({ slides }) => {
       }, 5000);
 
       return () => {
-        clearInterval(timer);
+        clearInterval(timer); // Limpa o intervalo quando o componente é desmontado
       };
     }
   }, [currentSlide, slides.length, nextSlide]);

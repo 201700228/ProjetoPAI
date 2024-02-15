@@ -8,9 +8,10 @@ import { sepia, invert, grayscale, normal } from "../../Filters";
 import { imageDataToFile } from "../../Files";
 import { toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
-import "./Register.css";
+import { Link, useNavigate } from "react-router-dom";
 
-function RegistrationForm() {
+function RegisterForm() {
+  const navigate = useNavigate();
   const [image, setImage] = useState(null);
   const [isImageSelected, setIsImageSelected] = useState(false);
   const [isValid, setIsValid] = useState(false);
@@ -111,7 +112,7 @@ function RegistrationForm() {
     <div className="main">
       <div className="container">
         <div className="header">
-          <h2>Criar Conta</h2>
+          <h2>Create Account</h2>
         </div>
 
         <div className="form">
@@ -139,7 +140,7 @@ function RegistrationForm() {
                       applyFilter("Sepia");
                     }}
                   >
-                    Sépia
+                    Sepia
                   </p>
                   <p
                     onClick={(e) => {
@@ -147,7 +148,7 @@ function RegistrationForm() {
                       applyFilter("Invert");
                     }}
                   >
-                    Inverter
+                    Invert
                   </p>
                   <p
                     onClick={(e) => {
@@ -155,7 +156,7 @@ function RegistrationForm() {
                       applyFilter("GrayScale");
                     }}
                   >
-                    Preto e Branco
+                    GrayScale
                   </p>
                 </div>
               )}
@@ -175,7 +176,7 @@ function RegistrationForm() {
             onClick={() => document.getElementById("inputFile").click()}
             style={{ display: isImageSelected ? "none" : "block" }}
           >
-            SELECIONAR IMAGEM
+            PROFILE PICTURE *
           </button>
 
           <Formik
@@ -196,7 +197,9 @@ function RegistrationForm() {
               formData.append("firstName", data.firstName);
               formData.append("lastName", data.lastName);
               formData.append("birthDate", data.birthDate);
-              formData.append("imageFile", values.imageFile);
+              if (values.imageFile) {
+                formData.append("imageFile", values.imageFile);
+              }
 
               axios
                 .post("http://localhost:3001/auth", formData, {
@@ -213,6 +216,7 @@ function RegistrationForm() {
                     setImage(null);
                     setIsImageSelected(false);
                     setValues({ ...values, imageFile: null });
+                    navigate("/login");
                   }
                 })
                 .catch((error) => {
@@ -244,7 +248,7 @@ function RegistrationForm() {
               <Form noValidate onSubmit={handleSubmit}>
                 <Form.Group as={Row} controlId="formUsername">
                   <Form.Label column sm={12} className="form-label">
-                    Nome de Utilizador
+                    Username *
                   </Form.Label>
                   <Col sm={12}>
                     <Field as={Form.Control} name="username" />
@@ -253,7 +257,7 @@ function RegistrationForm() {
 
                 <Form.Group as={Row} controlId="formPassword">
                   <Form.Label column sm={12} className="form-label">
-                    Palavra-Passe
+                    Password *
                   </Form.Label>
                   <Col sm={12}>
                     <Field as={Form.Control} type="password" name="password" />
@@ -262,7 +266,7 @@ function RegistrationForm() {
 
                 <Form.Group as={Row} controlId="formEmail">
                   <Form.Label column sm={12} className="form-label">
-                    Email
+                    Email *
                   </Form.Label>
                   <Col sm={12}>
                     <Field as={Form.Control} type="email" name="email" />
@@ -272,13 +276,13 @@ function RegistrationForm() {
                 <Row className="form-row">
                   <Col sm={6}>
                     <Form.Group controlId="formFirstName">
-                      <Form.Label className="form-label">Nome</Form.Label>
+                      <Form.Label className="form-label">First Name *</Form.Label>
                       <Field as={Form.Control} name="firstName" />
                     </Form.Group>
                   </Col>
                   <Col sm={6}>
                     <Form.Group controlId="formLastName">
-                      <Form.Label className="form-label">Apelido</Form.Label>
+                      <Form.Label className="form-label">Last Name *</Form.Label>
                       <Field as={Form.Control} name="lastName" />
                     </Form.Group>
                   </Col>
@@ -286,7 +290,7 @@ function RegistrationForm() {
 
                 <Form.Group as={Row} controlId="formBirthDate">
                   <Form.Label column sm={12} className="form-label">
-                    Data de Nascimento
+                    Birth Date *
                   </Form.Label>
                   <Col sm={12}>
                     <Field as={Form.Control} type="date" name="birthDate" />
@@ -300,12 +304,12 @@ function RegistrationForm() {
                     className="form-button"
                     disabled={!isValid || !isImageSelected}
                   >
-                    Registar
+                    Register
                   </Button>
 
                   <p className="form-link">
-                    <span className="info">Já tem conta?</span>{" "}
-                    <a href="/login">Login</a>
+                    <span className="info">Already have an account?</span>{" "}
+                    <Link to="/login">Login</Link>
                   </p>
                 </div>
               </Form>
@@ -317,4 +321,4 @@ function RegistrationForm() {
   );
 }
 
-export default RegistrationForm;
+export default RegisterForm;

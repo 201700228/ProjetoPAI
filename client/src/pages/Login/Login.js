@@ -78,7 +78,7 @@ const LoginForm = () => {
             <Form noValidate onSubmit={handleSubmit} className="form">
               <Form.Group as={Row} controlId="formEmail">
                 <Form.Label column sm={12} className="form-label">
-                  Email
+                  Email *
                 </Form.Label>
                 <Col sm={12}>
                   <Field as={Form.Control} type="email" name="email" />
@@ -87,7 +87,7 @@ const LoginForm = () => {
 
               <Form.Group as={Row} controlId="formPassword">
                 <Form.Label column sm={12} className="form-label">
-                  Palavra-Passe
+                  Password *
                 </Form.Label>
                 <Col sm={12}>
                   <Field as={Form.Control} type="password" name="password" />
@@ -98,16 +98,16 @@ const LoginForm = () => {
                 variant="primary"
                 type="submit"
                 className="form-button"
-                disabled={!isValid} // Mantenha o "!"
+                disabled={!isValid} 
               >
-                Iniciar Sessão
+                Login
               </Button>
             </Form>
           )}
         </Formik>
         <p className="form-link">
-          <span className="info">Ainda não tem conta?</span>{" "}
-          <a href="/registration">Registar</a>
+          <span className="info">Don't have an account yet?</span>{" "}
+          <a href="/register">Register</a>
         </p>
       </div>
     </div>

@@ -263,7 +263,7 @@ function Profile() {
               >
                 <Form.Group as={Row} controlId="formUsername">
                   <Form.Label column sm={12} className="form-label">
-                    Nome de Utilizador
+                    Username *
                   </Form.Label>
                   <Col sm={12}>
                     <Field as={Form.Control} name="username" />
@@ -272,7 +272,7 @@ function Profile() {
 
                 <Form.Group as={Row} controlId="formEmail">
                   <Form.Label column sm={12} className="form-label">
-                    Email
+                    Email *
                   </Form.Label>
                   <Col sm={12}>
                     <Field as={Form.Control} name="email" />
@@ -282,13 +282,13 @@ function Profile() {
                 <Row className="form-row">
                   <Col sm={6}>
                     <Form.Group controlId="formFirstName">
-                      <Form.Label className="form-label">Nome</Form.Label>
+                      <Form.Label className="form-label">First Name *</Form.Label>
                       <Field as={Form.Control} name="firstName" />
                     </Form.Group>
                   </Col>
                   <Col sm={6}>
                     <Form.Group controlId="formLastName">
-                      <Form.Label className="form-label">Apelido</Form.Label>
+                      <Form.Label className="form-label">Last Name *</Form.Label>
                       <Field as={Form.Control} name="lastName" />
                     </Form.Group>
                   </Col>
@@ -296,7 +296,7 @@ function Profile() {
 
                 <Form.Group as={Row} controlId="formBirthDate">
                   <Form.Label column sm={12} className="form-label">
-                    Data de Nascimento
+                    Birth Date *
                   </Form.Label>
                   <Col sm={12}>
                     <Field as={Form.Control} type="date" name="birthDate" />
@@ -313,7 +313,7 @@ function Profile() {
                   }
                   className="form-button"
                 >
-                  Atualizar
+                  Update
                 </Button>
               </FormikForm>
             )}

@@ -15,7 +15,7 @@ import { useState, useEffect } from "react";
 import axios from "axios";
 import backgroundImage from "./assets/background.gif";
 import logoImage from "./assets/logo.png";
-import { FaSignOutAlt, FaHome, FaGamepad, FaTrophy  } from "react-icons/fa";
+import { FaSignOutAlt, FaHome, FaGamepad, FaTrophy } from "react-icons/fa";
 import { ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import Chat from "./pages/Chat/chat";
@@ -25,7 +25,7 @@ import HomeGame from "./pages/Games/HomeGame";
 import { Navigate } from "react-router-dom";
 import TabsGames from "./layout/Tabs/Games/Games";
 import TabsLeaderboards from "./layout/Tabs/Leaderboards/Leaderboards";
-import Forum from './pages/Forum/forum';
+import Forum from "./pages/Forum/forum";
 
 function App() {
   const [authState, setAuthState] = useState({
@@ -52,9 +52,7 @@ function App() {
             status: true,
           });
         }
-      } catch (error) {
-        // Handle errors if needed
-      }
+      } catch (error) {}
     };
 
     fetchAuthStatus();
@@ -88,39 +86,53 @@ function App() {
                     </NavLink>
                   </li>
                   <li>
-                    <NavLink className="link" to="/registration">
-                      Registar
+                    <NavLink className="link" to="/register">
+                      Register
                     </NavLink>
                   </li>
                 </>
               ) : (
                 <>
                   <li>
-                    <NavLink to="/" className="link">
+                    <NavLink to="/" className="link" title="Home Page">
                       <FaHome size={20} />
                     </NavLink>
                   </li>
 
                   <li>
-                    <NavLink to="/games" className="link">
+                    <NavLink to="/games" className="link" title="Games">
                       <FaGamepad size={20} />
                     </NavLink>
                   </li>
 
                   <li>
-                    <NavLink to="/leaderboards" className="link">
+                    <NavLink
+                      to="/leaderboards"
+                      className="link"
+                      title="Leaderboards"
+                    >
                       <FaTrophy size={20} />
                     </NavLink>
                   </li>
 
                   <li>
-                    <NavLink to="/profile" className="link-user">
+                    <NavLink
+                      to="/profile"
+                      className="link-user"
+                      title="Profile"
+                    >
                       {authState.username}
                     </NavLink>
                   </li>
+
                   <li>
                     {authState.status && (
-                      <NavLink to="/" className="link" onClick={logout}>
+                      <NavLink
+                        to="/"
+                        className="link"
+                        onClick={logout}
+                        title="Logout"
+                      >
                         <FaSignOutAlt size={20} />
                       </NavLink>
                     )}
@@ -139,7 +151,7 @@ function App() {
               }
             />
             <Route
-              path="/registration"
+              path="/register"
               element={
                 authState.status ? <Navigate to="/" /> : <RegisterForm />
               }
@@ -177,7 +189,11 @@ function App() {
             <Route
               path="/play/games/:gameId/:gameOptionId"
               element={
-                authState.status ? <HomeGame authState={authState} /> : <Navigate to="/login" />
+                authState.status ? (
+                  <HomeGame authState={authState} />
+                ) : (
+                  <Navigate to="/login" />
+                )
               }
             />
             <Route
@@ -193,7 +209,11 @@ function App() {
             <Route
               path="/forum"
               element={
-                authState.status ? <Forum authState={authState}/> : <Navigate to="/login" />
+                authState.status ? (
+                  <Forum authState={authState} />
+                ) : (
+                  <Navigate to="/login" />
+                )
               }
             />
           </Routes>

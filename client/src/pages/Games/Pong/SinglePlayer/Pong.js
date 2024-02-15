@@ -2,13 +2,12 @@ import React, { useEffect, useRef, useState } from "react";
 import "./Pong.css";
 import "../../../../css/Colors.css";
 import Chat from "../../../Chat/chat.js";
-import { useParams } from "react-router-dom";
+import { useParams, useNavigate } from "react-router-dom";
 import axios from "axios";
-import { useNavigate } from "react-router-dom";
 import pongLogo from "../../../../assets/pong-logo.png";
 
 const PONG_CONSTANTS = {
-  MAX_SCORE: 1,
+  MAX_SCORE: 7,
   INITIAL_BALL_SPEED_X: 5,
   INITIAL_BALL_SPEED_Y: 5,
   INITIAL_RIGHT_PADDLE_SPEED: 8,
@@ -18,18 +17,17 @@ const PONG_CONSTANTS = {
 const PongSP = ({ authState }) => {
   const canvasRef = useRef(null);
   const [gameOver, setGameOver] = useState(false);
-  const navigate = useNavigate();
   const { gameId } = useParams();
+  const navigate = useNavigate();
 
   const sendGameResultsToAPI = async (winner) => {
     const apiUrl = "http://localhost:3001/leaderboards/add";
-
     try {
       await axios.post(apiUrl, {
         userId: authState.id,
         gameId: +gameId,
         result: 0,
-        victory: winner === authState.username ? 1 : 0,
+        victory: winner,
         dateTime: new Date().toISOString(),
       });
     } catch (error) {}
@@ -166,27 +164,25 @@ const PongSP = ({ authState }) => {
         ball.speedY = -ball.speedY;
       }
 
-      // Verificar colisão com a paleta esquerda (paddle left)
       if (
         ball.x - ball.radius <= paddles.left.x + paddles.left.width &&
         ball.x + ball.radius >= paddles.left.x &&
         ball.y >= paddles.left.y &&
         ball.y <= paddles.left.y + paddles.left.height
       ) {
-        ball.speedX = Math.abs(ball.speedX); // Definir a velocidade X como positiva
+        ball.speedX = Math.abs(ball.speedX);
       }
 
-      // Verificar colisão com a paleta direita (paddle right)
       if (
         ball.x + ball.radius >= paddles.right.x &&
         ball.x - ball.radius <= paddles.right.x + paddles.right.width &&
         ball.y >= paddles.right.y &&
         ball.y <= paddles.right.y + paddles.right.height
       ) {
-        ball.speedX = -Math.abs(ball.speedX); // Definir a velocidade X como negativa
+        ball.speedX = -Math.abs(ball.speedX); 
       }
 
-      // Verificar ponto (ajuste necessário para incluir o canto)
+     
       if (ball.x + ball.radius >= canvas.width) {
         leftScore++;
         resetBall("left");
@@ -202,35 +198,36 @@ const PongSP = ({ authState }) => {
     const drawStartScreen = () => {
       const backgroundImage = new Image();
       backgroundImage.src = pongLogo;
-
+    
       const newSizeMultiplier = 0.3;
       const offsetYAdjustment = -30;
-
+    
       backgroundImage.onload = function () {
         const aspectRatio = backgroundImage.width / backgroundImage.height;
-
+    
         let newWidth = canvas.width * newSizeMultiplier;
         let newHeight = newWidth / aspectRatio;
-
+    
         if (newHeight > canvas.height) {
           newHeight = canvas.height * newSizeMultiplier;
           newWidth = newHeight * aspectRatio;
         }
-
+    
         const offsetX = (canvas.width - newWidth) / 2;
         const offsetY = (canvas.height - newHeight) / 2 + offsetYAdjustment;
-
+    
         ctx.drawImage(backgroundImage, offsetX, offsetY, newWidth, newHeight);
-
+    
         ctx.font = "25px 'Press Start 2P', cursive";
         ctx.fillStyle = "#ffffff";
         ctx.textAlign = "center";
-        ctx.fillText("PRESS START", canvas.width / 2, canvas.height / 2 + 70);
-
+        ctx.fillText("PRESS START", canvas.width / 2, canvas.height / 2 + 50);
+    
         canvas.style.cursor = "pointer";
         canvas.addEventListener("click", startGame);
       };
     };
+    
 
     drawStartScreen();
 
@@ -238,7 +235,7 @@ const PongSP = ({ authState }) => {
       drawScreen("WE ARE GOING TO START THE GAME...", `YOU'RE THE RED PLAYER!`);
       setTimeout(() => {
         draw();
-      }, 2000);
+      }, 5000);
     };
 
     const drawScreen = (mainText, additionalText = "", showButton) => {
@@ -275,10 +272,11 @@ const PongSP = ({ authState }) => {
     };
 
     const handleEnd = async (victory) => {
+      const result = (victory === "YOU WON!") ? 1 : 0;
       const currentPath = window.location.pathname;
       const parentPath = currentPath.split("/").slice(0, -1).join("/");
       navigate(parentPath);
-      sendGameResultsToAPI(victory);
+      await sendGameResultsToAPI(result); 
     };
 
     const draw = () => {
@@ -304,13 +302,17 @@ const PongSP = ({ authState }) => {
     };
 
     const handleKeyDown = (event) => {
-      if (event.key === "ArrowUp" && paddles.right.y > 0) {
-        paddles.right.y -= PONG_CONSTANTS.INCREASED_RIGHT_PADDLE_SPEED;
-      } else if (
-        event.key === "ArrowDown" &&
-        paddles.right.y + paddles.right.height < canvas.height
-      ) {
-        paddles.right.y += PONG_CONSTANTS.INITIAL_RIGHT_PADDLE_SPEED;
+      if (["ArrowUp", "ArrowDown"].includes(event.key)) {    
+        event.preventDefault();
+
+        if (event.key === "ArrowUp" && paddles.right.y > 0) {
+          paddles.right.y -= PONG_CONSTANTS.INCREASED_RIGHT_PADDLE_SPEED;
+        } else if (
+          event.key === "ArrowDown" &&
+          paddles.right.y + paddles.right.height < canvas.height
+        ) {
+          paddles.right.y += PONG_CONSTANTS.INITIAL_RIGHT_PADDLE_SPEED;
+        }
       }
     };
 

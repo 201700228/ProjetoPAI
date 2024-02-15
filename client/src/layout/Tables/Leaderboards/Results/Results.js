@@ -73,7 +73,7 @@ const LeaderboardNTable = () => {
         <div className="searchContainer">
           <input
             type="text"
-            placeholder="Filtrar por utilizador ou jogo..."
+            placeholder="Filter by user or game ..."
             value={filter}
             onChange={(e) => setFilter(e.target.value)}
             className="searchInput"
@@ -86,16 +86,16 @@ const LeaderboardNTable = () => {
         <thead>
           <tr>
             <th>
-              Jogo
+              Game
             </th>
             <th >
-              Jogador
+              User
             </th>
             <th onClick={() => handleSort("result")}>
-              Resultado{getSortIndicator("result")}
+              Result{getSortIndicator("result")}
             </th>
             <th onClick={() => handleSort("dateTime")}>
-              Data{getSortIndicator("dateTime")}
+              Date{getSortIndicator("dateTime")}
             </th>
           </tr>
         </thead>

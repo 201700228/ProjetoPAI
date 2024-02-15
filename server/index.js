@@ -185,7 +185,8 @@ io.on("connection", (socket) => {
           text: newMessage.text,
           sender: sender.username,
           profilePicture: profilePictureBase64,
-          topic: data.topic
+          topic: data.topic,
+          date: new Date(newMessage.createdAt).toLocaleString()
         });
       }
     } catch (error) {

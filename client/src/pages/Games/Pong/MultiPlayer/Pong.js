@@ -3,9 +3,8 @@ import { io } from "socket.io-client";
 import Chat from "../../../Chat/chat.js";
 import "./Pong.css";
 import pongLogo from "../../../../assets/pong-logo.png";
-import { useNavigate } from "react-router-dom";
 import axios from "axios";
-import { useParams } from "react-router-dom";
+import { useParams, useNavigate } from "react-router-dom";
 
 class Player {
   constructor(x, y, width, height, color) {
@@ -199,17 +198,13 @@ const PongMP = ({ authState }) => {
 
     const handleKeyDown = (event) => {
       if (isGameStarted) {
-        if (event.key === "ArrowUp") {
+        if (["ArrowUp", "ArrowDown"].includes(event.key)) {
+          event.preventDefault(); 
+          const direction = event.key === "ArrowUp" ? "up" : "down";
           socket.current.emit("move", {
             roomID: roomID,
             playerNo: playerNo,
-            direction: "up",
-          });
-        } else if (event.key === "ArrowDown") {
-          socket.current.emit("move", {
-            roomID: roomID,
-            playerNo: playerNo,
-            direction: "down",
+            direction: direction,
           });
         }
       }

@@ -71,7 +71,7 @@ const LeaderboardVTable = () => {
         <div className="searchContainer">
           <input
             type="text"
-            placeholder="Filtrar por utilizador ou jogo..."
+            placeholder="Filter by user or game ..."
             value={filter}
             onChange={(e) => setFilter(e.target.value)}
             className="searchInput"
@@ -83,10 +83,10 @@ const LeaderboardVTable = () => {
         <table className="gamesList">
           <thead>
             <tr>
-              <th>Jogo</th>
-              <th>Jogador</th>
+              <th>Game</th>
+              <th>User</th>
               <th onClick={() => handleSort("victories")}>
-                Vitórias{getSortIndicator("victories")}
+                Victories{getSortIndicator("victories")}
               </th>
             </tr>
           </thead>

@@ -44,13 +44,15 @@ const Chat = ({ authState, defaultTopic }) => {
                   text: message.text,
                   sender: sender.username,
                   profilePicture: sender.profilePicture,
-                  topic: message.topic
+                  topic: message.topic,
+                  date: new Date(message.createdAt).toLocaleString()
                 });
               } else {
                 messagesWithSenderInfo.push({
                   text: message.text,
                   sender: "Unknown User",
                   profilePicture: null,
+                  date: new Date(message.createdAt).toLocaleString()
                 });
               }
             } catch (senderError) {
@@ -59,7 +61,6 @@ const Chat = ({ authState, defaultTopic }) => {
           }
         }
 
-        // Update messages only if the topic is still the same
         if (selectedTopic === response.data[0]?.topic) {
           setMessages(messagesWithSenderInfo);
         }
@@ -71,7 +72,6 @@ const Chat = ({ authState, defaultTopic }) => {
     fetchPreviousMessages();
   }, [selectedTopic]);
 
-  // This useEffect will scroll the messages container to the bottom whenever new content is added
   useEffect(() => {
     if (messagesContainerRef.current) {
       messagesContainerRef.current.scrollTop = messagesContainerRef.current.scrollHeight;
@@ -87,12 +87,9 @@ const Chat = ({ authState, defaultTopic }) => {
       };
 
       socket.emit("message", message);
-
-      // Clear the message input
       setMessageInput("");
     }
   };
-
 
   const handleKeyDown = (e) => {
     if (e.key === 'Enter') {
@@ -104,19 +101,16 @@ const Chat = ({ authState, defaultTopic }) => {
   const handleEmojiSelect = (emoji) => {
     const input = document.getElementById("messageInput");
 
-    // Check if there is a selection inside of our input
     if (input.selectionStart !== undefined && input.selectionEnd !== undefined) {
       const startPos = input.selectionStart;
       const endPos = input.selectionEnd;
 
-      // Insert the emoji at the current cursor position
       setMessageInput((prev) => prev.substring(0, startPos) + emoji.native + prev.substring(endPos));
     } else {
-      // If no selection, append emoji to the end of the input
       setMessageInput((prev) => prev + emoji.native);
     }
 
-    setPickerVisible(false); // Close the Emoji Picker after selection
+    setPickerVisible(false); 
   };
 
   const handleOnClickOutsidePicker = () => {
@@ -132,14 +126,12 @@ const Chat = ({ authState, defaultTopic }) => {
       }
     };
 
-    // Add an event listener for the "Escape" key
     document.addEventListener("keydown", handleEscapeKey);
 
-    // Remove the event listener when the component unmounts
     return () => {
       document.removeEventListener("keydown", handleEscapeKey);
     };
-  }, []);  // Empty dependency array to run the effect only once
+  }, []);  
 
   useEffect(() => {
     const handleMessagesUpdate = (updatedMessages) => {
@@ -175,9 +167,8 @@ const Chat = ({ authState, defaultTopic }) => {
       ) : (
         <></>
       )}
-      <div style={{ minWidth: "550px", height: "605px", padding: "20px", backgroundColor: "black", borderBottomRightRadius: "10px", borderBottomLeftRadius: "10px" }}>
+      <div  className="container-chat" style={{ minWidth: "550px", height: "500px", padding: "50px", backgroundColor: "black", borderRadius: "10px" }}>
         <div
-          className="container-chat"
           ref={messagesContainerRef}
         >
           <div className={isPickerVisible ? 'd-block' : 'd-none'} style={{ position: "absolute", marginTop: "65px", marginLeft: "145px" }}>
@@ -186,11 +177,13 @@ const Chat = ({ authState, defaultTopic }) => {
           {messages
             .filter((message) => message.topic === selectedTopic)
             .map((message, index) => {
+              console.log(message);
               return (() => {
                 if (message.sender === authState.username) {
                   return (
                     <div key={index} style={{ color: "black", padding: "5px", textAlign: "right" }}>
                       <div style={{ marginBottom: "10px" }}>
+                     
                         <strong style={{ color: "var(--pacman)", verticalAlign: "middle" }}>{message.sender} </strong>
                         {message.profilePicture && (
                           <img
@@ -199,9 +192,11 @@ const Chat = ({ authState, defaultTopic }) => {
                             style={{ width: "20px", marginLeft: "5px", borderRadius: "50%" }}
                           />
                         )}
+                        
                       </div>
                       <div>
-                        <span style={{ backgroundColor: "yellow", padding: "5px", marginTop: "5px", marginBottom: "10px", marginTop: "10px", borderRadius: "10px 2px 10px 10px" }}>{message.text}</span>
+                        <span style={{ backgroundColor: "yellow", padding: "5px", marginTop: "5px", marginBottom: "10px", borderRadius: "10px 2px 10px 10px" }}>{message.text}</span>
+                        <strong style={{ marginLeft:"10px", fontSize: "12px", color: "var(--lightblue)", verticalAlign: "middle" }}>{message.date} </strong>
                       </div>
                     </div>
                   );
@@ -220,6 +215,7 @@ const Chat = ({ authState, defaultTopic }) => {
                       </div>
                       <div>
                         <span style={{ backgroundColor: "yellow", padding: "5px", marginTop: "5px", marginBottom: "10px", marginTop: "10px", borderRadius: "2px 10px 10px 10px" }}>{message.text}</span>
+                        <strong style={{ marginLeft:"10px", fontSize: "12px", color: "var(--lightblue)", verticalAlign: "middle" }}>{message.date} </strong>
                       </div>
                     </div>
                   );
@@ -228,11 +224,11 @@ const Chat = ({ authState, defaultTopic }) => {
             })}
         </div>
 
-        <div className="row">
+        <div className="row" style={{ marginTop: "30px", padding: "5px"}}>
           <input
             id="messageInput"
             className="form-control col"
-            placeholder="Escrever mensagem..."
+            placeholder="Write a message ..."
             type="text"
             value={messageInput}
             onChange={(e) => setMessageInput(e.target.value)}

@@ -17,13 +17,13 @@ const TabsLeaderboards = () => {
           className={`tabs-button ${activeTab === "results" ? "active" : ""}`}
           onClick={() => handleTabChange("results")}
         >
-          Pontuações
+          Scores
         </button>
         <button
           className={`tabs-button ${activeTab === "victories" ? "active" : ""}`}
           onClick={() => handleTabChange("victories")}
         >
-          Vitórias
+          Victories
         </button>
       </div>
 

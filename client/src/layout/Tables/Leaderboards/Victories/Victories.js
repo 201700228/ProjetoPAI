@@ -15,7 +15,11 @@ const LeaderboardVTable = () => {
         const response = await axios.get(
           "http://localhost:3001/leaderboards/victories"
         );
-        setLeaderboard(response.data);
+        const filteredLeaderboard = response.data.filter(
+          entry => entry.Game.name !== "Galaga"
+        );
+  
+        setLeaderboard(filteredLeaderboard);
       } catch (error) {
         toast.error("Error fetching data from the API", {
           className: "toast-error",
